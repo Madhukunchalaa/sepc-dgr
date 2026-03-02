@@ -1,0 +1,7 @@
+{
+  "name": "dgr-shared",
+  "version": "1.0.0",
+  "description": "Shared utilities for DGR Platform services",
+  "main": "utils/db.js",
+  "dependencies": { "pg": "^8.11.5" }
+}

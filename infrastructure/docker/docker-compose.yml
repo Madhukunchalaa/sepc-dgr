@@ -1,0 +1,129 @@
+version: '3.9'
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: dgr_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${DB_NAME:-dgr_platform}
+      POSTGRES_USER:     ${DB_USER:-dgr_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dgr_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-dgr_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis (session cache + job queue) ───────────
+  redis:
+    image: redis:7-alpine
+    container_name: dgr_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API Gateway ─────────────────────────────────
+  gateway:
+    build:
+      context: ../../gateway
+      dockerfile: Dockerfile
+    container_name: dgr_gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: ../../.env
+    depends_on:
+      - auth
+      - plant-config
+      - data-entry
+      - dgr-compute
+      - report-export
+
+  # ── Auth Service ─────────────────────────────────
+  auth:
+    build:
+      context: ../../services/auth
+      dockerfile: Dockerfile
+    container_name: dgr_auth
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file: ../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Plant Config Service ─────────────────────────
+  plant-config:
+    build:
+      context: ../../services/plant-config
+      dockerfile: Dockerfile
+    container_name: dgr_plant_config
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    env_file: ../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Data Entry Service ───────────────────────────
+  data-entry:
+    build:
+      context: ../../services/data-entry
+      dockerfile: Dockerfile
+    container_name: dgr_data_entry
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    env_file: ../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── DGR Compute Service ──────────────────────────
+  dgr-compute:
+    build:
+      context: ../../services/dgr-compute
+      dockerfile: Dockerfile
+    container_name: dgr_compute
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+    env_file: ../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Report Export Service ────────────────────────
+  report-export:
+    build:
+      context: ../../services/report-export
+      dockerfile: Dockerfile
+    container_name: dgr_report_export
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    env_file: ../../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  redisdata:
