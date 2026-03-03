@@ -21,8 +21,8 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
 
 // ── Rate limiting ──
-app.use('/api/auth/login', rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 min
+app.use('/login', rateLimit({
+  windowMs: 15 * 60 * 1000,
   max: 10,
   message: { success: false, message: 'Too many login attempts. Try again in 15 minutes.' },
 }));
