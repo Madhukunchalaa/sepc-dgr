@@ -12,7 +12,7 @@ const logger = require('./shared/logger');
 
 const app = express();
 app.set("trust proxy", 1);
-const PORT = process.env.GATEWAY_PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 // ── Security ──
 app.use(helmet());
