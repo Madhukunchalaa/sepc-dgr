@@ -48,14 +48,14 @@ async function assembleDGR(plantId, targetDate) {
   return {
     // ── Header ──
     header: {
-      title: `DAILY GENERATION REPORT — ${plant.fy_label}`,
-      company: plant.company_name,
-      plantName: plant.name,
-      documentNumber: plant.document_number,
+      title: `DAILY GENERATION REPORT — ${plant?.fy_label || ''}`,
+      company: plant?.company_name || 'SEPC Power Pvt Ltd',
+      plantName: plant?.name || 'Plant',
+      documentNumber: plant?.document_number || '',
       date: targetDate,
       dayName: date.toLocaleDateString('en-IN', { weekday: 'long' }),
       monthYear: date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
-      fyLabel: plant.fy_label,
+      fyLabel: plant?.fy_label || '',
     },
 
     // ── Section 1: Power (mirrors DGR rows 7–15) ──
