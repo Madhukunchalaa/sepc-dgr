@@ -68,7 +68,7 @@ const services = {
 const proxyOpts = (target) => ({
   target,
   changeOrigin: true,
-  pathRewrite: (path, req) => req.baseUrl + req.path,
+  pathRewrite: (path, req) => req.originalUrl,
   on: {
     error: (err, req, res) => {
       logger.error('Proxy error', { target, path: req.path, message: err.message });
