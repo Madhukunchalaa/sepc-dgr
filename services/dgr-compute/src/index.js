@@ -25,6 +25,27 @@ app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ service: 'dgr-compute', status: 'ok', uptime: process.uptime() }));
 
+// GET /api/dgr/:plantId/history?from=&to=
+app.get('/api/dgr/:plantId/history', authenticate, requirePlantAccess, async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    const { rows } = await query(
+      `SELECT entry_date, generation_mu, avg_load_mw, plf_daily, apc_pct, export_mu
+       FROM daily_power
+       WHERE plant_id = $1
+         AND ($2::date IS NULL OR entry_date >= $2::date)
+         AND ($3::date IS NULL OR entry_date <= $3::date)
+         AND status IN ('submitted','approved','locked')
+       ORDER BY entry_date`,
+      [req.params.plantId, from || null, to || null]
+    );
+    return success(res, { history: rows });
+  } catch (err) {
+    logger.error('History fetch error', { message: err.message });
+    return error(res, 'Failed to fetch history', 500);
+  }
+});
+
 // GET /api/dgr/:plantId/:date — Full DGR for a date
 app.get('/api/dgr/:plantId/:date', authenticate, requirePlantAccess, async (req, res) => {
   try {
@@ -50,25 +71,7 @@ app.get('/api/dgr/fleet/:date', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/dgr/:plantId/history?from=&to=
-app.get('/api/dgr/:plantId/history', authenticate, requirePlantAccess, async (req, res) => {
-  try {
-    const { from, to } = req.query;
-    const { rows } = await query(
-      `SELECT entry_date, generation_mu, avg_load_mw, plf_daily, apc_pct, export_mu
-       FROM daily_power
-       WHERE plant_id = $1
-         AND ($2::date IS NULL OR entry_date >= $2::date)
-         AND ($3::date IS NULL OR entry_date <= $3::date)
-         AND status IN ('submitted','approved','locked')
-       ORDER BY entry_date`,
-      [req.params.plantId, from || null, to || null]
-    );
-    return success(res, { history: rows });
-  } catch (err) {
-    return error(res, 'Failed to fetch history', 500);
-  }
-});
+// (Moved up)
 
 // ─────────────────────────────────────────────────────────────────────────
 // REPORTS: GET /api/reports/dgr/excel/:plantId/:date  → download .xlsx
