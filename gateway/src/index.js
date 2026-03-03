@@ -15,12 +15,26 @@ const PORT = process.env.PORT || 3000;
 
 // ── Security ──
 app.use(helmet());
+
+// CORS_ORIGIN can be a single URL or comma-separated list:
+// e.g. "https://sepc-dgr-production.up.railway.app,http://localhost:5173"
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: (origin, cb) => {
+    // Allow requests with no origin (e.g. server-to-server, curl)
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS: origin '${origin}' not allowed`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+app.options('*', cors());  // handle pre-flight for all routes
 app.use(cookieParser());
 
 // ── Global rate limit ──
@@ -68,7 +82,9 @@ app.use('/api/plants', createProxyMiddleware(proxyOpts(services.plantConfig)));
 app.use('/api/config', createProxyMiddleware(proxyOpts(services.plantConfig)));
 app.use('/api/data-entry', createProxyMiddleware(proxyOpts(services.dataEntry)));
 app.use('/api/dgr', createProxyMiddleware(proxyOpts(services.dgrCompute)));
-app.use('/api/reports', createProxyMiddleware(proxyOpts(services.reportExport)));
+// /api/reports lives in dgr-compute (not a separate service)
+app.use('/api/reports', createProxyMiddleware(proxyOpts(services.dgrCompute)));
+app.use('/api/scheduling', createProxyMiddleware(proxyOpts(services.dataEntry)));
 
 // ── 404 ──
 app.use((req, res) => {
