@@ -1,23 +1,29 @@
-// shared/utils/db.js
-// Shared PostgreSQL connection pool — imported by all services
-
 const { Pool } = require('pg');
 
 let pool;
 
 function getPool() {
   if (!pool) {
-    pool = new Pool({
-      host:     process.env.DB_HOST     || 'localhost',
-      port:     parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME     || 'dgr_platform',
-      user:     process.env.DB_USER     || 'dgr_user',
-      password: process.env.DB_PASSWORD || '',
-      min:      parseInt(process.env.DB_POOL_MIN || '2'),
-      max:      parseInt(process.env.DB_POOL_MAX || '10'),
-      idleTimeoutMillis:    30000,
-      connectionTimeoutMillis: 5000,
-    });
+    if (process.env.DATABASE_URL) {
+      // Railway / production — use connection string with SSL
+      pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+      });
+    } else {
+      // Local development
+      pool = new Pool({
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || '5432'),
+        database: process.env.DB_NAME || 'dgr_platform',
+        user: process.env.DB_USER || 'dgr_user',
+        password: process.env.DB_PASSWORD || '',
+        min: parseInt(process.env.DB_POOL_MIN || '2'),
+        max: parseInt(process.env.DB_POOL_MAX || '10'),
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 5000,
+      });
+    }
 
     pool.on('error', (err) => {
       console.error('[DB] Unexpected pool error:', err.message);

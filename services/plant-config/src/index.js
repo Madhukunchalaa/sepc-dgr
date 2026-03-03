@@ -1,20 +1,25 @@
 require('dotenv').config({ path: '../../.env' });
 process.env.SERVICE_NAME = 'plant-config';
 
-const express   = require('express');
-const helmet    = require('helmet');
-const cors      = require('cors');
-const Joi       = require('joi');
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const Joi = require('joi');
 const { query, transaction } = require('./shared/db');
 const { success, created, error, notFound, validationError } = require('./shared/response');
 const { authenticate, authorize } = require('./middleware/auth.middleware');
-const logger    = require('./shared/logger');
+const logger = require('./shared/logger');
 
-const app  = express();
-const PORT = process.env.PLANT_CONFIG_SERVICE_PORT || 3002;
+const app = express();
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || process.env.PLANT_CONFIG_SERVICE_PORT || 3002;
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(o => o.trim());
+app.use(cors({
+  origin: (origin, cb) => { if (!origin || allowedOrigins.includes(origin)) return cb(null, true); cb(new Error('CORS')); },
+  credentials: true,
+}));
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ service: 'plant-config', status: 'ok', uptime: process.uptime() }));
@@ -23,7 +28,7 @@ app.get('/health', (req, res) => res.json({ service: 'plant-config', status: 'ok
 app.get('/api/plants', authenticate, async (req, res) => {
   try {
     let plants;
-    if (['hq_management','it_admin'].includes(req.user.role)) {
+    if (['hq_management', 'it_admin'].includes(req.user.role)) {
       const { rows } = await query(`SELECT * FROM plants WHERE status='active' ORDER BY name`);
       plants = rows;
     } else {
@@ -53,10 +58,10 @@ app.get('/api/plants/:id', authenticate, async (req, res) => {
       query(`SELECT fuel_type, is_active FROM plant_fuels WHERE plant_id=$1 ORDER BY fuel_type`, [req.params.id]),
     ]);
     return success(res, {
-      plant:  rows[0],
+      plant: rows[0],
       config: config.rows.reduce((acc, r) => ({ ...acc, [r.config_key]: r.config_val }), {}),
       meters: meters.rows,
-      fuels:  fuels.rows,
+      fuels: fuels.rows,
     });
   } catch (err) {
     logger.error('Get plant error', { message: err.message });
@@ -71,9 +76,9 @@ app.post('/api/plants', authenticate, authorize('it_admin'), async (req, res) =>
     location: Joi.string().allow(''), companyName: Joi.string().required(),
     documentNumber: Joi.string().allow(''),
     capacityMW: Joi.number().positive().required(),
-    plfBaseMW:  Joi.number().positive().required(),
+    plfBaseMW: Joi.number().positive().required(),
     fyStartMonth: Joi.number().min(1).max(12).default(4),
-    fuels:  Joi.array().items(Joi.string()).default(['coal']),
+    fuels: Joi.array().items(Joi.string()).default(['coal']),
     meters: Joi.array().default([]),
   });
   const { error: err, value } = schema.validate(req.body);
@@ -85,7 +90,7 @@ app.post('/api/plants', authenticate, authorize('it_admin'), async (req, res) =>
         `INSERT INTO plants (name, short_name, location, company_name, document_number, capacity_mw, plf_base_mw, fy_start_month)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
         [value.name, value.shortName, value.location || null, value.companyName,
-         value.documentNumber || null, value.capacityMW, value.plfBaseMW, value.fyStartMonth]
+        value.documentNumber || null, value.capacityMW, value.plfBaseMW, value.fyStartMonth]
       );
       const plant = rows[0];
       for (const fuel of value.fuels) {
@@ -131,7 +136,7 @@ app.get('/api/plants/:id/submission-status', authenticate, async (req, res) => {
        WHERE ss.plant_id=$1 AND ss.entry_date=$2 ORDER BY ss.module`,
       [req.params.id, date]
     );
-    const modules = ['power','fuel','performance','water','availability','scheduling','operations'];
+    const modules = ['power', 'fuel', 'performance', 'water', 'availability', 'scheduling', 'operations'];
     const map = rows.reduce((a, r) => ({ ...a, [r.module]: r }), {});
     const full = modules.map(m => map[m] || { module: m, status: 'not_started' });
     return success(res, { date, modules: full });

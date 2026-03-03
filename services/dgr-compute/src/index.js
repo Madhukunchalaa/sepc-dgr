@@ -12,10 +12,15 @@ const { assembleDGR, assembleFleetSummary } = require('./engines/dgr.engine');
 const { authenticate, requirePlantAccess } = require('./middleware/auth.middleware');
 
 const app = express();
-const PORT = process.env.DGR_COMPUTE_SERVICE_PORT || 3004;
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || process.env.DGR_COMPUTE_SERVICE_PORT || 3004;
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(o => o.trim());
+app.use(cors({
+  origin: (origin, cb) => { if (!origin || allowedOrigins.includes(origin)) return cb(null, true); cb(new Error('CORS')); },
+  credentials: true,
+}));
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ service: 'dgr-compute', status: 'ok', uptime: process.uptime() }));

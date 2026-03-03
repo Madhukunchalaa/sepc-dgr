@@ -19,10 +19,15 @@ const opsRoutes = require('./routes/operations.routes');
 const submissionRoutes = require('./routes/submission.routes');
 
 const app = express();
-const PORT = process.env.DATA_ENTRY_SERVICE_PORT || 3003;
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || process.env.DATA_ENTRY_SERVICE_PORT || 3003;
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(o => o.trim());
+app.use(cors({
+  origin: (origin, cb) => { if (!origin || allowedOrigins.includes(origin)) return cb(null, true); cb(new Error('CORS')); },
+  credentials: true,
+}));
 app.use(express.json({ limit: '50kb' }));
 
 app.get('/health', (req, res) => {
