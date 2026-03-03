@@ -11,6 +11,58 @@ const { query } = require('./shared/db');
 const { assembleDGR, assembleFleetSummary } = require('./engines/dgr.engine');
 const { authenticate, requirePlantAccess } = require('./middleware/auth.middleware');
 
+// Temporary auto-migrate missing tables
+async function ensureTablesExist() {
+  try {
+    await query(`
+      CREATE TABLE IF NOT EXISTS daily_ash (
+        id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id            UUID NOT NULL REFERENCES plants(id),
+        entry_date          DATE NOT NULL,
+        fa_to_user_mt       DECIMAL(12,3),
+        fa_to_dyke_mt       DECIMAL(12,3),
+        ba_to_user_mt       DECIMAL(12,3),
+        ba_to_dyke_mt       DECIMAL(12,3),
+        fa_generated_mt     DECIMAL(12,3),
+        ba_generated_mt     DECIMAL(12,3),
+        fa_silo_mt          DECIMAL(12,3),
+        ba_silo_mt          DECIMAL(12,3),
+        submitted_by        UUID REFERENCES users(id),
+        status              VARCHAR(20) DEFAULT 'draft',
+        submitted_at        TIMESTAMPTZ,
+        approved_at         TIMESTAMPTZ,
+        created_at          TIMESTAMPTZ DEFAULT NOW(),
+        updated_at          TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, entry_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS daily_dsm (
+        id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id              UUID NOT NULL REFERENCES plants(id),
+        entry_date            DATE NOT NULL,
+        dsm_net_profit_lacs   DECIMAL(14,2),
+        dsm_payable_lacs      DECIMAL(14,2),
+        dsm_receivable_lacs   DECIMAL(14,2),
+        dsm_coal_saving_lacs  DECIMAL(14,2),
+        submitted_by          UUID REFERENCES users(id),
+        status                VARCHAR(20) DEFAULT 'draft',
+        submitted_at          TIMESTAMPTZ,
+        approved_at           TIMESTAMPTZ,
+        created_at            TIMESTAMPTZ DEFAULT NOW(),
+        updated_at            TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, entry_date)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_daily_ash_plant_date ON daily_ash(plant_id, entry_date DESC);
+      CREATE INDEX IF NOT EXISTS idx_daily_dsm_plant_date ON daily_dsm(plant_id, entry_date DESC);
+    `);
+    logger.info('Auto-migrate: ensure daily_ash and daily_dsm tables exist');
+  } catch (err) {
+    logger.error('Auto-migrate failed', { error: err.message });
+  }
+}
+ensureTablesExist();
+
 const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || process.env.DGR_COMPUTE_SERVICE_PORT || 3004;
