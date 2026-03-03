@@ -1,28 +1,89 @@
-# Dependencies
+# ─── Dependencies ────────────────────────────────────────────────────────────
 node_modules/
 **/node_modules/
 
-# Environment
+# ─── Environment & Secrets ───────────────────────────────────────────────────
 .env
 .env.local
+.env.*.local
 .env.production
+.env.staging
+# Keep the example file — it has no real secrets
+!.env.example
 
-# Logs
+# ─── Logs ────────────────────────────────────────────────────────────────────
 *.log
 logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Build output
+# ─── Build Output ────────────────────────────────────────────────────────────
 dist/
 build/
+.next/
+out/
 
-# OS
+# ─── Test Coverage ───────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── Temporary Files ─────────────────────────────────────────────────────────
+tmp/
+temp/
+uploads/
+*.tmp
+
+# ─── OS Files ────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
+ehthumbs.db
 
-# IDE
+# ─── IDE / Editor ────────────────────────────────────────────────────────────
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.orig
 
-# Uploads (temporary)
-uploads/
-tmp/
+# ─── Package Lock (keep only one) ───────────────────────────────────────────
+# Uncomment the one you DON'T use:
+# package-lock.json
+# yarn.lock
+
+# ─── Large Data / Excel Files ────────────────────────────────────────────────
+*.xlsx
+*.xls
+*.csv
+# Keep the example/template if you want to:
+# !DGR_template.xlsx
+
+# ─── Debug / Scratch Scripts ─────────────────────────────────────────────────
+compare_result.txt
+*.bak
+random_compare.js
+full_compare.js
+parse_date_data.js
+recompute.js
+verify-excel-vs-db.js
+inspect_excel.py
+/infrastructure/postgres/test_*.js
+
+# ─── Runtime Artifacts ───────────────────────────────────────────────────────
+*.pid
+*.seed
+*.pid.lock
+.pnp.*
+.yarn/
+
+# ─── JWT / Cert Files ────────────────────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.p12

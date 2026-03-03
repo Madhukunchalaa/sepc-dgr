@@ -17,9 +17,56 @@ async function run() {
 
     const wb = XLSX.readFile(filePath);
 
-    const faData = XLSX.utils.sheet_to_json(wb.Sheets['Fuel & Ash'], { header: 1 });
-    const perfData = XLSX.utils.sheet_to_json(wb.Sheets['Perf'], { header: 1 });
-    const sapData = XLSX.utils.sheet_to_json(wb.Sheets['SAP'], { header: 1 });
+    const faData = XLSX.utils.sheet_to_json(wb.Sheets['Fuel & Ash'], { header: 1, defval: null });
+    const perfData = XLSX.utils.sheet_to_json(wb.Sheets['Perf'], { header: 1, defval: null });
+    const sapData = XLSX.utils.sheet_to_json(wb.Sheets['SAP'], { header: 1, defval: null });
+
+    // Dynamic extraction logic for Fuel & Ash table:
+    let ldoReceipt = -1, ldoCons = -1, ldoStock = -1;
+    let hfoReceipt = -1, hfoCons = -1, hfoStock = -1;
+    let coalReceipt = -1, coalCons = -1, coalStock = -1;
+
+    if (faData.length > 3) {
+        const row2 = faData[2];  // LDO, HFO, Coal main groups
+        const row3 = faData[3];  // Daily Receipt, Daily Cons., Stock
+        let currentCategory = '';
+
+        for (let i = 0; i < row3.length; i++) {
+            if (i > 100) break;
+            const topLabel = String(row2[i] || '').trim();
+            if (topLabel === 'LDO') currentCategory = 'LDO';
+            if (topLabel === 'HFO') currentCategory = 'HFO';
+            if (topLabel === 'Coal') currentCategory = 'Coal';
+
+            const subLabel = String(row3[i] || '').trim();
+
+            if (currentCategory === 'LDO') {
+                if (subLabel === 'Daily Receipt' && ldoReceipt === -1) ldoReceipt = i;
+                if (subLabel === 'Daily Cons.' && ldoCons === -1) ldoCons = i;
+                if (subLabel === 'Stock' && ldoStock === -1) ldoStock = i;
+            }
+            if (currentCategory === 'HFO') {
+                if ((subLabel === 'Daily Receipt' || subLabel === 'Receipt') && hfoReceipt === -1) hfoReceipt = i;
+                if (subLabel === 'Daily Cons.' && hfoCons === -1) hfoCons = i;
+                if (subLabel === 'Stock' && hfoStock === -1) hfoStock = i;
+            }
+            if (currentCategory === 'Coal') {
+                if (subLabel === 'Daily Receipt' && coalReceipt === -1) coalReceipt = i;
+                if (subLabel === 'Daily Cons.' && coalCons === -1) coalCons = i;
+                if (subLabel === 'Stock' && coalStock === -1) coalStock = i;
+            }
+        }
+    }
+
+    if (ldoReceipt === -1) ldoReceipt = 1;
+    if (ldoCons === -1) ldoCons = 7;
+    if (ldoStock === -1) ldoStock = 10;
+    if (hfoReceipt === -1) hfoReceipt = 12;
+    if (hfoCons === -1) hfoCons = 18;
+    if (hfoStock === -1) hfoStock = 21;
+    if (coalReceipt === -1) coalReceipt = 25;
+    if (coalCons === -1) coalCons = 28;
+    if (coalStock === -1) coalStock = 31;
 
     const parseNum = (val) => {
         if (!val) return 0;
@@ -65,18 +112,18 @@ async function run() {
             }
 
             // Parse values
-            // Fuel & Ash: LDO (Receipt=1, Cons=7, Stock=10), HFO (Receipt=12, Cons=18, Stock=21), Coal (Receipt=25, Cons=28, Stock=31)
-            const ldo_receipt_kl = parseNum(faRow[1]);
-            const ldo_cons_kl = parseNum(faRow[7]);
-            const ldo_stock_kl = parseNum(faRow[10]);
+            // Fuel & Ash dynamic variable extraction
+            const ldo_receipt_kl = parseNum(faRow[ldoReceipt]);
+            const ldo_cons_kl = parseNum(faRow[ldoCons]);
+            const ldo_stock_kl = parseNum(faRow[ldoStock]);
 
-            const hfo_receipt_kl = parseNum(faRow[12]);
-            const hfo_cons_kl = parseNum(faRow[18]);
-            const hfo_stock_kl = parseNum(faRow[21]);
+            const hfo_receipt_kl = parseNum(faRow[hfoReceipt]);
+            const hfo_cons_kl = parseNum(faRow[hfoCons]);
+            const hfo_stock_kl = parseNum(faRow[hfoStock]);
 
-            const coal_receipt_mt = parseNum(faRow[25]);
-            const coal_cons_mt = parseNum(faRow[28]);
-            const coal_stock_mt = parseNum(faRow[31]);
+            const coal_receipt_mt = parseNum(faRow[coalReceipt]);
+            const coal_cons_mt = parseNum(faRow[coalCons]);
+            const coal_stock_mt = parseNum(faRow[coalStock]);
 
             // Perf: GCV AR=1, GCV AF=5
             const coal_gcv_ar = parseNum(perfRow[1]);

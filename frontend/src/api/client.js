@@ -29,9 +29,9 @@ const dgrClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── Report Export Service (port 3005) ──
+// ── Report Export — served from dgr-compute (port 3004) ──
 const reportsClient = axios.create({
-  baseURL: 'http://localhost:3005/api',
+  baseURL: 'http://localhost:3004/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })

@@ -1,0 +1,19 @@
+{
+  "id": "8ff6f757-f469-4695-ab16-9f46570a7919",
+  "plant_id": "36cd41f9-b150-46da-a778-a838679a343f",
+  "entry_date": "2025-04-07T18:30:00.000Z",
+  "dm_generation_m3": "120.000",
+  "dm_cycle_makeup_m3": "381.401",
+  "dm_cycle_pct": "3.831",
+  "dm_total_cons_m3": "530.240",
+  "dm_stock_m3": "1875.130",
+  "service_water_m3": "544.500",
+  "potable_water_m3": "46.000",
+  "sea_water_m3": "21661.578",
+  "submitted_by": null,
+  "status": "approved",
+  "submitted_at": null,
+  "approved_at": null,
+  "created_at": "2026-03-02T10:00:03.695Z",
+  "updated_at": "2026-03-02T12:42:47.612Z"
+}

@@ -31,22 +31,34 @@ async function run() {
         console.log(`Using Plant ID: ${plantId}`);
 
         console.log('Loading Excel workbook (this may take a moment)...');
-        const wb = XLSX.readFile('DGR FY 2025-20261 - V1 (1).xlsx');
+        const wb = XLSX.readFile('C:\\Users\\IE-Admin\\Desktop\\dgr\\dgr-platform\\DGR FY 2025-20261 - V1 (1).xlsx');
         const wsWater = wb.Sheets['Water'];
-        const dataWater = XLSX.utils.sheet_to_json(wsWater, { header: 1 });
+        const dataWater = XLSX.utils.sheet_to_json(wsWater, { header: 1, defval: null });
 
-        // In Water sheet:
-        // Row 2 is typically units/metadata, Row 3 is Headers. Data starts roughly Row 5.
+        // Dynamic column mapping from Water sheet (Row 3, Index 2):
+        const rowLabels = dataWater[2];
+        let dmGenCol = -1, dmTotalConsCol = -1, dmStockCol = -1, dmCycleCol = -1;
+        let serviceCol = -1, potableCol = -1, seaCol = -1;
 
-        // Column mapping from Water sheet (Row 2 headers):
-        // Col 0: DATE
-        // Col 1: DM Water Generation
-        // Col 4: Total DM Water Consumption (DM Plant Data)
-        // Col 7: DM Water Total Stock (CST + DMST)
-        // Col 8: DM Water Consumption (Cycle Makeup)
-        // Col 20: Service Water Cons.
-        // Col 56: Potable Water Consumption
-        // Col 66: Sea Water Consumption
+        for (let i = 0; i < rowLabels.length; i++) {
+            if (i > 100) break;
+            const lab = String(rowLabels[i] || '').trim();
+            if (lab === 'DM Water Generation' && dmGenCol === -1) dmGenCol = i;
+            if (lab === 'Total DM Water Consumption (DM Plant Data)' && dmTotalConsCol === -1) dmTotalConsCol = i;
+            if (lab === 'DM Water Total Stock (CST + DMST)' && dmStockCol === -1) dmStockCol = i;
+            if (lab === 'DM Water Consumption (Cycle Makeup)' && dmCycleCol === -1) dmCycleCol = i;
+            if (lab === 'Service Water Cons.' && serviceCol === -1) serviceCol = i;
+            if (lab === 'Potable Water Consumption' && potableCol === -1) potableCol = i;
+            if (lab === 'Sea Water Consumption' && seaCol === -1) seaCol = i;
+        }
+
+        if (dmGenCol === -1) dmGenCol = 1;
+        if (dmTotalConsCol === -1) dmTotalConsCol = 4;
+        if (dmStockCol === -1) dmStockCol = 7;
+        if (dmCycleCol === -1) dmCycleCol = 8;
+        if (serviceCol === -1) serviceCol = 20;
+        if (potableCol === -1) potableCol = 56;
+        if (seaCol === -1) seaCol = 66;
 
         let rowsProcessed = 0;
         let rowsInserted = 0;
@@ -72,14 +84,14 @@ async function run() {
             // Past Feb 5th, stop
             if (new Date(dateStr) > new Date('2026-02-05')) break;
 
-            // Extract raw info using correct column indices
-            const dmGen = parseNum(row[1]);
-            const dmTotalCons = parseNum(row[4]);
-            const dmStock = parseNum(row[7]);
-            const dmCycleMakeup = parseNum(row[8]);
-            const serviceWaterCons = parseNum(row[20]);
-            const potableWaterCons = parseNum(row[56]);
-            const seaWaterCons = parseNum(row[66]);
+            // Extract raw info using correct dynamic column indices
+            const dmGen = parseNum(row[dmGenCol]);
+            const dmTotalCons = parseNum(row[dmTotalConsCol]);
+            const dmStock = parseNum(row[dmStockCol]);
+            const dmCycleMakeup = parseNum(row[dmCycleCol]);
+            const serviceWaterCons = parseNum(row[serviceCol]);
+            const potableWaterCons = parseNum(row[potableCol]);
+            const seaWaterCons = parseNum(row[seaCol]);
 
             // Calculate pct in DB using Generation MU from daily_power
             // For mass import, we'll let a CTE query fetch it on the fly.
