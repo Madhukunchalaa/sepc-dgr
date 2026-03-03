@@ -36,6 +36,11 @@ async function assembleDGR(plantId, targetDate) {
   // GHR = ((GCV_AF * Coal Cons) + ((LDO Cons + HFO Cons) * 10700)) / (Generation MU * 1000)
   const ghrDirect = genMu > 0 ? (((gcvAf * coalMt) + ((ldoKl + hfoKl) * 10700)) / (genMu * 1000)) : null;
 
+  const apcMtd = await getMTDSum(plantId, targetDate, 'apc_mu');
+  const apcYtd = await getYTDSum(plantId, targetDate, 'apc_mu');
+  const genMtd = power?.generation_mtd || (await getMTDSum(plantId, targetDate, 'generation_mu'));
+  const genYtd = power?.generation_ytd || (await getYTDSum(plantId, targetDate, 'generation_mu'));
+
   return {
     // ── Header ──
     header: {
@@ -83,12 +88,12 @@ async function assembleDGR(plantId, targetDate) {
         label: 'Auxiliary Power Consumption (APC incl Import)',
         uom: 'MU',
         daily: power?.apc_mu,
-        mtd: await getMTDSum(plantId, targetDate, 'apc_mu'),
-        ytd: await getYTDSum(plantId, targetDate, 'apc_mu'),
+        mtd: apcMtd,
+        ytd: apcYtd,
         pct: {
-          daily: power?.apc_pct,
-          mtd: await getMTDAvg(plantId, targetDate, 'apc_pct'),
-          ytd: await getYTDAvg(plantId, targetDate, 'apc_pct'),
+          daily: power?.apc_pct != null ? Number(power.apc_pct) * 100 : null,
+          mtd: genMtd > 0 ? (apcMtd / genMtd) * 100 : 0,
+          ytd: genYtd > 0 ? (apcYtd / genYtd) * 100 : 0,
         },
       },
       hoursOnGrid: {
@@ -110,9 +115,9 @@ async function assembleDGR(plantId, targetDate) {
       plf: {
         label: 'Plant Load Factor',
         uom: '%',
-        daily: power?.plf_daily,
-        mtd: power?.plf_mtd,
-        ytd: power?.plf_ytd,
+        daily: power?.plf_daily != null ? Number(power.plf_daily) * 100 : null,
+        mtd: power?.plf_mtd != null ? Number(power.plf_mtd) * 100 : null,
+        ytd: power?.plf_ytd != null ? Number(power.plf_ytd) * 100 : null,
       },
       paf: {
         label: 'Plant Availability Factor (SEPC)',
