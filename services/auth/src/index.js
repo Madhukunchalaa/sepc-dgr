@@ -2,17 +2,17 @@
 require('dotenv').config({ path: '../../.env' });
 process.env.SERVICE_NAME = 'auth';
 
-const express      = require('express');
-const helmet       = require('helmet');
-const cors         = require('cors');
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const rateLimit    = require('express-rate-limit');
-const logger       = require('./shared/logger');
-const authRoutes   = require('./routes/auth.routes');
-const { error }    = require('./shared/response');
+const rateLimit = require('express-rate-limit');
+const logger = require('./shared/logger');
+const authRoutes = require('./routes/auth.routes');
+const { error } = require('./shared/response');
 
-const app  = express();
-const PORT = process.env.AUTH_SERVICE_PORT || 3001;
+const app = express();
+const PORT = process.env.PORT || process.env.AUTH_SERVICE_PORT || 3001;
 
 // ── Security middleware ──
 app.use(helmet());
