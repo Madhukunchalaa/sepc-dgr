@@ -5,6 +5,8 @@ RUN npm install --production
 COPY . .
 RUN addgroup -S dgr && adduser -S dgr -G dgr
 USER dgr
+# PORT is injected by Railway at runtime — do not hardcode
 EXPOSE 3004
-HEALTHCHECK --interval=30s --timeout=5s CMD wget -qO- http://localhost:3004/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://localhost:${PORT:-3004}/health || exit 1
 CMD ["node", "src/index.js"]
