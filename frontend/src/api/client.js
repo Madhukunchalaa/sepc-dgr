@@ -54,7 +54,13 @@ const reportsClient = axios.create({
 // ── Token attachment ── all clients ─────────────────────────────────────────
 const attachToken = (config) => {
   const token = localStorage.getItem('accessToken')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  if (token) {
+    if (config.headers && typeof config.headers.set === 'function') {
+      config.headers.set('Authorization', `Bearer ${token}`);
+    } else {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+  }
   return config
 }
 client.interceptors.request.use(attachToken)
