@@ -55,8 +55,14 @@ async function ensureTablesExist() {
 
       CREATE INDEX IF NOT EXISTS idx_daily_ash_plant_date ON daily_ash(plant_id, entry_date DESC);
       CREATE INDEX IF NOT EXISTS idx_daily_dsm_plant_date ON daily_dsm(plant_id, entry_date DESC);
+
+      ALTER TABLE daily_water ADD COLUMN IF NOT EXISTS swi_flow_m3 DECIMAL(12,3);
+      ALTER TABLE daily_water ADD COLUMN IF NOT EXISTS outfall_m3 DECIMAL(12,3);
+      
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS urs_net_profit_lacs DECIMAL(14,2);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS dc_loss_reasons JSONB DEFAULT '[]'::jsonb;
     `);
-    logger.info('Auto-migrate: ensure daily_ash and daily_dsm tables exist');
+    logger.info('Auto-migrate: ensure missing tables and columns exist in Railway DB');
   } catch (err) {
     logger.error('Auto-migrate failed', { error: err.message });
   }
