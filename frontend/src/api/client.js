@@ -1,42 +1,57 @@
 // src/api/client.js
 import axios from 'axios'
 
-// ── Auth Service (port 3001) ──
+// ── Base URL resolution ──────────────────────────────────────────────────────
+// In production (Railway), VITE_API_URL points to the single API Gateway.
+// In development, each service runs on its own local port.
+const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+// When deployed, ALL traffic goes through the gateway (one URL).
+// In dev, we hit each service directly for simplicity.
+const IS_PROD = !!import.meta.env.VITE_API_URL
+
+const AUTH_BASE = IS_PROD ? GATEWAY : 'http://localhost:3001'
+const PLANT_BASE = IS_PROD ? GATEWAY : 'http://localhost:3002'
+const DATA_ENTRY_BASE = IS_PROD ? GATEWAY : 'http://localhost:3003'
+const DGR_BASE = IS_PROD ? GATEWAY : 'http://localhost:3004'
+const REPORTS_BASE = IS_PROD ? GATEWAY : 'http://localhost:3004'
+
+// ── Auth Service ─────────────────────────────────────────────────────────────
 const client = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: AUTH_BASE + '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── Plant Config Service (port 3002) ──
+// ── Plant Config Service ─────────────────────────────────────────────────────
 const plantclient = axios.create({
-  baseURL: 'http://localhost:3002/api',
+  baseURL: PLANT_BASE + '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── Data Entry Service (port 3003) ──
+// ── Data Entry Service ───────────────────────────────────────────────────────
 const dataEntryClient = axios.create({
-  baseURL: 'http://localhost:3003/api',
+  baseURL: DATA_ENTRY_BASE + '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── DGR Compute Service (port 3004) ──
+// ── DGR Compute Service ──────────────────────────────────────────────────────
 const dgrClient = axios.create({
-  baseURL: 'http://localhost:3004/api',
+  baseURL: DGR_BASE + '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── Report Export — served from dgr-compute (port 3004) ──
+// ── Report Export — served from dgr-compute (port 3004) ─────────────────────
 const reportsClient = axios.create({
-  baseURL: 'http://localhost:3004/api',
+  baseURL: REPORTS_BASE + '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── Token attachment ── all clients ──
+// ── Token attachment ── all clients ─────────────────────────────────────────
 const attachToken = (config) => {
   const token = localStorage.getItem('accessToken')
   if (token) config.headers.Authorization = `Bearer ${token}`
@@ -48,7 +63,7 @@ dataEntryClient.interceptors.request.use(attachToken)
 dgrClient.interceptors.request.use(attachToken)
 reportsClient.interceptors.request.use(attachToken)
 
-// ── Auto-refresh on 401 ── reusable factory ──
+// ── Auto-refresh on 401 ── reusable factory ──────────────────────────────────
 const makeRefreshInterceptor = (axiosInstance) => {
   axiosInstance.interceptors.response.use(
     (res) => res,
@@ -58,7 +73,7 @@ const makeRefreshInterceptor = (axiosInstance) => {
         original._retry = true
         try {
           const { data } = await axios.post(
-            'http://localhost:3001/api/auth/refresh',
+            AUTH_BASE + '/api/auth/refresh',
             {},
             { withCredentials: true }
           )
