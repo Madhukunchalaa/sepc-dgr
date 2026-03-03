@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth.routes');
 const { error } = require('./shared/response');
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || process.env.AUTH_SERVICE_PORT || 3001;
 
 // ── Security middleware ──
