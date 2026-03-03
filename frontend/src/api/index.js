@@ -59,6 +59,14 @@ export const dataEntry = {
   submitAvailability: (data) => dataEntryClient.post('/data-entry/availability/submit', data),
   approveAvailability: (data) => dataEntryClient.post('/data-entry/availability/approve', data),
 
+  // Ash
+  getAsh: (plantId, date) => dataEntryClient.get(`/data-entry/ash/${plantId}/${date}`),
+  saveAsh: (data) => dataEntryClient.post('/data-entry/ash/upsert', data),
+
+  // DSM
+  getDsm: (plantId, date) => dataEntryClient.get(`/data-entry/dsm/${plantId}/${date}`),
+  saveDsm: (data) => dataEntryClient.post('/data-entry/dsm/upsert', data),
+
   // Operations
   getOperations: (plantId, date) => dataEntryClient.get(`/data-entry/operations/${plantId}/${date}`),
   saveOperations: (data) => dataEntryClient.post('/data-entry/operations', data),

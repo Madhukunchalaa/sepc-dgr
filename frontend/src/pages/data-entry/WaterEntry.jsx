@@ -48,6 +48,8 @@ export default function WaterEntry() {
                 serviceWaterM3: e.service_water_m3,
                 potableWaterM3: e.potable_water_m3,
                 seaWaterM3: e.sea_water_m3,
+                swiFlowM3: e.swi_flow_m3,
+                outfallM3: e.outfall_m3,
             })
 
             setSavedComputed({
@@ -215,6 +217,8 @@ export default function WaterEntry() {
                             <div className="card-body">
                                 <div className="form-grid-2">
                                     {[
+                                        ['SWI Flow', 'swiFlowM3', 'm3'],
+                                        ['Outfall', 'outfallM3', 'm3'],
                                         ['Service Water Consumption', 'serviceWaterM3', 'm3'],
                                         ['Potable Water Consumption', 'potableWaterM3', 'm3'],
                                         ['Sea Water Consumption', 'seaWaterM3', 'm3'],

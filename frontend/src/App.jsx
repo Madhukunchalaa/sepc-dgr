@@ -13,6 +13,8 @@ import PerformanceEntry from './pages/data-entry/PerformanceEntry'
 import SchedulingEntry from './pages/data-entry/SchedulingEntry'
 import OperationsEntry from './pages/data-entry/OperationsEntry'
 import SCADAUpload from './pages/data-entry/SCADAUpload'
+import AshEntry from './pages/data-entry/AshEntry'
+import DsmEntry from './pages/data-entry/DsmEntry'
 import ApprovalsPage from './pages/dashboard/ApprovalsPage'
 import ReportsPage from './pages/reports/ReportsPage'
 import DgrReportView from './pages/reports/DgrReportView'
@@ -42,6 +44,8 @@ function AppRoutes() {
         <Route path="data-entry/water" element={<WaterEntry />} />
         <Route path="data-entry/scheduling" element={<SchedulingEntry />} />
         <Route path="data-entry/operations" element={<OperationsEntry />} />
+        <Route path="data-entry/ash" element={<AshEntry />} />
+        <Route path="data-entry/dsm" element={<DsmEntry />} />
         <Route path="data-entry/scada" element={<SCADAUpload />} />
         <Route path="approvals" element={<ApprovalsPage />} />
         <Route path="reports" element={<ReportsPage />} />
