@@ -52,8 +52,8 @@ app.get('/api/dgr/:plantId/:date', authenticate, requirePlantAccess, async (req,
     const dgr = await assembleDGR(req.params.plantId, req.params.date);
     return success(res, dgr);
   } catch (err) {
-    logger.error('DGR compute error', { message: err.message });
-    return error(res, 'Failed to compute DGR', 500);
+    logger.error('DGR compute error', { message: err.message, stack: err.stack });
+    return error(res, `Failed to compute DGR: ${err.message}`, 500);
   }
 });
 
