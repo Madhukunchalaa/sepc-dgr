@@ -1,22 +1,22 @@
 // services/auth/src/controllers/auth.controller.js
-const bcrypt  = require('bcrypt');
-const jwt     = require('jsonwebtoken');
-const crypto  = require('crypto');
-const { query, transaction } = require('../shared/db');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { query, transaction } = require('../shared/utils/db');
 const { success, error, unauthorized, created } = require('../shared/response');
-const logger  = require('../shared/logger');
+const logger = require('../shared/logger');
 
-const ACCESS_SECRET  = process.env.JWT_SECRET;
-const ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES  || '15m';
-const REFRESH_EXPIRES= process.env.JWT_REFRESH_EXPIRES || '7d';
+const ACCESS_SECRET = process.env.JWT_SECRET;
+const ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES || '15m';
+const REFRESH_EXPIRES = process.env.JWT_REFRESH_EXPIRES || '7d';
 
 // ── Token generators ──
 function generateAccessToken(user) {
   return jwt.sign(
     {
-      sub:      user.id,
-      email:    user.email,
-      role:     user.role,
+      sub: user.id,
+      email: user.email,
+      role: user.role,
       plantIds: user.plant_ids || [],
     },
     ACCESS_SECRET,
@@ -51,10 +51,10 @@ exports.login = async (req, res) => {
     if (!match) return unauthorized(res, 'Invalid email or password');
 
     // 3. Generate tokens
-    const accessToken  = generateAccessToken(user);
+    const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
-    const tokenHash    = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    const expiresAt    = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await transaction(async (client) => {
       // Store refresh token
@@ -79,18 +79,18 @@ exports.login = async (req, res) => {
     // 4. Set refresh token as httpOnly cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure:   process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge:   7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return success(res, {
       accessToken,
       user: {
-        id:       user.id,
-        email:    user.email,
+        id: user.id,
+        email: user.email,
         fullName: user.full_name,
-        role:     user.role,
+        role: user.role,
         plantIds: user.plant_ids,
       },
     }, 'Login successful');
