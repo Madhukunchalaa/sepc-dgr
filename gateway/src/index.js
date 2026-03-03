@@ -1,5 +1,4 @@
-// gateway/src/index.js
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 process.env.SERVICE_NAME = 'gateway';
 
 const express = require('express');
