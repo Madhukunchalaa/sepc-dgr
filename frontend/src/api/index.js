@@ -41,6 +41,12 @@ export const dataEntry = {
   submitWater: (data) => dataEntryClient.post('/data-entry/water/submit', data),
   approveWater: (data) => dataEntryClient.post('/data-entry/water/approve', data),
 
+  // Performance
+  getPerformance: (plantId, date) => dataEntryClient.get(`/data-entry/performance/${plantId}/${date}`),
+  savePerformance: (data) => dataEntryClient.post('/data-entry/performance', data),
+  submitPerformance: (data) => dataEntryClient.post('/data-entry/performance/submit', data),
+  approvePerformance: (data) => dataEntryClient.post('/data-entry/performance/approve', data),
+
   // Scheduling
   getScheduling: (plantId, date) => dataEntryClient.get(`/data-entry/scheduling/${plantId}/${date}`),
   saveScheduling: (data) => dataEntryClient.post('/data-entry/scheduling', data),

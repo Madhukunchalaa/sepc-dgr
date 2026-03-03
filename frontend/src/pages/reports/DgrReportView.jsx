@@ -79,14 +79,92 @@ export default function DgrReportView() {
     const perfRows = useMemo(() => {
         if (!d?.performance) return []
         const p = d.performance
-        return [
-            { label: p.plf.label, uom: p.plf.uom, daily: p.plf.daily, mtd: p.plf.mtd, ytd: p.plf.ytd, dec: 2 },
-            { label: p.paf.label, uom: p.paf.uom, daily: p.paf.daily, mtd: p.paf.mtd, ytd: p.paf.ytd, dec: 2 },
+
+        const rows = []
+
+        // Plant Load Factor (Daily / MTD / YTD)
+        rows.push({
+            label: p.plf.label,
+            uom: p.plf.uom,
+            daily: p.plf.daily,
+            mtd: p.plf.mtd,
+            ytd: p.plf.ytd,
+            dec: 2,
+        })
+
+        // Partial Loading = 100% - PLF% (matches Excel sheet layout)
+        const partial = (val) =>
+            val != null ? 100 - Number(val) : null
+        rows.push({
+            label: 'Partial Loading',
+            uom: '%',
+            daily: partial(p.plf.daily),
+            mtd: partial(p.plf.mtd),
+            ytd: partial(p.plf.ytd),
+            dec: 2,
+        })
+
+        // Plant Availability Factor (SEPC)
+        rows.push({
+            label: p.paf.label,
+            uom: p.paf.uom,
+            daily: p.paf.daily,
+            mtd: p.paf.mtd,
+            ytd: p.paf.ytd,
+            dec: 2,
+        })
+
+        // Plant Availability Factor (TNPDCL) – same source values, separate row like Excel
+        if (p.pafTnpdcl) {
+            rows.push({
+                label: p.pafTnpdcl.label,
+                uom: p.pafTnpdcl.uom,
+                daily: p.pafTnpdcl.daily,
+                mtd: p.pafTnpdcl.mtd,
+                ytd: p.pafTnpdcl.ytd,
+                dec: 2,
+            })
+        }
+
+        // Outage counts (Forced / Planned / RSD) – shown as counts like Excel
+        if (p.outages) {
+            rows.push(
+                {
+                    label: 'Plant Outage (Forced)',
+                    uom: 'Count',
+                    daily: p.outages.forced?.daily,
+                    mtd: p.outages.forced?.mtd,
+                    ytd: p.outages.forced?.ytd,
+                    dec: 0,
+                },
+                {
+                    label: 'Plant Outage (Planned)',
+                    uom: 'Count',
+                    daily: p.outages.planned?.daily,
+                    mtd: p.outages.planned?.mtd,
+                    ytd: p.outages.planned?.ytd,
+                    dec: 0,
+                },
+                {
+                    label: 'RSD',
+                    uom: 'Count',
+                    daily: p.outages.rsd?.daily,
+                    mtd: p.outages.rsd?.mtd,
+                    ytd: p.outages.rsd?.ytd,
+                    dec: 0,
+                }
+            )
+        }
+
+        // Specific consumptions and GHR / GCV
+        rows.push(
             { label: p.soc.label, uom: p.soc.uom, daily: p.soc.daily, mtd: p.soc.mtd, ytd: p.soc.ytd, dec: 2 },
             { label: p.scc.label, uom: p.scc.uom, daily: p.scc.daily, mtd: p.scc.mtd, ytd: p.scc.ytd, dec: 4 },
             { label: p.ghr.label, uom: p.ghr.uom, daily: p.ghr.daily, mtd: p.ghr.mtd, ytd: p.ghr.ytd, dec: 2 },
             { label: p.gcv.label, uom: p.gcv.uom, daily: p.gcv.daily, mtd: p.gcv.mtd, ytd: p.gcv.ytd, dec: 0 },
-        ]
+        )
+
+        return rows
     }, [d])
 
     const consRows = useMemo(() => {

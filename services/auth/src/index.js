@@ -34,6 +34,9 @@ app.get('/health', (req, res) => {
 });
 
 // ── Routes ──
+// /api/auth for local dev (frontend hits port 3001 directly)
+// / for Railway (gateway proxies /api/auth → auth-service /)
+app.use('/api/auth', authRoutes);
 app.use('/', authRoutes);
 
 // ── 404 handler ──

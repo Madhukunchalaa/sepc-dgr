@@ -100,9 +100,9 @@ export default function Dashboard() {
                 <div className="kpi-label">Plant Load Factor</div>
                 <div className="kpi-icon ic-green">📈</div>
               </div>
-              <div className="kpi-val">{fmt(perf?.plf?.daily ? perf.plf.daily * 100 : null, 2)} <span>%</span></div>
+              <div className="kpi-val">{fmt(perf?.plf?.daily, 2)} <span>%</span></div>
               <div className="kpi-trend trend-flat mono" style={{fontSize:11}}>
-                MTD: {fmt(perf?.plf?.mtd ? perf.plf.mtd * 100 : null, 2)}%
+                MTD: {fmt(perf?.plf?.mtd, 2)}%
               </div>
             </div>
             <div className="kpi-card">

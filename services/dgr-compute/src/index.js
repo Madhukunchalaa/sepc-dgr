@@ -205,6 +205,9 @@ app.get('/api/reports/dgr/excel/:plantId/:date', authenticate, requirePlantAcces
     dataRow('Service Water Consumption', 'm³', cs.serviceWater?.daily, '-', '-', 2);
     dataRow('Potable Water Consumption', 'm³', cs.potableWater?.daily, '-', '-', 2);
     dataRow('Sea Water Consumption', 'm³', cs.seaWater?.daily, '-', '-', 2);
+    dataRow('SWI Flow', 'm³', cs.swiFlow?.daily, cs.swiFlow?.mtd, cs.swiFlow?.ytd, 2);
+    dataRow('Outfall (CT Blow Down & WTP Reject)', 'm³', cs.outfall?.daily, cs.outfall?.mtd, cs.outfall?.ytd, 2);
+    dataRow('Specific Water Consumption', 'm³/MW', cs.specificWaterCons?.daily, '-', '-', 2);
 
     // ── SECTION 4: SCHEDULING ─────────────────────────────────────────────
     secHead('POWER SCHEDULE');
@@ -216,6 +219,40 @@ app.get('/api/reports/dgr/excel/:plantId/:date', authenticate, requirePlantAcces
     dataRow('Schedule Generation (RTM)', 'MU', sc.sgRTM?.daily, sc.sgRTM?.mtd, sc.sgRTM?.ytd);
     dataRow('URS @ DAM', 'MWH', sc.ursDAM?.daily, '-', '-', 2);
     dataRow('URS @ RTM', 'MWH', sc.ursRTM?.daily, '-', '-', 2);
+
+    const lss = dgr.dcLoss || {};
+    dataRow('DC Loss (Capacity - DC(SEPC))', '%', lss.capacityLoss?.pct, '-', '-', 2);
+    dataRow('DC Loss (Capacity - DC(SEPC))', 'MU', lss.capacityLoss?.mu, '-', '-', 3);
+
+    // Add dynamically the outage/loss reasons if any exist
+    if (lss.reasons && lss.reasons.length > 0) {
+      secHead('DC LOSS B/U REASONS');
+      lss.reasons.forEach((r, idx) => {
+        dataRow(`Reason ${idx + 1}: ${r.reason}`, 'MU/%', `${r.mu} / ${r.pct}%`, '-', '-');
+      });
+    }
+
+    // ── SECTION 5: ASH ───────────────────────────────────────────────────
+    secHead('ASH');
+    const ash = dgr.ash || {};
+    dataRow('Fly Ash to User', 'MT', ash.flyAshToUser?.daily, ash.flyAshToUser?.mtd, ash.flyAshToUser?.ytd, 3);
+    dataRow('Fly Ash to Dyke / Internal', 'MT', ash.flyAshToDyke?.daily, ash.flyAshToDyke?.mtd, ash.flyAshToDyke?.ytd, 3);
+    dataRow('Bottom Ash to User', 'MT', ash.bottomAshToUser?.daily, ash.bottomAshToUser?.mtd, ash.bottomAshToUser?.ytd, 3);
+    dataRow('Bottom Ash to Dyke / Internal', 'MT', ash.bottomAshToDyke?.daily, ash.bottomAshToDyke?.mtd, ash.bottomAshToDyke?.ytd, 3);
+    dataRow('Fly Ash Generated', 'MT', ash.flyAshGenerated?.daily, ash.flyAshGenerated?.mtd, ash.flyAshGenerated?.ytd, 3);
+    dataRow('Bottom & Eco Ash Generated', 'MT', ash.bottomAshGenerated?.daily, ash.bottomAshGenerated?.mtd, ash.bottomAshGenerated?.ytd, 3);
+    dataRow('Fly Ash in Silo', 'MT', ash.flyAshSilo?.daily, '-', '-', 3);
+    dataRow('Bottom Ash in Silo', 'MT', ash.bottomAshSilo?.daily, '-', '-', 3);
+
+    // ── SECTION 6: DSM & URS ─────────────────────────────────────────────
+    secHead('DSM & URS');
+    const dsm = dgr.dsm || {};
+    const urs = dgr.urs || {};
+    dataRow('DSM Net Profit', 'Lacs', dsm.netProfit?.daily, '-', dsm.netProfit?.ytd, 2);
+    dataRow('DSM Payable by SEPC', 'Lacs', dsm.payable?.daily, '-', dsm.payable?.ytd, 2);
+    dataRow('DSM Receivable by SEPC', 'Lacs', dsm.receivable?.daily, '-', dsm.receivable?.ytd, 2);
+    dataRow('DSM Coal Saving (+)/Lost (-) by SEPC', 'Lacs', dsm.coalSaving?.daily, '-', dsm.coalSaving?.ytd, 2);
+    dataRow('URS Net Profit', 'Lacs', urs.netProfit?.daily, '-', urs.netProfit?.ytd, 2);
 
     // ── Stream the file ───────────────────────────────────────────────────
     // Sanitize to ASCII-only for Content-Disposition header (no dashes, special chars)

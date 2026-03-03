@@ -38,9 +38,10 @@ exports.upsertEntry = async (req, res) => {
         plant_id, entry_date, 
         dm_generation_m3, dm_cycle_makeup_m3, dm_cycle_pct, dm_total_cons_m3, dm_stock_m3,
         service_water_m3, potable_water_m3, sea_water_m3,
+        swi_flow_m3, outfall_m3,
         status, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'draft', NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'draft', NOW()
       ) ON CONFLICT (plant_id, entry_date) DO UPDATE SET
         dm_generation_m3 = EXCLUDED.dm_generation_m3,
         dm_cycle_makeup_m3 = EXCLUDED.dm_cycle_makeup_m3,
@@ -50,6 +51,8 @@ exports.upsertEntry = async (req, res) => {
         service_water_m3 = EXCLUDED.service_water_m3,
         potable_water_m3 = EXCLUDED.potable_water_m3,
         sea_water_m3 = EXCLUDED.sea_water_m3,
+        swi_flow_m3 = EXCLUDED.swi_flow_m3,
+        outfall_m3 = EXCLUDED.outfall_m3,
         status = 'draft',
         updated_at = NOW()
       RETURNING *;
@@ -57,7 +60,8 @@ exports.upsertEntry = async (req, res) => {
         const values = [
             plantId, date,
             data.dmGenerationM3, data.dmCycleMakeupM3, dm_pct, data.dmTotalConsM3, data.dmStockM3,
-            data.serviceWaterM3, data.potableWaterM3, data.seaWaterM3
+            data.serviceWaterM3, data.potableWaterM3, data.seaWaterM3,
+            data.swiFlowM3, data.outfallM3
         ];
 
         const { rows } = await query(q, values);

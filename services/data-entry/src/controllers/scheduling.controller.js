@@ -27,9 +27,10 @@ exports.upsertEntry = async (req, res) => {
         plant_id, entry_date, 
         dc_sepc_mu, dc_tnpdcl_mu, sg_ppa_mu, sg_dam_mu, sg_rtm_mu,
         urs_dam_mwh, urs_rtm_mwh, urs_revenue, remarks,
+        urs_net_profit_lacs, dc_loss_reasons,
         status, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'draft', NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'draft', NOW()
       ) ON CONFLICT (plant_id, entry_date) DO UPDATE SET
         dc_sepc_mu = EXCLUDED.dc_sepc_mu,
         dc_tnpdcl_mu = EXCLUDED.dc_tnpdcl_mu,
@@ -40,6 +41,8 @@ exports.upsertEntry = async (req, res) => {
         urs_rtm_mwh = EXCLUDED.urs_rtm_mwh,
         urs_revenue = EXCLUDED.urs_revenue,
         remarks = EXCLUDED.remarks,
+        urs_net_profit_lacs = EXCLUDED.urs_net_profit_lacs,
+        dc_loss_reasons = EXCLUDED.dc_loss_reasons,
         status = 'draft',
         updated_at = NOW()
       RETURNING *;
@@ -47,7 +50,9 @@ exports.upsertEntry = async (req, res) => {
         const values = [
             plantId, date,
             data.dcSepcMu, data.dcTnpdclMu, data.sgPpaMu, data.sgDamMu, data.sgRtmMu,
-            data.ursDamMwh, data.ursRtmMwh, data.ursRevenue, data.remarks
+            data.ursDamMwh, data.ursRtmMwh, data.ursRevenue, data.remarks,
+            data.ursNetProfitLacs,
+            data.dcLossReasons ? JSON.stringify(data.dcLossReasons) : '[]'
         ];
 
         const { rows } = await query(q, values);

@@ -9,6 +9,7 @@ import Dashboard from './pages/dashboard/Dashboard'
 import PowerEntry from './pages/data-entry/PowerEntry'
 import FuelEntry from './pages/data-entry/FuelEntry'
 import WaterEntry from './pages/data-entry/WaterEntry'
+import PerformanceEntry from './pages/data-entry/PerformanceEntry'
 import SchedulingEntry from './pages/data-entry/SchedulingEntry'
 import OperationsEntry from './pages/data-entry/OperationsEntry'
 import SCADAUpload from './pages/data-entry/SCADAUpload'
@@ -37,6 +38,7 @@ function AppRoutes() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="data-entry/power" element={<PowerEntry />} />
         <Route path="data-entry/fuel" element={<FuelEntry />} />
+        <Route path="data-entry/performance" element={<PerformanceEntry />} />
         <Route path="data-entry/water" element={<WaterEntry />} />
         <Route path="data-entry/scheduling" element={<SchedulingEntry />} />
         <Route path="data-entry/operations" element={<OperationsEntry />} />

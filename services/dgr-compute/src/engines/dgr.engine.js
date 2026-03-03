@@ -12,6 +12,8 @@ async function assembleDGR(plantId, targetDate) {
     water,
     availability,
     scheduling,
+    ash,
+    dsm,
     opsLog,
   ] = await Promise.all([
     getPlant(plantId),
@@ -21,6 +23,8 @@ async function assembleDGR(plantId, targetDate) {
     getWaterData(plantId, targetDate),
     getAvailabilityData(plantId, targetDate),
     getSchedulingData(plantId, targetDate),
+    getAshData(plantId, targetDate),
+    getDsmData(plantId, targetDate),
     getOpsLog(plantId, targetDate),
   ]);
 
@@ -122,9 +126,16 @@ async function assembleDGR(plantId, targetDate) {
       paf: {
         label: 'Plant Availability Factor (SEPC)',
         uom: '%',
-        daily: availability?.paf_pct,
-        mtd: availability?.paf_mtd,
-        ytd: availability?.paf_ytd,
+        daily: availability?.paf_pct != null ? Number(availability.paf_pct) * 100 : null,
+        mtd: availability?.paf_mtd != null ? Number(availability.paf_mtd) * 100 : null,
+        ytd: availability?.paf_ytd != null ? Number(availability.paf_ytd) * 100 : null,
+      },
+      pafTnpdcl: {
+        label: 'Plant Availability Factor (TNPDCL)',
+        uom: '%',
+        daily: availability?.paf_pct != null ? Number(availability.paf_pct) * 100 : null,
+        mtd: availability?.paf_mtd != null ? Number(availability.paf_mtd) * 100 : null,
+        ytd: availability?.paf_ytd != null ? Number(availability.paf_ytd) * 100 : null,
       },
       outages: {
         forced: { daily: power?.forced_outages, mtd: await getMTDSum(plantId, targetDate, 'forced_outages', 'daily_power'), ytd: await getYTDSum(plantId, targetDate, 'forced_outages', 'daily_power') },
@@ -194,6 +205,12 @@ async function assembleDGR(plantId, targetDate) {
       serviceWater: { label: 'Service Water Consumption', uom: 'm3', daily: water?.service_water_m3 },
       potableWater: { label: 'Potable Water Consumption', uom: 'm3', daily: water?.potable_water_m3 },
       seaWater: { label: 'Sea Water Consumption', uom: 'm3', daily: water?.sea_water_m3 },
+      swiFlow: { label: 'SWI Flow', uom: 'm3', daily: water?.swi_flow_m3, mtd: await getMTDSum(plantId, targetDate, 'swi_flow_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'swi_flow_m3', 'daily_water') },
+      outfall: { label: 'Outfall (CT Blow Down & WTP Reject)', uom: 'm3', daily: water?.outfall_m3, mtd: await getMTDSum(plantId, targetDate, 'outfall_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'outfall_m3', 'daily_water') },
+      specificWaterCons: {
+        label: 'Specific Water Consumption', uom: 'm3/MW',
+        daily: genMu > 0 ? ((water?.dm_total_cons_m3 || 0) + (water?.service_water_m3 || 0) + (water?.potable_water_m3 || 0)) / genMu : null
+      },
       h2: { label: 'H₂ Consumption', uom: 'Nos', daily: fuel?.h2_cons, stock: fuel?.h2_stock },
       co2: { label: 'CO₂ Consumption', uom: 'Nos', daily: fuel?.co2_cons, stock: fuel?.co2_stock },
       n2: { label: 'N₂ Consumption', uom: 'Nos', daily: fuel?.n2_cons, stock: fuel?.n2_stock },
@@ -208,6 +225,41 @@ async function assembleDGR(plantId, targetDate) {
       sgRTM: { label: 'Schedule Generation (SG-RTM)', uom: 'MU', daily: scheduling?.sg_rtm_mu, mtd: await getMTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling'), ytd: await getYTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling') },
       ursDAM: { label: 'URS @ RTM (DAM)', uom: 'MWH', daily: scheduling?.urs_dam_mwh },
       ursRTM: { label: 'URS @ RTM (RTM)', uom: 'MWH', daily: scheduling?.urs_rtm_mwh },
+    },
+
+    // ── Section 5: Ash (from daily_ash) ──
+    ash: {
+      flyAshToUser: { label: 'Fly Ash to User', uom: 'MT', daily: ash?.fa_to_user_mt, mtd: await getMTDSum(plantId, targetDate, 'fa_to_user_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'fa_to_user_mt', 'daily_ash') },
+      flyAshToDyke: { label: 'Fly Ash to Dyke / Internal', uom: 'MT', daily: ash?.fa_to_dyke_mt, mtd: await getMTDSum(plantId, targetDate, 'fa_to_dyke_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'fa_to_dyke_mt', 'daily_ash') },
+      bottomAshToUser: { label: 'Bottom Ash to User', uom: 'MT', daily: ash?.ba_to_user_mt, mtd: await getMTDSum(plantId, targetDate, 'ba_to_user_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'ba_to_user_mt', 'daily_ash') },
+      bottomAshToDyke: { label: 'Bottom Ash to Dyke / Internal', uom: 'MT', daily: ash?.ba_to_dyke_mt, mtd: await getMTDSum(plantId, targetDate, 'ba_to_dyke_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'ba_to_dyke_mt', 'daily_ash') },
+      flyAshGenerated: { label: 'Fly Ash Generated', uom: 'MT', daily: ash?.fa_generated_mt, mtd: await getMTDSum(plantId, targetDate, 'fa_generated_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'fa_generated_mt', 'daily_ash') },
+      bottomAshGenerated: { label: 'Bottom & Eco Ash Generated', uom: 'MT', daily: ash?.ba_generated_mt, mtd: await getMTDSum(plantId, targetDate, 'ba_generated_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'ba_generated_mt', 'daily_ash') },
+      flyAshSilo: { label: 'Fly Ash in Silo', uom: 'MT', daily: ash?.fa_silo_mt },
+      bottomAshSilo: { label: 'Bottom Ash in Silo', uom: 'MT', daily: ash?.ba_silo_mt },
+    },
+
+    // ── Section 6: DSM (from daily_dsm) ──
+    dsm: {
+      netProfit: { label: 'DSM Net Profit', uom: 'Lacs', daily: dsm?.dsm_net_profit_lacs, ytd: await getYTDSum(plantId, targetDate, 'dsm_net_profit_lacs', 'daily_dsm') },
+      payable: { label: 'DSM Payable by SEPC', uom: 'Lacs', daily: dsm?.dsm_payable_lacs, ytd: await getYTDSum(plantId, targetDate, 'dsm_payable_lacs', 'daily_dsm') },
+      receivable: { label: 'DSM Receivable by SEPC', uom: 'Lacs', daily: dsm?.dsm_receivable_lacs, ytd: await getYTDSum(plantId, targetDate, 'dsm_receivable_lacs', 'daily_dsm') },
+      coalSaving: { label: 'DSM Coal Saving (+)/Lost (-) by SEPC', uom: 'Lacs', daily: dsm?.dsm_coal_saving_lacs, ytd: await getYTDSum(plantId, targetDate, 'dsm_coal_saving_lacs', 'daily_dsm') },
+    },
+
+    // ── Section 7: URS Profit / Loss ──
+    urs: {
+      netProfit: { label: 'URS Net Profit', uom: 'Lacs', daily: scheduling?.urs_net_profit_lacs, ytd: await getYTDSum(plantId, targetDate, 'urs_net_profit_lacs', 'daily_scheduling') },
+    },
+
+    // ── Section 8: DC Loss B/U (Capacity - DC (TNPDCL)) ──
+    dcLoss: {
+      capacityLoss: {
+        label: 'DC Loss (Capacity - DC(SEPC))',
+        pct: scheduling?.dc_tnpdcl_mu > 0 ? ((1 - (scheduling.dc_sepc_mu / scheduling.dc_tnpdcl_mu)) * 100).toFixed(2) : 0,
+        mu: scheduling?.dc_tnpdcl_mu > 0 ? (scheduling.dc_tnpdcl_mu - (scheduling.dc_sepc_mu || 0)).toFixed(3) : 0
+      },
+      reasons: scheduling?.dc_loss_reasons || []
     },
 
     // ── Operations ──
@@ -250,6 +302,14 @@ async function getPerfData(plantId, date) {
 }
 async function getWaterData(plantId, date) {
   const { rows } = await query(`SELECT * FROM daily_water WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
+  return rows[0];
+}
+async function getAshData(plantId, date) {
+  const { rows } = await query(`SELECT * FROM daily_ash WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
+  return rows[0];
+}
+async function getDsmData(plantId, date) {
+  const { rows } = await query(`SELECT * FROM daily_dsm WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
   return rows[0];
 }
 async function getAvailabilityData(plantId, date) {
