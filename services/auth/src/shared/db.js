@@ -31,3 +31,32 @@ function getPool() {
 
   return pool;
 }
+
+// Convenience query wrapper
+async function query(sql, params = []) {
+  const client = await getPool().connect();
+  try {
+    const result = await client.query(sql, params);
+    return result;
+  } finally {
+    client.release();
+  }
+}
+
+// Transaction wrapper
+async function transaction(fn) {
+  const client = await getPool().connect();
+  try {
+    await client.query('BEGIN');
+    const result = await fn(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+module.exports = { getPool, query, transaction };
