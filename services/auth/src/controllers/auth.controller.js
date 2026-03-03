@@ -2,7 +2,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { query, transaction } = require('../shared/utils/db');
+const { query, transaction } = require('../shared/db');
 const { success, error, unauthorized, created } = require('../shared/response');
 const logger = require('../shared/logger');
 
