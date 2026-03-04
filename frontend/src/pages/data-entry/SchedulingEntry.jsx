@@ -21,7 +21,7 @@ export default function SchedulingEntry() {
     const qc = useQueryClient()
 
     // Fetch Scheduling Data
-    const { data: schedData } = useQuery({
+    const { data: schedData, isFetching: isFetchingSched } = useQuery({
         queryKey: ['scheduling-entry', plantId, date],
         queryFn: () => dataEntry.getScheduling(plantId, date),
         enabled: !!plantId && !!date,
@@ -29,7 +29,7 @@ export default function SchedulingEntry() {
     })
 
     // Fetch Availability Data
-    const { data: availData } = useQuery({
+    const { data: availData, isFetching: isFetchingAvail } = useQuery({
         queryKey: ['availability-entry', plantId, date],
         queryFn: () => dataEntry.getAvailability(plantId, date),
         enabled: !!plantId && !!date,
@@ -52,10 +52,10 @@ export default function SchedulingEntry() {
                 lossAohMu: s.loss_aoh_mu, lossAohPct: s.loss_aoh_pct,
                 lossVacuumMu: s.loss_vacuum_mu, lossVacuumPct: s.loss_vacuum_pct
             })
-        } else {
+        } else if (!isFetchingSched) {
             setSchedForm({})
         }
-    }, [schedData])
+    }, [schedData, isFetchingSched])
 
     useEffect(() => {
         const a = availData?.data?.data
@@ -65,10 +65,10 @@ export default function SchedulingEntry() {
                 forcedOutageHrs: a.forced_outage_hrs, plannedOutageHrs: a.planned_outage_hrs,
                 pafPct: a.paf_pct, pafTnpdclPct: a.paf_tnpdcl, status: a.status
             })
-        } else {
+        } else if (!isFetchingAvail) {
             setAvailForm({})
         }
-    }, [availData])
+    }, [availData, isFetchingAvail])
 
     const saveSchedMutation = useMutation({ mutationFn: dataEntry.saveScheduling })
     const saveAvailMutation = useMutation({ mutationFn: dataEntry.saveAvailability })
@@ -132,7 +132,10 @@ export default function SchedulingEntry() {
                             <label className="form-label">Entry Date</label>
                             <input
                                 className="form-input" type="date" value={date} max={today}
-                                onChange={e => { setDate(e.target.value); setSchedForm({}); setAvailForm({}); }}
+                                onChange={e => {
+                                    setDate(e.target.value);
+                                    // Let the isFetching effect handle the clearing instead of aggressive nuking
+                                }}
                             />
                         </div>
                         {(schedStatus !== 'unsubmitted' || availStatus !== 'unsubmitted') && (
