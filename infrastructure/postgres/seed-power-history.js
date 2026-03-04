@@ -28,17 +28,31 @@ async function run() {
         const wsPower = wb.Sheets['Power'];
         const dataPower = XLSX.utils.sheet_to_json(wsPower, { header: 1, defval: null });
 
+        // Search across rows 0-4 for headers
+        for (let r = 0; r < 5; r++) {
+            const rowArr = dataPower[r] || [];
+            for (let c = 0; c < rowArr.length; c++) {
+                const lab = String(rowArr[c] || '').trim();
+                if (lab.includes('Freq') || lab.includes('Hz') || lab.includes('Min') || lab.includes('Max') || lab.includes('Avg')) {
+                    console.log(`Row ${r} Col ${c}: ${lab}`);
+                }
+            }
+        }
+
         // Build a dynamic header map from Row 2 and Row 3 where the labels exist
         const rowLabels = dataPower[2]; // Index 2 in array = excel row 3
         const rowLabels2 = dataPower[3]; // Index 3 in array = excel row 4
 
         // Find indices dynamically by searching string text across the headers
         let genCol = -1, exportCol = -1, importCol = -1, apcCol = -1, apcPctCol = -1, plfCol = -1, avgLoadCol = -1;
+        let freqMinCol = -1, freqMaxCol = -1, freqAvgCol = -1;
 
         // Excel places these labels far to the right, mostly in row 2 (index 2)
         for (let i = 0; i < rowLabels.length; i++) {
-            if (i > 100) break; // DO NOT check beyond col 100 since daily fields repeat later for YTD
+            if (i > 150) break; // Check a bit further
             const lab = String(rowLabels[i] || '').trim();
+            const lab2 = String(rowLabels2[i] || '').trim();
+
             if (lab === 'Power Generation' && genCol === -1) genCol = i;
             if (lab === 'Net Export' && exportCol === -1) exportCol = i;
             if (lab === 'GT Import' && importCol === -1) importCol = i;
@@ -46,9 +60,16 @@ async function run() {
             if (lab === 'APC %' && apcPctCol === -1) apcPctCol = i;
             if (lab === 'Plant Load Factor (PLF)' && plfCol === -1) plfCol = i;
             if (lab === 'Avg Power Generation' && avgLoadCol === -1) avgLoadCol = i;
+
+            // Search for Frequency
+            if (lab.toLowerCase().includes('freq') || lab2.toLowerCase().includes('freq')) {
+                if (lab.includes('Min') || lab2.includes('Min')) freqMinCol = i;
+                if (lab.includes('Max') || lab2.includes('Max')) freqMaxCol = i;
+                if (lab.includes('Avg') || lab2.includes('Avg')) freqAvgCol = i;
+            }
         }
 
-        console.log(`Dynamic Columns: Gen=${genCol}, Exp=${exportCol}, Imp=${importCol}, APC=${apcCol}, APCPct=${apcPctCol}, PLF=${plfCol}`);
+        console.log(`Dynamic Columns: Gen=${genCol}, Exp=${exportCol}, Imp=${importCol}, APC=${apcCol}, APCPct=${apcPctCol}, PLF=${plfCol}, FreqMin=${freqMinCol}, FreqMax=${freqMaxCol}, FreqAvg=${freqAvgCol}`);
 
         // If any failed, fallback to defaults
         if (genCol === -1) genCol = 63;
@@ -58,6 +79,11 @@ async function run() {
         if (apcPctCol === -1) apcPctCol = 88;
         if (plfCol === -1) plfCol = 70;
         if (avgLoadCol === -1) avgLoadCol = 67;
+
+        // Hardcoded fallbacks for Frequency (found at 148, 149, 150)
+        if (freqMinCol === -1) freqMinCol = 148;
+        if (freqMaxCol === -1) freqMaxCol = 149;
+        if (freqAvgCol === -1) freqAvgCol = 150;
 
         let processed = 0, inserted = 0;
 
@@ -105,6 +131,10 @@ async function run() {
             const apcPctOrig = parseNum(row[apcPctCol]);
             const apcPct = Math.min(Math.max(apcPctOrig, -99), 99);
 
+            const freqMin = parseNum(row[freqMinCol]);
+            const freqMax = parseNum(row[freqMaxCol]);
+            const freqAvg = parseNum(row[freqAvgCol]);
+
             let avgLoadMW = parseNum(row[avgLoadCol]);
             if (avgLoadMW === 0 && generationMU > 0) {
                 avgLoadMW = (generationMU * 1000) / 24;
@@ -120,8 +150,9 @@ async function run() {
             const q = `
                 INSERT INTO daily_power (
                     plant_id, entry_date, meter_readings, status,
-                    generation_mu, export_mu, import_mu, apc_mu, apc_pct, avg_load_mw, plf_daily
-                ) VALUES ($1, $2, $3, 'approved', $4, $5, $6, $7, $8, $9, $10)
+                    generation_mu, export_mu, import_mu, apc_mu, apc_pct, avg_load_mw, plf_daily,
+                    freq_min, freq_max, freq_avg
+                ) VALUES ($1, $2, $3, 'approved', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
                 ON CONFLICT (plant_id, entry_date) DO UPDATE SET
                     meter_readings = EXCLUDED.meter_readings,
                     status = 'approved',
@@ -132,13 +163,17 @@ async function run() {
                     apc_pct = EXCLUDED.apc_pct,
                     avg_load_mw = EXCLUDED.avg_load_mw,
                     plf_daily = EXCLUDED.plf_daily,
+                    freq_min = EXCLUDED.freq_min,
+                    freq_max = EXCLUDED.freq_max,
+                    freq_avg = EXCLUDED.freq_avg,
                     updated_at = NOW();
             `;
 
             try {
                 await pool.query(q, [
                     plantId, dateStr, meterReadings,
-                    generationMU, exportMU, importMU, apcMU, apcPct, avgLoadMW, plfDaily
+                    generationMU, exportMU, importMU, apcMU, apcPct, avgLoadMW, plfDaily,
+                    freqMin, freqMax, freqAvg
                 ]);
             } catch (err) {
                 console.log(`Error updating ${dateStr}:`, { generationMU, exportMU, importMU, apcMU, apcPct, avgLoadMW, plfDaily });
