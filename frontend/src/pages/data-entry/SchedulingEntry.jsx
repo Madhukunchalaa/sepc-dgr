@@ -44,7 +44,13 @@ export default function SchedulingEntry() {
                 dcSepcMu: s.dc_sepc_mu, dcTnpdclMu: s.dc_tnpdcl_mu,
                 sgPpaMu: s.sg_ppa_mu, sgDamMu: s.sg_dam_mu, sgRtmMu: s.sg_rtm_mu,
                 ursDamMwh: s.urs_dam_mwh, ursRtmMwh: s.urs_rtm_mwh,
-                ursRevenue: s.urs_revenue, remarks: s.remarks, status: s.status
+                ursRevenue: s.urs_revenue, remarks: s.remarks, status: s.status,
+                askingRateMw: s.asking_rate_mw, deemedGenMu: s.deemed_gen_mu,
+                lossCoalMu: s.loss_coal_mu, lossCoalPct: s.loss_coal_pct,
+                lossCreSmpsMu: s.loss_cre_smps_mu, lossCreSmpsPct: s.loss_cre_smps_pct,
+                lossBunkerMu: s.loss_bunker_mu, lossBunkerPct: s.loss_bunker_pct,
+                lossAohMu: s.loss_aoh_mu, lossAohPct: s.loss_aoh_pct,
+                lossVacuumMu: s.loss_vacuum_mu, lossVacuumPct: s.loss_vacuum_pct
             })
         } else {
             setSchedForm({})
@@ -161,8 +167,8 @@ export default function SchedulingEntry() {
                                             <div key={key} className="form-group">
                                                 <label>{label}</label>
                                                 <div className="input-with-unit">
-                                                <input
-                                                    type="number" className="form-input mono"
+                                                    <input
+                                                        type="number" className="form-input mono"
                                                         value={schedForm[key] ?? ''}
                                                         onChange={e => updateSched(key, e.target.value)}
                                                         readOnly={readOnly} placeholder="0.00"
@@ -184,8 +190,8 @@ export default function SchedulingEntry() {
                                             <div key={key} className="form-group">
                                                 <label>{label}</label>
                                                 <div className="input-with-unit">
-                                                <input
-                                                    type="number" className="form-input mono"
+                                                    <input
+                                                        type="number" className="form-input mono"
                                                         value={schedForm[key] ?? ''}
                                                         onChange={e => updateSched(key, e.target.value)}
                                                         readOnly={readOnly} placeholder="0.00"
@@ -236,6 +242,54 @@ export default function SchedulingEntry() {
                                         placeholder="Enter any qualitative comments for the URS or scheduling metrics..."
                                         style={{ resize: 'vertical' }}
                                     />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-hdr"><div className="card-title">📉 DC Loss B/U (Capacity – DC TNPDCL)</div></div>
+                            <div className="card-body">
+                                <div className="form-grid-2">
+                                    {[
+                                        ['Asking Rate to Achieve 80% DC', 'askingRateMw', 'MW'],
+                                        ['Deemed Gen – DG (TB + RSD)', 'deemedGenMu', 'MU'],
+                                    ].map(([label, key, unit]) => (
+                                        <div key={key} className="form-group">
+                                            <label>{label}</label>
+                                            <div className="input-with-unit">
+                                                <input
+                                                    type="number" className="form-input mono"
+                                                    value={schedForm[key] ?? ''}
+                                                    onChange={e => updateSched(key, e.target.value)}
+                                                    readOnly={readOnly} placeholder="0.00"
+                                                />
+                                                <span className="unit">{unit}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '12px 0' }} />
+                                <div className="form-grid-2">
+                                    {['Coal', 'CreSmps', 'Bunker', 'Aoh', 'Vacuum'].map(type => {
+                                        const label = type === 'Coal' ? 'Coal Shortage' : type === 'CreSmps' ? 'CRE to SMPS Trip' : type === 'Bunker' ? 'Bunker Choke' : type === 'Aoh' ? 'AOH' : 'Low Vacuum Trip'
+                                        const muKey = `loss${type}Mu`
+                                        const pctKey = `loss${type}Pct`
+                                        return (
+                                            <div key={type} className="form-group" style={{ background: '#f8fafc', padding: 12, borderRadius: 8 }}>
+                                                <label style={{ fontWeight: 600, color: '#334155' }}>{label}</label>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
+                                                    <div className="input-with-unit">
+                                                        <input type="number" className="form-input mono" value={schedForm[muKey] ?? ''} onChange={e => updateSched(muKey, e.target.value)} readOnly={readOnly} placeholder="MU" />
+                                                        <span className="unit">MU</span>
+                                                    </div>
+                                                    <div className="input-with-unit">
+                                                        <input type="number" className="form-input mono" value={schedForm[pctKey] ?? ''} onChange={e => updateSched(pctKey, e.target.value)} readOnly={readOnly} placeholder="%" />
+                                                        <span className="unit">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>

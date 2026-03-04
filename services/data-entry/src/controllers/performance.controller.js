@@ -44,6 +44,7 @@ exports.upsertEntry = async (req, res) => {
 
     // Optional direct GHR value; if not provided we persist null and let the DGR engine compute it live.
     const ghrDirect = data.ghrDirect ?? null;
+    const ghrRemarks = data.ghrRemarks ?? null;
 
     const result = await transaction(async (client) => {
       const { rows } = await client.query(
@@ -53,10 +54,10 @@ exports.upsertEntry = async (req, res) => {
            gcv_ar, gcv_af,
            loi_ba, loi_fa,
            fc_pct, vm_pct, fc_vm_ratio,
-           mill_sieve_a, mill_sieve_b, mill_sieve_c,
+           mill_sieve_a, mill_sieve_b, mill_sieve_c, ghr_remarks,
            submitted_by, status
          ) VALUES (
-           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,'draft'
+           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,'draft'
          )
          ON CONFLICT (plant_id, entry_date) DO UPDATE SET
            ghr_direct    = EXCLUDED.ghr_direct,
@@ -72,6 +73,7 @@ exports.upsertEntry = async (req, res) => {
            mill_sieve_a  = EXCLUDED.mill_sieve_a,
            mill_sieve_b  = EXCLUDED.mill_sieve_b,
            mill_sieve_c  = EXCLUDED.mill_sieve_c,
+           ghr_remarks   = EXCLUDED.ghr_remarks,
            status        = 'draft',
            updated_at    = NOW()
          WHERE daily_performance.status NOT IN ('approved','locked')
@@ -92,6 +94,7 @@ exports.upsertEntry = async (req, res) => {
           millSieveA,
           millSieveB,
           millSieveC,
+          ghrRemarks,
           req.user.sub,
         ]
       );

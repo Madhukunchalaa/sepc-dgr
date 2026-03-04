@@ -12,7 +12,7 @@ function fmt(val, dec = 3) {
 }
 
 // Exact meter codes — matches backend power.controller.js
-const GEN_CODES    = ['GEN_MAIN']
+const GEN_CODES = ['GEN_MAIN']
 const EXPORT_CODES = ['GT_EXP_MAIN']
 const IMPORT_CODES = ['GT_IMP_MAIN']  // GT only — matches Excel DGR formula
 
@@ -24,7 +24,7 @@ function computeLive(meters, readings, prevReadings, plantCapacity = 525, hoursO
     let total = 0
     for (const code of codes) {
       if (!meterMap[code]) continue
-      const cur  = parseFloat(readings[code]  || 0)
+      const cur = parseFloat(readings[code] || 0)
       const prev = parseFloat(prevReadings[code] || 0)
       if (cur > 0 && prev > 0 && cur >= prev) total += (cur - prev) * meterMap[code]
     }
@@ -32,13 +32,13 @@ function computeLive(meters, readings, prevReadings, plantCapacity = 525, hoursO
   }
 
   const generationMU = calcDelta(GEN_CODES)
-  const exportMU     = calcDelta(EXPORT_CODES)
-  const importMU     = calcDelta(IMPORT_CODES)
-  const apcMU        = generationMU - exportMU + importMU
-  const apcPct       = generationMU > 0 ? (apcMU / generationMU) * 100 : 0
-  const hrs          = parseFloat(hoursOnGrid) || 24
-  const avgLoadMW    = (generationMU * 1000) / hrs
-  const plfDaily     = (avgLoadMW / parseFloat(plantCapacity)) * 100
+  const exportMU = calcDelta(EXPORT_CODES)
+  const importMU = calcDelta(IMPORT_CODES)
+  const apcMU = generationMU - exportMU + importMU
+  const apcPct = generationMU > 0 ? (apcMU / generationMU) * 100 : 0
+  const hrs = parseFloat(hoursOnGrid) || 24
+  const avgLoadMW = (generationMU * 1000) / hrs
+  const plfDaily = (avgLoadMW / parseFloat(plantCapacity)) * 100
 
   return { generationMU, exportMU, importMU, apcMU, apcPct, avgLoadMW, plfDaily }
 }
@@ -47,38 +47,38 @@ function computeLive(meters, readings, prevReadings, plantCapacity = 525, hoursO
 function fmtHours(h) {
   h = parseFloat(h) || 0
   const days = Math.floor(h / 24)
-  const hrs  = Math.floor(h % 24)
+  const hrs = Math.floor(h % 24)
   const mins = Math.round((h - Math.floor(h)) * 60)
   return days > 0 ? `${days} Day(s), ${hrs} Hrs, ${mins} Mins` : `${hrs} Hrs, ${mins} Mins`
 }
 
 export default function PowerEntry() {
   const { selectedPlant } = usePlant()
-  const qc      = useQueryClient()
+  const qc = useQueryClient()
   const plantId = selectedPlant?.id
 
-  const [date, setDate]         = useState(today)
+  const [date, setDate] = useState(today)
   const [readings, setReadings] = useState({})
-  const [extras, setExtras]     = useState({
+  const [extras, setExtras] = useState({
     freqMin: '', freqMax: '', freqAvg: '',
     hoursOnGrid: 24, forcedOutages: 0, plannedOutages: 0,
-    rsdCount: 0, outageRemarks: '',
+    rsdCount: 0, outageRemarks: '', partialLoadingPct: '',
   })
   const [savedComputed, setSavedComputed] = useState(null)
-  const [msg, setMsg]           = useState(null)
-  const [saveErr, setSaveErr]   = useState(null)
+  const [msg, setMsg] = useState(null)
+  const [saveErr, setSaveErr] = useState(null)
 
   const { data: plantsData } = useQuery({
     queryKey: ['plant-meters', plantId],
-    queryFn:  () => plantsApi.meters(plantId),
-    enabled:  !!plantId,
+    queryFn: () => plantsApi.meters(plantId),
+    enabled: !!plantId,
   })
   const meters = plantsData?.data?.data?.meters || []
 
   const { data: existingData } = useQuery({
     queryKey: ['power-entry', plantId, date],
-    queryFn:  () => dataEntry.getPower(plantId, date),
-    enabled:  !!plantId && !!date,
+    queryFn: () => dataEntry.getPower(plantId, date),
+    enabled: !!plantId && !!date,
     retry: false,
   })
 
@@ -89,8 +89,8 @@ export default function PowerEntry() {
 
   const { data: prevData } = useQuery({
     queryKey: ['power-entry', plantId, prevDate],
-    queryFn:  () => dataEntry.getPower(plantId, prevDate),
-    enabled:  !!plantId && !!prevDate,
+    queryFn: () => dataEntry.getPower(plantId, prevDate),
+    enabled: !!plantId && !!prevDate,
     retry: false,
   })
   const prevReadings = prevData?.data?.data?.meter_readings || {}
@@ -100,27 +100,28 @@ export default function PowerEntry() {
     if (entry?.meter_readings) {
       setReadings(entry.meter_readings)
       setExtras({
-        freqMin:        entry.freq_min       ?? '',
-        freqMax:        entry.freq_max       ?? '',
-        freqAvg:        entry.freq_avg       ?? '',
-        hoursOnGrid:    entry.hours_on_grid  ?? 24,
-        forcedOutages:  entry.forced_outages ?? 0,
+        freqMin: entry.freq_min ?? '',
+        freqMax: entry.freq_max ?? '',
+        freqAvg: entry.freq_avg ?? '',
+        hoursOnGrid: entry.hours_on_grid ?? 24,
+        forcedOutages: entry.forced_outages ?? 0,
         plannedOutages: entry.planned_outages ?? 0,
-        rsdCount:       entry.rsd_count      ?? 0,
-        outageRemarks:  entry.outage_remarks ?? '',
+        rsdCount: entry.rsd_count ?? 0,
+        outageRemarks: entry.outage_remarks ?? '',
+        partialLoadingPct: entry.partial_loading_pct ?? '',
       })
       setSavedComputed({
-        generationMU:  entry.generation_mu,
-        exportMU:      entry.export_mu,
-        importMU:      entry.import_mu,
-        apcMU:         entry.apc_mu,
-        apcPct:        (entry.apc_pct || 0) * 100,
-        avgLoadMW:     entry.avg_load_mw,
-        plfDaily:      (entry.plf_daily || 0) * 100,
+        generationMU: entry.generation_mu,
+        exportMU: entry.export_mu,
+        importMU: entry.import_mu,
+        apcMU: entry.apc_mu,
+        apcPct: (entry.apc_pct || 0) * 100,
+        avgLoadMW: entry.avg_load_mw,
+        plfDaily: (entry.plf_daily || 0) * 100,
         generationMTD: entry.generation_mtd,
         generationYTD: entry.generation_ytd,
-        plfMTD:        entry.plf_mtd ? entry.plf_mtd * 100 : null,
-        plfYTD:        entry.plf_ytd ? entry.plf_ytd * 100 : null,
+        plfMTD: entry.plf_mtd ? entry.plf_mtd * 100 : null,
+        plfYTD: entry.plf_ytd ? entry.plf_ytd * 100 : null,
       })
     } else {
       setReadings({}); setSavedComputed(null)
@@ -139,17 +140,17 @@ export default function PowerEntry() {
       const c = res.data?.data?.computed
       if (c) {
         setSavedComputed({
-          generationMU:  c.generationMU,
-          exportMU:      c.exportMU,
-          importMU:      c.importMU,
-          apcMU:         c.apcMU,
-          apcPct:        (c.apcPct || 0) * 100,
-          avgLoadMW:     c.avgLoadMW,
-          plfDaily:      (c.plfDaily || 0) * 100,
+          generationMU: c.generationMU,
+          exportMU: c.exportMU,
+          importMU: c.importMU,
+          apcMU: c.apcMU,
+          apcPct: (c.apcPct || 0) * 100,
+          avgLoadMW: c.avgLoadMW,
+          plfDaily: (c.plfDaily || 0) * 100,
           generationMTD: c.generationMTD,
           generationYTD: c.generationYTD,
-          plfMTD:        c.plfMTD ? c.plfMTD * 100 : null,
-          plfYTD:        c.plfYTD ? c.plfYTD * 100 : null,
+          plfMTD: c.plfMTD ? c.plfMTD * 100 : null,
+          plfYTD: c.plfYTD ? c.plfYTD * 100 : null,
         })
       }
       setSaveErr(null)
@@ -182,22 +183,23 @@ export default function PowerEntry() {
     saveMutation.mutate({
       plantId, entryDate: date,
       meterReadings: readings,
-      freqMin:        extras.freqMin        || null,
-      freqMax:        extras.freqMax        || null,
-      freqAvg:        extras.freqAvg        || null,
-      hoursOnGrid:    extras.hoursOnGrid,
-      forcedOutages:  extras.forcedOutages,
+      freqMin: extras.freqMin || null,
+      freqMax: extras.freqMax || null,
+      freqAvg: extras.freqAvg || null,
+      hoursOnGrid: extras.hoursOnGrid,
+      forcedOutages: extras.forcedOutages,
       plannedOutages: extras.plannedOutages,
-      rsdCount:       extras.rsdCount,
-      outageRemarks:  extras.outageRemarks,
+      rsdCount: extras.rsdCount,
+      outageRemarks: extras.outageRemarks,
+      partialLoadingPct: extras.partialLoadingPct,
       entryMethod: 'manual',
     })
   }
 
-  const status   = existingData?.data?.data?.status
+  const status = existingData?.data?.data?.status
   const isLocked = status === 'locked' || status === 'approved'
-  const hasPrev  = Object.keys(prevReadings).length > 0
-  const display  = savedComputed || liveComputed
+  const hasPrev = Object.keys(prevReadings).length > 0
+  const display = savedComputed || liveComputed
 
   return (
     <div>
@@ -209,7 +211,7 @@ export default function PowerEntry() {
       {saveErr && (
         <div className="alert alert-error" style={{ fontSize: 12 }}>
           <b>Backend Error {saveErr.status && `[${saveErr.status}]`}:</b> {saveErr.message}
-          <br/>
+          <br />
           <span style={{ opacity: 0.7 }}>
             Make sure <code>data-entry</code> service is running on port 3003.
             Run: <code>cd dgr-platform && npm run dev:data-entry</code>
@@ -258,8 +260,8 @@ export default function PowerEntry() {
               ) : (
                 <div className="form-grid-3">
                   {meters.map(m => {
-                    const prev  = prevReadings[m.meter_code]
-                    const cur   = parseFloat(readings[m.meter_code])
+                    const prev = prevReadings[m.meter_code]
+                    const cur = parseFloat(readings[m.meter_code])
                     const delta = (cur && prev) ? (cur - prev) * parseFloat(m.multiplier) : null
                     const isNeg = delta !== null && delta < 0
                     return (
@@ -277,7 +279,7 @@ export default function PowerEntry() {
                           onChange={e => setReadings(r => ({ ...r, [m.meter_code]: e.target.value }))}
                         />
                         <div style={{ fontSize: 11, marginTop: 3, display: 'flex', gap: 8 }}>
-                          {prev  && <span style={{ color: 'var(--muted)' }}>Prev: {prev}</span>}
+                          {prev && <span style={{ color: 'var(--muted)' }}>Prev: {prev}</span>}
                           {delta !== null && !isNeg && (
                             <span style={{ color: 'var(--green)', fontWeight: 700 }}>+{delta.toFixed(4)} MU</span>
                           )}
@@ -308,18 +310,18 @@ export default function PowerEntry() {
               <div className="card-body">
                 <div className="form-grid-3">
                   {[
-                    ['⚡ Generation', fmt(display.generationMU),  'MU'],
-                    ['📤 Export GT',  fmt(display.exportMU),      'MU'],
-                    ['📥 Import GT',  fmt(display.importMU),      'MU'],
-                    ['🔌 APC',        fmt(display.apcMU),         'MU'],
-                    ['📊 APC %',      fmt(display.apcPct, 2),     '%'],
-                    ['⚖ Avg Load',   fmt(display.avgLoadMW, 2),  'MW'],
-                    ['📈 PLF Daily',  fmt(display.plfDaily, 2),   '%'],
+                    ['⚡ Generation', fmt(display.generationMU), 'MU'],
+                    ['📤 Export GT', fmt(display.exportMU), 'MU'],
+                    ['📥 Import GT', fmt(display.importMU), 'MU'],
+                    ['🔌 APC', fmt(display.apcMU), 'MU'],
+                    ['📊 APC %', fmt(display.apcPct, 2), '%'],
+                    ['⚖ Avg Load', fmt(display.avgLoadMW, 2), 'MW'],
+                    ['📈 PLF Daily', fmt(display.plfDaily, 2), '%'],
                     ...(savedComputed ? [
-                      ['📅 Gen MTD',  fmt(savedComputed.generationMTD), 'MU'],
-                      ['📆 Gen YTD',  fmt(savedComputed.generationYTD), 'MU'],
-                      ['📅 PLF MTD',  fmt(savedComputed.plfMTD, 2),     '%'],
-                      ['📆 PLF YTD',  fmt(savedComputed.plfYTD, 2),     '%'],
+                      ['📅 Gen MTD', fmt(savedComputed.generationMTD), 'MU'],
+                      ['📆 Gen YTD', fmt(savedComputed.generationYTD), 'MU'],
+                      ['📅 PLF MTD', fmt(savedComputed.plfMTD, 2), '%'],
+                      ['📆 PLF YTD', fmt(savedComputed.plfYTD, 2), '%'],
                     ] : []),
                   ].map(([label, val, unit]) => (
                     <div key={label} style={{
@@ -356,8 +358,8 @@ export default function PowerEntry() {
                         📡 Grid Frequency (DGR 1.6)
                       </div>
                       <div className="mono" style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.7 }}>
-                        Min — {extras.freqMin || '—'} Hz<br/>
-                        Max — {extras.freqMax || '—'} Hz<br/>
+                        Min — {extras.freqMin || '—'} Hz<br />
+                        Max — {extras.freqMax || '—'} Hz<br />
                         Avg — {extras.freqAvg || '—'} Hz
                       </div>
                     </div>
@@ -374,7 +376,7 @@ export default function PowerEntry() {
             <div className="card-body">
               <div className="section-divider"><div className="section-num">A</div> Grid Frequency</div>
               <div className="form-grid-3">
-                {[['Freq Min','freqMin','Hz'],['Freq Max','freqMax','Hz'],['Freq Avg','freqAvg','Hz']].map(([label,key,unit]) => (
+                {[['Freq Min', 'freqMin', 'Hz'], ['Freq Max', 'freqMax', 'Hz'], ['Freq Avg', 'freqAvg', 'Hz']].map(([label, key, unit]) => (
                   <div className="form-group" key={key}>
                     <label className="form-label">{label} <span className="unit">{unit}</span></label>
                     <input className="form-input mono" type="number" step="0.001" placeholder="50.000"
@@ -386,11 +388,12 @@ export default function PowerEntry() {
               <div className="section-divider"><div className="section-num">B</div> Operations</div>
               <div className="form-grid-3">
                 {[
-                  ['Hours on Grid','hoursOnGrid','HH',0.5,0,24],
-                  ['Forced Outages','forcedOutages','Nos',1,0],
-                  ['Planned Outages','plannedOutages','Nos',1,0],
-                  ['RSD Count','rsdCount','Nos',1,0],
-                ].map(([label,key,unit,step=1,min=0,max]) => (
+                  ['Hours on Grid', 'hoursOnGrid', 'HH', 0.5, 0, 24],
+                  ['Forced Outages', 'forcedOutages', 'Nos', 1, 0],
+                  ['Planned Outages', 'plannedOutages', 'Nos', 1, 0],
+                  ['RSD Count', 'rsdCount', 'Nos', 1, 0],
+                  ['Partial Loading %', 'partialLoadingPct', '%', 0.1, 0, 100],
+                ].map(([label, key, unit, step = 1, min = 0, max]) => (
                   <div className="form-group" key={key}>
                     <label className="form-label">{label} <span className="unit">{unit}</span></label>
                     <input className="form-input mono" type="number" step={step} min={min} max={max}
@@ -421,7 +424,7 @@ export default function PowerEntry() {
               <div style={{ flex: 1 }} />
               {liveComputed && !savedComputed && (
                 <div style={{ fontSize: 12, color: '#2563eb', fontWeight: 600 }}>
-                  Live: {fmt(liveComputed.generationMU)} MU | PLF {fmt(liveComputed.plfDaily,1)}%
+                  Live: {fmt(liveComputed.generationMU)} MU | PLF {fmt(liveComputed.plfDaily, 1)}%
                 </div>
               )}
               <button className="btn btn-primary" onClick={handleSave}

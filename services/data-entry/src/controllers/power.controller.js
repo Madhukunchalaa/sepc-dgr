@@ -177,7 +177,7 @@ exports.upsertEntry = async (req, res) => {
       plantId, entryDate, meterReadings,
       freqMin, freqMax, freqAvg,
       hoursOnGrid, forcedOutages, plannedOutages,
-      rsdCount, outageRemarks, entryMethod
+      rsdCount, outageRemarks, partialLoadingPct, entryMethod
     } = req.body;
 
     const { rows: existing } = await query(
@@ -199,10 +199,10 @@ exports.upsertEntry = async (req, res) => {
            apc_mu, apc_pct, plf_daily, plf_mtd, plf_ytd,
            freq_min, freq_max, freq_avg, hours_on_grid,
            forced_outages, planned_outages, rsd_count,
-           outage_remarks, entry_method, submitted_by, status
+           outage_remarks, partial_loading_pct, entry_method, submitted_by, status
          ) VALUES (
            $1,$2,$3::jsonb,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
-           $15,$16,$17,$18,$19,$20,$21,$22,$23,$24,'draft'
+           $15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,'draft'
          )
          ON CONFLICT (plant_id, entry_date) DO UPDATE SET
            meter_readings  = EXCLUDED.meter_readings,
@@ -225,6 +225,7 @@ exports.upsertEntry = async (req, res) => {
            planned_outages = EXCLUDED.planned_outages,
            rsd_count       = EXCLUDED.rsd_count,
            outage_remarks  = EXCLUDED.outage_remarks,
+           partial_loading_pct = EXCLUDED.partial_loading_pct,
            entry_method    = EXCLUDED.entry_method,
            updated_at      = NOW()
          WHERE daily_power.status NOT IN ('approved','locked')
@@ -246,6 +247,7 @@ exports.upsertEntry = async (req, res) => {
           toNumber(hoursOnGrid),
           toNumber(forcedOutages), toNumber(plannedOutages), toNumber(rsdCount),
           outageRemarks || null,
+          toNumber(partialLoadingPct),
           entryMethod || 'manual',
           req.user.sub,
         ]

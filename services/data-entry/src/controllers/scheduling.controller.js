@@ -28,9 +28,12 @@ exports.upsertEntry = async (req, res) => {
         dc_sepc_mu, dc_tnpdcl_mu, sg_ppa_mu, sg_dam_mu, sg_rtm_mu,
         urs_dam_mwh, urs_rtm_mwh, urs_revenue, remarks,
         urs_net_profit_lacs, dc_loss_reasons,
+        asking_rate_mw, deemed_gen_mu, loss_coal_mu, loss_coal_pct, loss_cre_smps_mu, loss_cre_smps_pct,
+        loss_bunker_mu, loss_bunker_pct, loss_aoh_mu, loss_aoh_pct, loss_vacuum_mu, loss_vacuum_pct,
         status, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'draft', NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 
+        $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, 'draft', NOW()
       ) ON CONFLICT (plant_id, entry_date) DO UPDATE SET
         dc_sepc_mu = EXCLUDED.dc_sepc_mu,
         dc_tnpdcl_mu = EXCLUDED.dc_tnpdcl_mu,
@@ -43,6 +46,18 @@ exports.upsertEntry = async (req, res) => {
         remarks = EXCLUDED.remarks,
         urs_net_profit_lacs = EXCLUDED.urs_net_profit_lacs,
         dc_loss_reasons = EXCLUDED.dc_loss_reasons,
+        asking_rate_mw = EXCLUDED.asking_rate_mw,
+        deemed_gen_mu = EXCLUDED.deemed_gen_mu,
+        loss_coal_mu = EXCLUDED.loss_coal_mu,
+        loss_coal_pct = EXCLUDED.loss_coal_pct,
+        loss_cre_smps_mu = EXCLUDED.loss_cre_smps_mu,
+        loss_cre_smps_pct = EXCLUDED.loss_cre_smps_pct,
+        loss_bunker_mu = EXCLUDED.loss_bunker_mu,
+        loss_bunker_pct = EXCLUDED.loss_bunker_pct,
+        loss_aoh_mu = EXCLUDED.loss_aoh_mu,
+        loss_aoh_pct = EXCLUDED.loss_aoh_pct,
+        loss_vacuum_mu = EXCLUDED.loss_vacuum_mu,
+        loss_vacuum_pct = EXCLUDED.loss_vacuum_pct,
         status = 'draft',
         updated_at = NOW()
       RETURNING *;
@@ -52,7 +67,11 @@ exports.upsertEntry = async (req, res) => {
             data.dcSepcMu, data.dcTnpdclMu, data.sgPpaMu, data.sgDamMu, data.sgRtmMu,
             data.ursDamMwh, data.ursRtmMwh, data.ursRevenue, data.remarks,
             data.ursNetProfitLacs,
-            data.dcLossReasons ? JSON.stringify(data.dcLossReasons) : '[]'
+            data.dcLossReasons ? JSON.stringify(data.dcLossReasons) : '[]',
+            data.askingRateMw, data.deemedGenMu,
+            data.lossCoalMu, data.lossCoalPct, data.lossCreSmpsMu, data.lossCreSmpsPct,
+            data.lossBunkerMu, data.lossBunkerPct, data.lossAohMu, data.lossAohPct,
+            data.lossVacuumMu, data.lossVacuumPct
         ];
 
         const { rows } = await query(q, values);

@@ -43,6 +43,7 @@ export default function PerformanceEntry() {
         millSieveA: e.mill_sieve_a,
         millSieveB: e.mill_sieve_b,
         millSieveC: e.mill_sieve_c,
+        ghrRemarks: e.ghr_remarks,
         status: e.status,
       })
     } else {
@@ -101,6 +102,7 @@ export default function PerformanceEntry() {
         millSieveA: form.millSieveA,
         millSieveB: form.millSieveB,
         millSieveC: form.millSieveC,
+        ghrRemarks: form.ghrRemarks,
       },
     }
     saveMutation.mutate(payload)
@@ -131,9 +133,8 @@ export default function PerformanceEntry() {
             </div>
             {status !== 'unsubmitted' && (
               <span
-                className={`tag ${
-                  status === 'approved' ? 'tag-done' : status === 'submitted' ? 'tag-pend' : 'tag-draft'
-                }`}
+                className={`tag ${status === 'approved' ? 'tag-done' : status === 'submitted' ? 'tag-pend' : 'tag-draft'
+                  }`}
               >
                 {status.toUpperCase()}
               </span>
@@ -175,6 +176,19 @@ export default function PerformanceEntry() {
                       />
                     </div>
                   ))}
+                  <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                    <label className="form-label">
+                      GHR Remarks <span className="unit">Text</span>
+                    </label>
+                    <input
+                      className="form-input"
+                      type="text"
+                      value={form.ghrRemarks ?? ''}
+                      readOnly={readOnly}
+                      onChange={(e) => update('ghrRemarks', e.target.value)}
+                      placeholder="e.g. Boiler efficiency dip, Load fluctuation"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -218,8 +232,8 @@ export default function PerformanceEntry() {
                         form.fcPct != null && form.vmPct
                           ? fmt(Number(form.fcPct) / Number(form.vmPct), 4)
                           : form.fcVmRatio != null
-                          ? fmt(form.fcVmRatio, 4)
-                          : ''
+                            ? fmt(form.fcVmRatio, 4)
+                            : ''
                       }
                       readOnly
                       placeholder="auto"

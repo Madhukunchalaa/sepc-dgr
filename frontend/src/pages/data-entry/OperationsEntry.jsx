@@ -33,6 +33,8 @@ export default function OperationsEntry() {
                 bopActivities: e.bop_activities,
                 runningEquipment: e.running_equipment,
                 outageDetails: e.outage_details,
+                remarks: e.remarks,
+                observations: e.observations,
                 status: e.status
             })
         } else {
@@ -81,7 +83,9 @@ export default function OperationsEntry() {
         { label: 'Electrical & Instrumentation', key: 'electricalActivities' },
         { label: 'Balance of Plant (BOP)', key: 'bopActivities' },
         { label: 'Running Equipment Status', key: 'runningEquipment' },
-        { label: 'Outage / Grid Disturbance Details', key: 'outageDetails' }
+        { label: 'Outage / Grid Disturbance Details', key: 'outageDetails' },
+        { label: 'Remarks (DGR Section 10.2)', key: 'remarks' },
+        { label: 'Observations (DGR Section 10.3)', key: 'observations' }
     ]
 
     return (

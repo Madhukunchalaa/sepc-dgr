@@ -50,6 +50,9 @@ export default function WaterEntry() {
                 seaWaterM3: e.sea_water_m3,
                 swiFlowM3: e.swi_flow_m3,
                 outfallM3: e.outfall_m3,
+                idctMakeupM3: e.idct_makeup_m3,
+                filteredWaterGenM3: e.filtered_water_gen_m3,
+                serviceWaterStockM3: e.service_water_stock_m3,
             })
 
             setSavedComputed({
@@ -191,7 +194,9 @@ export default function WaterEntry() {
                                         ['DM Generation', 'dmGenerationM3', 'm3'],
                                         ['Cycle Makeup', 'dmCycleMakeupM3', 'm3'],
                                         ['Total Consumption', 'dmTotalConsM3', 'm3'],
-                                        ['Stock', 'dmStockM3', 'm3'],
+                                        ['DM Stock', 'dmStockM3', 'm3'],
+                                        ['Filtered / Service Water Gen', 'filteredWaterGenM3', 'm3'],
+                                        ['Service Water Stock', 'serviceWaterStockM3', 'm3'],
                                     ].map(([label, key, unit]) => (
                                         <div key={key} className="form-group">
                                             <label>{label}</label>
@@ -217,8 +222,9 @@ export default function WaterEntry() {
                             <div className="card-body">
                                 <div className="form-grid-2">
                                     {[
+                                        ['IDCT Make Up (Sea Water)', 'idctMakeupM3', 'm3'],
                                         ['SWI Flow', 'swiFlowM3', 'm3'],
-                                        ['Outfall', 'outfallM3', 'm3'],
+                                        ['Outfall (CT Blowdown & WTP Reject)', 'outfallM3', 'm3'],
                                         ['Service Water Consumption', 'serviceWaterM3', 'm3'],
                                         ['Potable Water Consumption', 'potableWaterM3', 'm3'],
                                         ['Sea Water Consumption', 'seaWaterM3', 'm3'],

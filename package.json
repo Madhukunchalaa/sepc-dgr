@@ -9,19 +9,22 @@
     "shared"
   ],
   "scripts": {
-    "dev":          "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:plant-config\" \"npm run dev:data-entry\" \"npm run dev:dgr-compute\" \"npm run dev:report-export\"",
-    "dev:gateway":       "npm --workspace=gateway run dev",
-    "dev:auth":          "npm --workspace=services/auth run dev",
-    "dev:plant-config":  "npm --workspace=services/plant-config run dev",
-    "dev:data-entry":    "npm --workspace=services/data-entry run dev",
-    "dev:dgr-compute":   "npm --workspace=services/dgr-compute run dev",
+    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:plant-config\" \"npm run dev:data-entry\" \"npm run dev:dgr-compute\" \"npm run dev:report-export\"",
+    "dev:gateway": "npm --workspace=gateway run dev",
+    "dev:auth": "npm --workspace=services/auth run dev",
+    "dev:plant-config": "npm --workspace=services/plant-config run dev",
+    "dev:data-entry": "npm --workspace=services/data-entry run dev",
+    "dev:dgr-compute": "npm --workspace=services/dgr-compute run dev",
     "dev:report-export": "npm --workspace=services/report-export run dev",
-    "docker:up":   "docker-compose -f infrastructure/docker/docker-compose.yml up -d",
+    "docker:up": "docker-compose -f infrastructure/docker/docker-compose.yml up -d",
     "docker:down": "docker-compose -f infrastructure/docker/docker-compose.yml down",
-    "migrate":     "node infrastructure/postgres/migrate.js",
+    "migrate": "node infrastructure/postgres/migrate.js",
     "install:all": "npm install && npm install --workspaces"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "pg": "^8.19.0"
   }
 }

@@ -26,10 +26,10 @@ exports.upsertEntry = async (req, res) => {
       INSERT INTO operations_log (
         plant_id, entry_date, 
         boiler_activities, turbine_activities, electrical_activities, bop_activities,
-        running_equipment, outage_details,
+        running_equipment, outage_details, remarks, observations,
         status, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, 'draft', NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'draft', NOW()
       ) ON CONFLICT (plant_id, entry_date) DO UPDATE SET
         boiler_activities = EXCLUDED.boiler_activities,
         turbine_activities = EXCLUDED.turbine_activities,
@@ -37,6 +37,8 @@ exports.upsertEntry = async (req, res) => {
         bop_activities = EXCLUDED.bop_activities,
         running_equipment = EXCLUDED.running_equipment,
         outage_details = EXCLUDED.outage_details,
+        remarks = EXCLUDED.remarks,
+        observations = EXCLUDED.observations,
         status = 'draft',
         updated_at = NOW()
       RETURNING *;
@@ -44,7 +46,8 @@ exports.upsertEntry = async (req, res) => {
         const values = [
             plantId, date,
             data.boilerActivities, data.turbineActivities, data.electricalActivities, data.bopActivities,
-            data.runningEquipment, data.outageDetails
+            data.runningEquipment, data.outageDetails,
+            data.remarks, data.observations
         ];
 
         const { rows } = await query(q, values);
