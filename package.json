@@ -25,6 +25,7 @@
     "concurrently": "^8.2.0"
   },
   "dependencies": {
+    "docx": "^9.6.0",
     "pg": "^8.19.0"
   }
 }
