@@ -44,7 +44,7 @@ export default function SchedulingEntry() {
                 dcSepcMu: s.dc_sepc_mu, dcTnpdclMu: s.dc_tnpdcl_mu,
                 sgPpaMu: s.sg_ppa_mu, sgDamMu: s.sg_dam_mu, sgRtmMu: s.sg_rtm_mu,
                 ursDamMwh: s.urs_dam_mwh, ursRtmMwh: s.urs_rtm_mwh,
-                ursRevenue: s.urs_revenue, remarks: s.remarks, status: s.status,
+                ursRevenue: s.urs_revenue, ursNetProfitLacs: s.urs_net_profit_lacs, remarks: s.remarks, status: s.status,
                 askingRateMw: s.asking_rate_mw, deemedGenMu: s.deemed_gen_mu,
                 lossCoalMu: s.loss_coal_mu, lossCoalPct: s.loss_coal_pct,
                 lossCreSmpsMu: s.loss_cre_smps_mu, lossCreSmpsPct: s.loss_cre_smps_pct,
@@ -63,7 +63,7 @@ export default function SchedulingEntry() {
             setAvailForm({
                 onBarHours: a.on_bar_hours, rsdHours: a.rsd_hours,
                 forcedOutageHrs: a.forced_outage_hrs, plannedOutageHrs: a.planned_outage_hrs,
-                pafPct: a.paf_pct, status: a.status
+                pafPct: a.paf_pct, pafTnpdclPct: a.paf_tnpdcl, status: a.status
             })
         } else {
             setAvailForm({})
@@ -186,6 +186,7 @@ export default function SchedulingEntry() {
                                             ['URS (DAM)', 'ursDamMwh', 'MWh'],
                                             ['URS (RTM)', 'ursRtmMwh', 'MWh'],
                                             ['URS Revenue', 'ursRevenue', '₹'],
+                                            ['URS Net Profit', 'ursNetProfitLacs', 'Lacs']
                                         ].map(([label, key, unit]) => (
                                             <div key={key} className="form-group">
                                                 <label>{label}</label>
@@ -214,7 +215,8 @@ export default function SchedulingEntry() {
                                         ['RSD Hours', 'rsdHours', 'Hrs'],
                                         ['Forced Outage Hours', 'forcedOutageHrs', 'Hrs'],
                                         ['Planned Outage Hours', 'plannedOutageHrs', 'Hrs'],
-                                        ['PAF (Availability Factor)', 'pafPct', '%'],
+                                        ['PAF (SEPC)', 'pafPct', '%'],
+                                        ['PAF (TNPDCL)', 'pafTnpdclPct', '%'],
                                     ].map(([label, key, unit]) => (
                                         <div key={key} className="form-group">
                                             <label>{label}</label>

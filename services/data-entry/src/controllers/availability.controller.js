@@ -22,27 +22,27 @@ exports.upsertEntry = async (req, res) => {
         const { plantId, date, data } = req.body;
         if (!plantId || !date || !data) return res.status(400).json({ error: 'Invalid payload' });
 
-        // For PAF pct calculation, usually (on_bar_hours / 24) * 100 or declared capacity based
         const q = `
       INSERT INTO daily_availability (
         plant_id, entry_date, 
-        on_bar_hours, rsd_hours, forced_outage_hrs, planned_outage_hrs, paf_pct,
+        on_bar_hours, rsd_hours, forced_outage_hrs, planned_outage_hrs, paf_pct, paf_tnpdcl,
         status, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, 'draft', NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, 'draft', NOW()
       ) ON CONFLICT (plant_id, entry_date) DO UPDATE SET
         on_bar_hours = EXCLUDED.on_bar_hours,
         rsd_hours = EXCLUDED.rsd_hours,
         forced_outage_hrs = EXCLUDED.forced_outage_hrs,
         planned_outage_hrs = EXCLUDED.planned_outage_hrs,
         paf_pct = EXCLUDED.paf_pct,
+        paf_tnpdcl = EXCLUDED.paf_tnpdcl,
         status = 'draft',
         updated_at = NOW()
       RETURNING *;
     `;
         const values = [
             plantId, date,
-            data.onBarHours, data.rsdHours, data.forcedOutageHrs, data.plannedOutageHrs, data.pafPct
+            data.onBarHours, data.rsdHours, data.forcedOutageHrs, data.plannedOutageHrs, data.pafPct, data.pafTnpdclPct
         ];
 
         const { rows } = await query(q, values);
