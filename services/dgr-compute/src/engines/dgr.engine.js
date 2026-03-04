@@ -71,7 +71,7 @@ async function assembleDGR(plantId, targetDate) {
                     { sn: "1.6", particulars: "Auxiliary Power Consumption (APC incl Import)", uom: "MU", daily: power?.apc_mu, mtd: apcMtd, ytd: apcYtd },
                     { sn: "1.7", particulars: "APC %", uom: "%", daily: power?.apc_pct != null ? Number(power.apc_pct) * 100 : null, mtd: genMtd > 0 ? (apcMtd / genMtd) * 100 : 0, ytd: genYtd > 0 ? (apcYtd / genYtd) * 100 : 0 },
                     { sn: "1.8", particulars: "Hours on Grid", uom: "D(s) HH:MM", daily: formatHours(power?.hours_on_grid), mtd: null, ytd: null },
-                    { sn: "1.9", particulars: "Grid Frequency", uom: "Hz", daily: power?.freq_avg, mtd: null, ytd: null }
+                    { sn: "1.9", particulars: "Grid Frequency", uom: "Hz", daily: power?.freq_avg != null ? `Min - ${power.freq_min || 0} Hz / Max - ${power.freq_max || 0} Hz / Avg - ${power.freq_avg} Hz` : null, mtd: null, ytd: null }
                 ]
             },
             {
@@ -175,11 +175,11 @@ async function assembleDGR(plantId, targetDate) {
             {
                 title: "9️⃣ DC LOSS B/U (Capacity – DC TNPDCL)",
                 rows: [
-                    { sn: "9.1", particulars: "Coal Shortage", uom: "MU / %", daily: formatLoss(scheduling?.loss_coal_mu, scheduling?.loss_coal_pct), mtd: null, ytd: null },
-                    { sn: "9.2", particulars: "CRE to SMPS Failure Trip", uom: "MU / %", daily: formatLoss(scheduling?.loss_cre_smps_mu, scheduling?.loss_cre_smps_pct), mtd: null, ytd: null },
-                    { sn: "9.3", particulars: "Bunker Choke", uom: "MU / %", daily: formatLoss(scheduling?.loss_bunker_mu, scheduling?.loss_bunker_pct), mtd: null, ytd: null },
-                    { sn: "9.4", particulars: "AOH", uom: "MU / %", daily: formatLoss(scheduling?.loss_aoh_mu, scheduling?.loss_aoh_pct), mtd: null, ytd: null },
-                    { sn: "9.5", particulars: "Low Vacuum Trip", uom: "MU / %", daily: formatLoss(scheduling?.loss_vacuum_mu, scheduling?.loss_vacuum_pct), mtd: null, ytd: null }
+                    { sn: "9.1", particulars: "Coal Shortage", uom: "MU / %", daily: formatLoss(scheduling?.loss_coal_mu, scheduling?.loss_coal_pct), mtd: formatLoss(await getMTDSum(plantId, targetDate, 'loss_coal_mu', 'daily_scheduling'), await getMTDAvg(plantId, targetDate, 'loss_coal_pct', 'daily_scheduling')), ytd: formatLoss(await getYTDSum(plantId, targetDate, 'loss_coal_mu', 'daily_scheduling'), await getYTDAvg(plantId, targetDate, 'loss_coal_pct', 'daily_scheduling')) },
+                    { sn: "9.2", particulars: "CRE to SMPS Failure Trip", uom: "MU / %", daily: formatLoss(scheduling?.loss_cre_smps_mu, scheduling?.loss_cre_smps_pct), mtd: formatLoss(await getMTDSum(plantId, targetDate, 'loss_cre_smps_mu', 'daily_scheduling'), await getMTDAvg(plantId, targetDate, 'loss_cre_smps_pct', 'daily_scheduling')), ytd: formatLoss(await getYTDSum(plantId, targetDate, 'loss_cre_smps_mu', 'daily_scheduling'), await getYTDAvg(plantId, targetDate, 'loss_cre_smps_pct', 'daily_scheduling')) },
+                    { sn: "9.3", particulars: "Bunker Choke", uom: "MU / %", daily: formatLoss(scheduling?.loss_bunker_mu, scheduling?.loss_bunker_pct), mtd: formatLoss(await getMTDSum(plantId, targetDate, 'loss_bunker_mu', 'daily_scheduling'), await getMTDAvg(plantId, targetDate, 'loss_bunker_pct', 'daily_scheduling')), ytd: formatLoss(await getYTDSum(plantId, targetDate, 'loss_bunker_mu', 'daily_scheduling'), await getYTDAvg(plantId, targetDate, 'loss_bunker_pct', 'daily_scheduling')) },
+                    { sn: "9.4", particulars: "AOH", uom: "MU / %", daily: formatLoss(scheduling?.loss_aoh_mu, scheduling?.loss_aoh_pct), mtd: formatLoss(await getMTDSum(plantId, targetDate, 'loss_aoh_mu', 'daily_scheduling'), await getMTDAvg(plantId, targetDate, 'loss_aoh_pct', 'daily_scheduling')), ytd: formatLoss(await getYTDSum(plantId, targetDate, 'loss_aoh_mu', 'daily_scheduling'), await getYTDAvg(plantId, targetDate, 'loss_aoh_pct', 'daily_scheduling')) },
+                    { sn: "9.5", particulars: "Low Vacuum Trip", uom: "MU / %", daily: formatLoss(scheduling?.loss_vacuum_mu, scheduling?.loss_vacuum_pct), mtd: formatLoss(await getMTDSum(plantId, targetDate, 'loss_vacuum_mu', 'daily_scheduling'), await getMTDAvg(plantId, targetDate, 'loss_vacuum_pct', 'daily_scheduling')), ytd: formatLoss(await getYTDSum(plantId, targetDate, 'loss_vacuum_mu', 'daily_scheduling'), await getYTDAvg(plantId, targetDate, 'loss_vacuum_pct', 'daily_scheduling')) }
                 ]
             },
             {
