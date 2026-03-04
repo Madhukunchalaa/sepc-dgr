@@ -48,7 +48,7 @@ async function assembleDGR(plantId, targetDate) {
 
     const formatLoss = (mu, pct) => mu != null ? `${mu} / ${pct ?? 0}%` : null;
 
-    return {
+    const report = {
         header: {
             title: `DAILY GENERATION REPORT — ${plant?.fy_label || ''}`,
             company: plant?.company_name || 'SEPC Power Pvt Ltd',
@@ -71,7 +71,7 @@ async function assembleDGR(plantId, targetDate) {
                     { sn: "1.6", particulars: "Auxiliary Power Consumption (APC incl Import)", uom: "MU", daily: power?.apc_mu, mtd: apcMtd, ytd: apcYtd },
                     { sn: "1.7", particulars: "APC %", uom: "%", daily: power?.apc_pct != null ? Number(power.apc_pct) * 100 : null, mtd: genMtd > 0 ? (apcMtd / genMtd) * 100 : 0, ytd: genYtd > 0 ? (apcYtd / genYtd) * 100 : 0 },
                     { sn: "1.8", particulars: "Hours on Grid", uom: "D(s) HH:MM", daily: formatHours(power?.hours_on_grid), mtd: null, ytd: null },
-                    { sn: "1.9", particulars: "Grid Frequency", uom: "Hz", daily: power?.freq_avg != null ? `Min - ${power.freq_min || 0} Hz / Max - ${power.freq_max || 0} Hz / Avg - ${power.freq_avg} Hz` : null, mtd: null, ytd: null }
+                    { sn: "1.9", particulars: "Grid Frequency", uom: "Hz", daily: (power?.freq_min || power?.freq_max || power?.freq_avg) ? `Min - ${power.freq_min || 0} Hz / Max - ${power.freq_max || 0} Hz / Avg - ${power.freq_avg || 0} Hz` : null, mtd: null, ytd: null }
                 ]
             },
             {
@@ -198,6 +198,23 @@ async function assembleDGR(plantId, targetDate) {
             targetDate,
         },
     };
+
+    function processNumbers(obj) {
+        if (obj === null || obj === undefined) return obj;
+        if (typeof obj === 'number') return Number(obj.toFixed(4));
+        if (Array.isArray(obj)) return obj.map(processNumbers);
+        if (typeof obj === 'object') {
+            const newObj = {};
+            for (const [k, v] of Object.entries(obj)) {
+                newObj[k] = processNumbers(v);
+            }
+            return newObj;
+        }
+        return obj;
+    }
+
+    report.sections = processNumbers(report.sections);
+    return report;
 }
 
 // ── Data fetchers ──
