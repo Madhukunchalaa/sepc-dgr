@@ -63,8 +63,10 @@ async function ensureTablesExist() {
       ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS dc_loss_reasons JSONB DEFAULT '[]'::jsonb;
     `);
     logger.info('Auto-migrate: ensure missing tables and columns exist in Railway DB');
+    return { success: true, message: 'Migration completed' };
   } catch (err) {
     logger.error('Auto-migrate failed', { error: err.message });
+    return { success: false, message: err.message, stack: err.stack };
   }
 }
 ensureTablesExist();
@@ -82,6 +84,12 @@ app.use(cors({
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ service: 'dgr-compute', status: 'ok', uptime: process.uptime() }));
+
+// Admin manual migration trigger
+app.get('/api/dgr/admin/migrate', async (req, res) => {
+  const result = await ensureTablesExist();
+  res.json(result);
+});
 
 // GET /api/dgr/:plantId/history?from=&to=
 app.get('/api/dgr/:plantId/history', authenticate, requirePlantAccess, async (req, res) => {
