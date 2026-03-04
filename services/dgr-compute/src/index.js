@@ -58,9 +58,27 @@ async function ensureTablesExist() {
 
       ALTER TABLE daily_water ADD COLUMN IF NOT EXISTS swi_flow_m3 DECIMAL(12,3);
       ALTER TABLE daily_water ADD COLUMN IF NOT EXISTS outfall_m3 DECIMAL(12,3);
+      ALTER TABLE daily_water ADD COLUMN IF NOT EXISTS idct_makeup_m3 DECIMAL(12,3);
+      ALTER TABLE daily_water ADD COLUMN IF NOT EXISTS filtered_water_gen_m3 DECIMAL(12,3);
+      ALTER TABLE daily_water ADD COLUMN IF NOT EXISTS service_water_stock_m3 DECIMAL(12,3);
       
       ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS urs_net_profit_lacs DECIMAL(14,2);
       ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS dc_loss_reasons JSONB DEFAULT '[]'::jsonb;
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS asking_rate_mw DECIMAL(10,2);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS deemed_gen_mu DECIMAL(12,6);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_coal_mu DECIMAL(10,4);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_coal_pct DECIMAL(6,2);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_cre_smps_mu DECIMAL(10,4);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_cre_smps_pct DECIMAL(6,2);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_bunker_mu DECIMAL(10,4);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_bunker_pct DECIMAL(6,2);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_aoh_mu DECIMAL(10,4);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_aoh_pct DECIMAL(6,2);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_vacuum_mu DECIMAL(10,4);
+      ALTER TABLE daily_scheduling ADD COLUMN IF NOT EXISTS loss_vacuum_pct DECIMAL(6,2);
+
+      ALTER TABLE daily_power ADD COLUMN IF NOT EXISTS partial_loading_pct DECIMAL(6,3);
+      ALTER TABLE daily_performance ADD COLUMN IF NOT EXISTS ghr_remarks TEXT;
     `);
     logger.info('Auto-migrate: ensure missing tables and columns exist in Railway DB');
     return { success: true, message: 'Migration completed' };
