@@ -7,14 +7,15 @@ import axios from 'axios'
 const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 // When deployed, ALL traffic goes through the gateway (one URL).
-// In dev, we hit each service directly for simplicity.
+// In dev, we hit each service directly via gateway.
 const IS_PROD = !!import.meta.env.VITE_API_URL
 
-const AUTH_BASE = IS_PROD ? GATEWAY : 'http://localhost:3001'
-const PLANT_BASE = IS_PROD ? GATEWAY : 'http://localhost:3002'
-const DATA_ENTRY_BASE = IS_PROD ? GATEWAY : 'http://localhost:3003'
-const DGR_BASE = IS_PROD ? GATEWAY : 'http://localhost:3004'
-const REPORTS_BASE = IS_PROD ? GATEWAY : 'http://localhost:3004'
+// Force everything through gateway port 3000 even locally to match production behavior.
+const AUTH_BASE = IS_PROD ? GATEWAY : 'http://localhost:3000'
+const PLANT_BASE = IS_PROD ? GATEWAY : 'http://localhost:3000'
+const DATA_ENTRY_BASE = IS_PROD ? GATEWAY : 'http://localhost:3000'
+const DGR_BASE = IS_PROD ? GATEWAY : 'http://localhost:3000'
+const REPORTS_BASE = IS_PROD ? GATEWAY : 'http://localhost:3000'
 
 // ── Auth Service ─────────────────────────────────────────────────────────────
 const client = axios.create({
