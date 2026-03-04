@@ -1,21 +1,21 @@
 exports.getAshEntry = async (req, res) => {
-    try {
-        const { plantId, date } = req.params;
-        const { rows } = await require('../shared/db').query(
-            `SELECT * FROM daily_ash WHERE plant_id = $1 AND entry_date = $2`,
-            [plantId, date]
-        );
-        res.json(rows[0] || null);
-    } catch (err) {
-        res.status(500).json({ error: 'Server error' });
-    }
+  try {
+    const { plantId, date } = req.params;
+    const { rows } = await require('../shared/db').query(
+      `SELECT * FROM daily_ash WHERE plant_id = $1 AND entry_date = $2`,
+      [plantId, date]
+    );
+    res.json(rows[0] || null);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 };
 
 exports.upsertAshEntry = async (req, res) => {
-    try {
-        const { plantId, date, data } = req.body;
-        const { query } = require('../shared/db');
-        const q = `
+  try {
+    const { plantId, date, data } = req.body;
+    const { query } = require('../shared/db');
+    const q = `
       INSERT INTO daily_ash (
         plant_id, entry_date,
         fa_generated_mt, fa_to_user_mt, fa_to_dyke_mt, fa_silo_mt,
@@ -36,10 +36,22 @@ exports.upsertAshEntry = async (req, res) => {
         updated_at = NOW()
       RETURNING *;
     `;
-        const values = [plantId, date, data.fa_generated_mt, data.fa_to_user_mt, data.fa_to_dyke_mt, data.fa_silo_mt, data.ba_generated_mt, data.ba_to_user_mt, data.ba_to_dyke_mt, data.ba_silo_mt];
-        const { rows } = await query(q, values);
-        res.json({ message: 'Saved', data: rows[0] });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to save ash data' });
-    }
+    const parseNum = (val) => (val === '' || val == null ? null : Number(val));
+    const values = [
+      plantId,
+      date,
+      parseNum(data.fa_generated_mt),
+      parseNum(data.fa_to_user_mt),
+      parseNum(data.fa_to_dyke_mt),
+      parseNum(data.fa_silo_mt),
+      parseNum(data.ba_generated_mt),
+      parseNum(data.ba_to_user_mt),
+      parseNum(data.ba_to_dyke_mt),
+      parseNum(data.ba_silo_mt)
+    ];
+    const { rows } = await query(q, values);
+    res.json({ message: 'Saved', data: rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save ash data' });
+  }
 };

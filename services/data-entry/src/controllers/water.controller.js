@@ -60,12 +60,13 @@ exports.upsertEntry = async (req, res) => {
         updated_at = NOW()
       RETURNING *;
     `;
+        const parseNum = (val) => (val === '' || val == null ? null : Number(val));
         const values = [
             plantId, date,
-            data.dmGenerationM3, data.dmCycleMakeupM3, dm_pct, data.dmTotalConsM3, data.dmStockM3,
-            data.serviceWaterM3, data.potableWaterM3, data.seaWaterM3,
-            data.swiFlowM3, data.outfallM3,
-            data.idctMakeupM3, data.filteredWaterGenM3, data.serviceWaterStockM3
+            parseNum(data.dmGenerationM3), parseNum(data.dmCycleMakeupM3), dm_pct, parseNum(data.dmTotalConsM3), parseNum(data.dmStockM3),
+            parseNum(data.serviceWaterM3), parseNum(data.potableWaterM3), parseNum(data.seaWaterM3),
+            parseNum(data.swiFlowM3), parseNum(data.outfallM3),
+            parseNum(data.idctMakeupM3), parseNum(data.filteredWaterGenM3), parseNum(data.serviceWaterStockM3)
         ];
 
         const { rows } = await query(q, values);

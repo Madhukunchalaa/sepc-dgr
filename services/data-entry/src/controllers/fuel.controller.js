@@ -26,6 +26,32 @@ exports.upsertEntry = async (req, res) => {
       n2Receipt, n2Cons, n2Stock,
     } = req.body;
 
+    const parseNum = (val) => (val === '' || val == null ? null : Number(val));
+
+    // Safely cast all incoming numeric payload properties
+    const sCoalReceipt = parseNum(coalReceiptMt);
+    const sCoalCons = parseNum(coalConsMt);
+    const sCoalStock = parseNum(coalStockMt);
+    const sCoalGcvAr = parseNum(coalGcvAr);
+    const sCoalGcvAf = parseNum(coalGcvAf);
+    const sLdoReceipt = parseNum(ldoReceiptKl);
+    const sLdoCons = parseNum(ldoConsKl);
+    const sLdoStock = parseNum(ldoStockKl);
+    const sLdoRate = parseNum(ldoRate);
+    const sHfoReceipt = parseNum(hfoReceiptKl);
+    const sHfoCons = parseNum(hfoConsKl);
+    const sHfoStock = parseNum(hfoStockKl);
+    const sHfoRate = parseNum(hfoRate);
+    const sH2Receipt = parseNum(h2Receipt) || 0;
+    const sH2Cons = parseNum(h2Cons) || 0;
+    const sH2Stock = parseNum(h2Stock) || 0;
+    const sCo2Receipt = parseNum(co2Receipt) || 0;
+    const sCo2Cons = parseNum(co2Cons) || 0;
+    const sCo2Stock = parseNum(co2Stock) || 0;
+    const sN2Receipt = parseNum(n2Receipt) || 0;
+    const sN2Cons = parseNum(n2Cons) || 0;
+    const sN2Stock = parseNum(n2Stock) || 0;
+
     // SCC = coal consumed (kg) / generation (kWh)
     // SOC = (ldo cons (kl) + hfo cons (kl)) / generation (MU)
     const { rows: pw } = await query(
@@ -34,10 +60,10 @@ exports.upsertEntry = async (req, res) => {
     );
     const genMu = (pw[0]?.generation_mu || 0);
     const genKwh = genMu * 1000000;
-    const coalKg = (coalConsMt || 0) * 1000;
+    const coalKg = (sCoalCons || 0) * 1000;
 
     const sccKgKwh = genKwh > 0 ? coalKg / genKwh : null;
-    const socMlKwh = genMu > 0 ? ((ldoConsKl || 0) + (hfoConsKl || 0)) / genMu : null;
+    const socMlKwh = genMu > 0 ? ((sLdoCons || 0) + (sHfoCons || 0)) / genMu : null;
 
     const result = await transaction(async (client) => {
       const { rows } = await client.query(
@@ -69,13 +95,13 @@ exports.upsertEntry = async (req, res) => {
         RETURNING *`,
         [
           plantId, entryDate,
-          coalReceiptMt, coalConsMt, coalStockMt, coalGcvAr, coalGcvAf, sccKgKwh,
-          ldoReceiptKl, ldoConsKl, ldoStockKl, ldoRate,
-          hfoReceiptKl, hfoConsKl, hfoStockKl, hfoRate,
+          sCoalReceipt, sCoalCons, sCoalStock, sCoalGcvAr, sCoalGcvAf, sccKgKwh,
+          sLdoReceipt, sLdoCons, sLdoStock, sLdoRate,
+          sHfoReceipt, sHfoCons, sHfoStock, sHfoRate,
           socMlKwh,
-          h2Receipt || 0, h2Cons || 0, h2Stock || 0,
-          co2Receipt || 0, co2Cons || 0, co2Stock || 0,
-          n2Receipt || 0, n2Cons || 0, n2Stock || 0,
+          sH2Receipt, sH2Cons, sH2Stock,
+          sCo2Receipt, sCo2Cons, sCo2Stock,
+          sN2Receipt, sN2Cons, sN2Stock,
           req.user.sub,
         ]
       );

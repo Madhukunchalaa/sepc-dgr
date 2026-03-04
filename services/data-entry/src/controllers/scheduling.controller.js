@@ -62,16 +62,17 @@ exports.upsertEntry = async (req, res) => {
         updated_at = NOW()
       RETURNING *;
     `;
+        const parseNum = (val) => (val === '' || val == null ? null : Number(val));
         const values = [
             plantId, date,
-            data.dcSepcMu, data.dcTnpdclMu, data.sgPpaMu, data.sgDamMu, data.sgRtmMu,
-            data.ursDamMwh, data.ursRtmMwh, data.ursRevenue, data.remarks,
-            data.ursNetProfitLacs,
+            parseNum(data.dcSepcMu), parseNum(data.dcTnpdclMu), parseNum(data.sgPpaMu), parseNum(data.sgDamMu), parseNum(data.sgRtmMu),
+            parseNum(data.ursDamMwh), parseNum(data.ursRtmMwh), parseNum(data.ursRevenue), data.remarks === '' ? null : (data.remarks ?? null),
+            parseNum(data.ursNetProfitLacs),
             data.dcLossReasons ? JSON.stringify(data.dcLossReasons) : '[]',
-            data.askingRateMw, data.deemedGenMu,
-            data.lossCoalMu, data.lossCoalPct, data.lossCreSmpsMu, data.lossCreSmpsPct,
-            data.lossBunkerMu, data.lossBunkerPct, data.lossAohMu, data.lossAohPct,
-            data.lossVacuumMu, data.lossVacuumPct
+            parseNum(data.askingRateMw), parseNum(data.deemedGenMu),
+            parseNum(data.lossCoalMu), parseNum(data.lossCoalPct), parseNum(data.lossCreSmpsMu), parseNum(data.lossCreSmpsPct),
+            parseNum(data.lossBunkerMu), parseNum(data.lossBunkerPct), parseNum(data.lossAohMu), parseNum(data.lossAohPct),
+            parseNum(data.lossVacuumMu), parseNum(data.lossVacuumPct)
         ];
 
         const { rows } = await query(q, values);

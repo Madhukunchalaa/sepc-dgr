@@ -24,27 +24,28 @@ exports.upsertEntry = async (req, res) => {
       return error(res, 'Invalid payload', 400);
     }
 
-    const gcvAr = data.gcvAr ?? null;
-    const gcvAf = data.gcvAf ?? null;
-    const ghrMtd = data.ghrMtd ?? null;
-    const ghrYtd = data.ghrYtd ?? null;
-    const loiBa = data.loiBa ?? null;
-    const loiFa = data.loiFa ?? null;
-    const fcPct = data.fcPct ?? null;
-    const vmPct = data.vmPct ?? null;
-    const millSieveA = data.millSieveA ?? null;
-    const millSieveB = data.millSieveB ?? null;
-    const millSieveC = data.millSieveC ?? null;
+    const parseNum = (val) => (val === '' || val == null ? null : Number(val));
+    const gcvAr = parseNum(data.gcvAr);
+    const gcvAf = parseNum(data.gcvAf);
+    const ghrMtd = parseNum(data.ghrMtd);
+    const ghrYtd = parseNum(data.ghrYtd);
+    const loiBa = parseNum(data.loiBa);
+    const loiFa = parseNum(data.loiFa);
+    const fcPct = parseNum(data.fcPct);
+    const vmPct = parseNum(data.vmPct);
+    const millSieveA = parseNum(data.millSieveA);
+    const millSieveB = parseNum(data.millSieveB);
+    const millSieveC = parseNum(data.millSieveC);
 
     // FC/VM ratio if both are provided
     const fcVmRatio =
-      fcPct != null && vmPct != null && Number(vmPct) !== 0
-        ? Number(fcPct) / Number(vmPct)
+      fcPct !== null && vmPct !== null && vmPct !== 0
+        ? fcPct / vmPct
         : null;
 
     // Optional direct GHR value; if not provided we persist null and let the DGR engine compute it live.
-    const ghrDirect = data.ghrDirect ?? null;
-    const ghrRemarks = data.ghrRemarks ?? null;
+    const ghrDirect = parseNum(data.ghrDirect);
+    const ghrRemarks = data.ghrRemarks === '' ? null : (data.ghrRemarks ?? null);
 
     const result = await transaction(async (client) => {
       const { rows } = await client.query(
