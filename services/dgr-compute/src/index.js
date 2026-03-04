@@ -242,104 +242,105 @@ app.get('/api/reports/dgr/excel/:plantId/:date', authenticate, requirePlantAcces
       addRow([label, unit, fmt(daily, dec), fmt(mtd, dec), fmt(ytd, dec)]);
     }
 
+    function findVal(sectionTitle, exactRowLabel, format = 'daily') {
+      const sec = dgr.sections?.find(s => s.title.includes(sectionTitle));
+      if (!sec) return null;
+      const row = sec.rows.find(r => r.particulars.toLowerCase() === exactRowLabel.toLowerCase());
+      if (!row) return null;
+      return row[format];
+    }
+
     // ── SECTION 1: POWER ─────────────────────────────────────────────────
     secHead('POWER GENERATION');
-    const p = dgr.power || {};
-    dataRow('Power Generation', 'MU', p.generation?.daily, p.generation?.mtd, p.generation?.ytd);
-    dataRow('Average Generation', 'MW', p.avgLoad?.daily, p.avgLoad?.mtd, p.avgLoad?.ytd);
-    dataRow('Total Export (GT)', 'MU', p.exportGT?.daily, p.exportGT?.mtd, p.exportGT?.ytd);
-    dataRow('Total Import (GT)', 'MU', p.importGT?.daily, p.importGT?.mtd, p.importGT?.ytd);
-    dataRow('APC (incl. Import)', 'MU', p.apc?.daily, p.apc?.mtd, p.apc?.ytd);
-    dataRow('APC %', '%', p.apc?.pct?.daily, p.apc?.pct?.mtd, p.apc?.pct?.ytd, 4);
-    dataRow('Hours on Grid', 'Hrs', p.hoursOnGrid?.daily, '-', '-', 1);
-    dataRow('Grid Frequency Min', 'Hz', p.gridFrequency?.min, '-', '-', 3);
-    dataRow('Grid Frequency Max', 'Hz', p.gridFrequency?.max, '-', '-', 3);
-    dataRow('Grid Frequency Avg', 'Hz', p.gridFrequency?.avg, '-', '-', 3);
+    dataRow('Power Generation', 'MU', findVal('POWER', 'Power Generation', 'daily'), findVal('POWER', 'Power Generation', 'mtd'), findVal('POWER', 'Power Generation', 'ytd'));
+    dataRow('Average Generation', 'MW', findVal('POWER', 'Average Power Generation', 'daily'), findVal('POWER', 'Average Power Generation', 'mtd'), findVal('POWER', 'Average Power Generation', 'ytd'));
+    dataRow('Total Export (GT)', 'MU', findVal('POWER', 'Total Export (GT)', 'daily'), findVal('POWER', 'Total Export (GT)', 'mtd'), findVal('POWER', 'Total Export (GT)', 'ytd'));
+    dataRow('Total Import (GT)', 'MU', findVal('POWER', 'Total Import (GT)', 'daily'), findVal('POWER', 'Total Import (GT)', 'mtd'), findVal('POWER', 'Total Import (GT)', 'ytd'));
+    dataRow('Net Export (GT Export - GT Import)', 'MU', findVal('POWER', 'Net Export (GT Export - GT Import)', 'daily'), findVal('POWER', 'Net Export (GT Export - GT Import)', 'mtd'), findVal('POWER', 'Net Export (GT Export - GT Import)', 'ytd'));
+    dataRow('Auxiliary Power Consumption (APC incl Import)', 'MU', findVal('POWER', 'Auxiliary Power Consumption (APC incl Import)', 'daily'), findVal('POWER', 'Auxiliary Power Consumption (APC incl Import)', 'mtd'), findVal('POWER', 'Auxiliary Power Consumption (APC incl Import)', 'ytd'));
+    dataRow('APC %', '%', findVal('POWER', 'APC %', 'daily'), findVal('POWER', 'APC %', 'mtd'), findVal('POWER', 'APC %', 'ytd'), 4);
+    dataRow('Hours on Grid', 'Hrs', findVal('POWER', 'Hours on Grid', 'daily'), '-', '-', 1);
+    dataRow('Grid Frequency', 'Hz', findVal('POWER', 'Grid Frequency', 'daily'), '-', '-', 3);
 
     // ── SECTION 2: PERFORMANCE ────────────────────────────────────────────
     secHead('PERFORMANCE');
-    const pf = dgr.performance || {};
-    dataRow('Plant Load Factor (PLF)', '%', pf.plf?.daily, pf.plf?.mtd, pf.plf?.ytd, 4);
-    dataRow('Plant Availability Factor (PAF)', '%', pf.paf?.daily, pf.paf?.mtd, pf.paf?.ytd, 4);
-    dataRow('Forced Outages', 'Nos', pf.outages?.forced?.daily, pf.outages?.forced?.mtd, pf.outages?.forced?.ytd, 0);
-    dataRow('Planned Outages', 'Nos', pf.outages?.planned?.daily, pf.outages?.planned?.mtd, pf.outages?.planned?.ytd, 0);
-    dataRow('RSD Count', 'Nos', pf.outages?.rsd?.daily, pf.outages?.rsd?.mtd, pf.outages?.rsd?.ytd, 0);
-    dataRow('Specific Coal Consumption (SCC)', 'kg/kWh', pf.scc?.daily, pf.scc?.mtd, pf.scc?.ytd, 5);
-    dataRow('Specific Oil Consumption (SOC)', 'ml/kWh', pf.soc?.daily, pf.soc?.mtd, pf.soc?.ytd, 5);
-    dataRow('Gross Heat Rate (GHR)', 'kCal/kWh', pf.ghr?.daily, pf.ghr?.mtd, pf.ghr?.ytd, 2);
-    dataRow('GCV (As Fired)', 'kCal/kg', pf.gcv?.daily, pf.gcv?.mtd, pf.gcv?.ytd, 0);
+    dataRow('Plant Load Factor', '%', findVal('PERFORMANCE', 'Plant Load Factor', 'daily'), findVal('PERFORMANCE', 'Plant Load Factor', 'mtd'), findVal('PERFORMANCE', 'Plant Load Factor', 'ytd'), 4);
+    dataRow('Partial Loading', '%', findVal('PERFORMANCE', 'Partial Loading', 'daily'), findVal('PERFORMANCE', 'Partial Loading', 'mtd'), findVal('PERFORMANCE', 'Partial Loading', 'ytd'), 4);
+    dataRow('Plant Availability Factor (SEPC)', '%', findVal('PERFORMANCE', 'Plant Availability Factor (SEPC)', 'daily'), findVal('PERFORMANCE', 'Plant Availability Factor (SEPC)', 'mtd'), findVal('PERFORMANCE', 'Plant Availability Factor (SEPC)', 'ytd'), 4);
+    dataRow('Plant Availability Factor (TNPDCL)', '%', findVal('PERFORMANCE', 'Plant Availability Factor (TNPDCL)', 'daily'), findVal('PERFORMANCE', 'Plant Availability Factor (TNPDCL)', 'mtd'), findVal('PERFORMANCE', 'Plant Availability Factor (TNPDCL)', 'ytd'), 4);
+    dataRow('Plant Outage (Forced)', 'Count', findVal('PERFORMANCE', 'Plant Outage (Forced)', 'daily'), findVal('PERFORMANCE', 'Plant Outage (Forced)', 'mtd'), findVal('PERFORMANCE', 'Plant Outage (Forced)', 'ytd'), 0);
+    dataRow('Plant Outage (Planned)', 'Count', findVal('PERFORMANCE', 'Plant Outage (Planned)', 'daily'), findVal('PERFORMANCE', 'Plant Outage (Planned)', 'mtd'), findVal('PERFORMANCE', 'Plant Outage (Planned)', 'ytd'), 0);
+    dataRow('Plant Outage (RSD)', 'Count', findVal('PERFORMANCE', 'Plant Outage (RSD)', 'daily'), findVal('PERFORMANCE', 'Plant Outage (RSD)', 'mtd'), findVal('PERFORMANCE', 'Plant Outage (RSD)', 'ytd'), 0);
+    dataRow('Specific Oil Consumption', 'ml/kWh', findVal('PERFORMANCE', 'Specific Oil Consumption', 'daily'), findVal('PERFORMANCE', 'Specific Oil Consumption', 'mtd'), findVal('PERFORMANCE', 'Specific Oil Consumption', 'ytd'), 5);
+    dataRow('Specific Coal Consumption', 'kg/kWh', findVal('PERFORMANCE', 'Specific Coal Consumption', 'daily'), findVal('PERFORMANCE', 'Specific Coal Consumption', 'mtd'), findVal('PERFORMANCE', 'Specific Coal Consumption', 'ytd'), 5);
+    dataRow('GHR (As Fired)', 'kCal/kWh', findVal('PERFORMANCE', 'GHR (As Fired)', 'daily'), findVal('PERFORMANCE', 'GHR (As Fired)', 'mtd'), findVal('PERFORMANCE', 'GHR (As Fired)', 'ytd'), 2);
+    dataRow('GCV (As Fired)', 'kCal/kg', findVal('PERFORMANCE', 'GCV (As Fired)', 'daily'), findVal('PERFORMANCE', 'GCV (As Fired)', 'mtd'), findVal('PERFORMANCE', 'GCV (As Fired)', 'ytd'), 0);
 
     // ── SECTION 3: CONSUMPTION & STOCK ───────────────────────────────────
     secHead('FUEL CONSUMPTION & STOCK');
-    const cs = dgr.consumptionStock || {};
-    dataRow('Coal Receipt', 'MT', cs.coalReceipt?.daily, cs.coalReceipt?.mtd, cs.coalReceipt?.ytd, 2);
-    dataRow('Coal Consumption', 'MT', cs.coalConsumption?.daily, cs.coalConsumption?.mtd, cs.coalConsumption?.ytd, 2);
-    dataRow('Coal Stock', 'MT', cs.coalStock?.daily, '-', '-', 2);
-    dataRow('LDO Receipt', 'KL', cs.ldoReceipt?.daily, cs.ldoReceipt?.mtd, cs.ldoReceipt?.ytd, 2);
-    dataRow('LDO Consumption', 'KL', cs.ldoConsumption?.daily, cs.ldoConsumption?.mtd, cs.ldoConsumption?.ytd, 2);
-    dataRow('LDO Stock', 'KL', cs.ldoStock?.daily, '-', '-', 2);
-    dataRow('HFO Receipt', 'KL', cs.hfoReceipt?.daily, cs.hfoReceipt?.mtd, cs.hfoReceipt?.ytd, 2);
-    dataRow('HFO Consumption', 'KL', cs.hfoConsumption?.daily, cs.hfoConsumption?.mtd, cs.hfoConsumption?.ytd, 2);
-    dataRow('HFO Stock', 'KL', cs.hfoStock?.daily, '-', '-', 2);
-    dataRow('H₂ Consumption', 'Nos', cs.h2?.daily, '-', '-', 0);
-    dataRow('H₂ Stock', 'Nos', cs.h2?.stock, '-', '-', 0);
+    dataRow('Coal Receipt', 'MT', findVal('CONSUMPTION', 'Coal Receipt', 'daily'), findVal('CONSUMPTION', 'Coal Receipt', 'mtd'), findVal('CONSUMPTION', 'Coal Receipt', 'ytd'), 2);
+    dataRow('Coal Consumption', 'MT', findVal('CONSUMPTION', 'Coal Consumption', 'daily'), findVal('CONSUMPTION', 'Coal Consumption', 'mtd'), findVal('CONSUMPTION', 'Coal Consumption', 'ytd'), 2);
+    dataRow('Coal Stock (Day End)', 'MT', findVal('CONSUMPTION', 'Coal Stock (Day End)', 'daily'), '-', '-', 2);
+    dataRow('LDO Receipt', 'KL', findVal('CONSUMPTION', 'LDO Receipt', 'daily'), findVal('CONSUMPTION', 'LDO Receipt', 'mtd'), findVal('CONSUMPTION', 'LDO Receipt', 'ytd'), 2);
+    dataRow('LDO Consumption', 'KL', findVal('CONSUMPTION', 'LDO Consumption', 'daily'), findVal('CONSUMPTION', 'LDO Consumption', 'mtd'), findVal('CONSUMPTION', 'LDO Consumption', 'ytd'), 2);
+    dataRow('LDO Stock (Day End)', 'KL', findVal('CONSUMPTION', 'LDO Stock (Day End)', 'daily'), '-', '-', 2);
+    dataRow('HFO Receipt', 'KL', findVal('CONSUMPTION', 'HFO Receipt', 'daily'), findVal('CONSUMPTION', 'HFO Receipt', 'mtd'), findVal('CONSUMPTION', 'HFO Receipt', 'ytd'), 2);
+    dataRow('HFO Consumption', 'KL', findVal('CONSUMPTION', 'HFO Consumption', 'daily'), findVal('CONSUMPTION', 'HFO Consumption', 'mtd'), findVal('CONSUMPTION', 'HFO Consumption', 'ytd'), 2);
+    dataRow('HFO Stock (Day End)', 'KL', findVal('CONSUMPTION', 'HFO Stock (Day End)', 'daily'), '-', '-', 2);
+    dataRow('H₂ Consumption', 'Nos', findVal('CONSUMPTION', 'H2 Cylinder Consumption', 'daily'), '-', '-', 0);
+    dataRow('H₂ Stock', 'Nos', findVal('CONSUMPTION', 'H2 Cylinder Stock', 'daily'), '-', '-', 0);
+    dataRow('CO₂ Consumption', 'Nos', findVal('CONSUMPTION', 'CO2 Cylinder Consumption', 'daily'), '-', '-', 0);
+    dataRow('CO₂ Stock', 'Nos', findVal('CONSUMPTION', 'CO2 Cylinder Stock', 'daily'), '-', '-', 0);
+    dataRow('N₂ Consumption', 'Nos', findVal('CONSUMPTION', 'N2 Cylinder Consumption', 'daily'), '-', '-', 0);
+    dataRow('N₂ Stock', 'Nos', findVal('CONSUMPTION', 'N2 Cylinder Stock', 'daily'), '-', '-', 0);
 
     secHead('WATER');
-    dataRow('DM Water Generation', 'm³', cs.dmWater?.daily, '-', '-', 2);
-    dataRow('DM Water Cycle Makeup', 'm³', cs.dmWater?.daily, '-', '-', 2);
-    dataRow('DM Water Total Consumption', 'm³', cs.dmWaterTotal?.daily, '-', '-', 2);
-    dataRow('DM Cycle %', '%', cs.dmWater?.pct, '-', '-', 4);
-    dataRow('Service Water Consumption', 'm³', cs.serviceWater?.daily, '-', '-', 2);
-    dataRow('Potable Water Consumption', 'm³', cs.potableWater?.daily, '-', '-', 2);
-    dataRow('Sea Water Consumption', 'm³', cs.seaWater?.daily, '-', '-', 2);
-    dataRow('SWI Flow', 'm³', cs.swiFlow?.daily, cs.swiFlow?.mtd, cs.swiFlow?.ytd, 2);
-    dataRow('Outfall (CT Blow Down & WTP Reject)', 'm³', cs.outfall?.daily, cs.outfall?.mtd, cs.outfall?.ytd, 2);
-    dataRow('Specific Water Consumption', 'm³/MW', cs.specificWaterCons?.daily, '-', '-', 2);
+    dataRow('DM Water Generation', 'm³', findVal('WATER', 'DM Water Generation', 'daily'), findVal('WATER', 'DM Water Generation', 'mtd'), findVal('WATER', 'DM Water Generation', 'ytd'), 2);
+    dataRow('DM Water Cycle Makeup', 'm³', findVal('WATER', 'DM Water Cycle Makeup', 'daily'), findVal('WATER', 'DM Water Cycle Makeup', 'mtd'), findVal('WATER', 'DM Water Cycle Makeup', 'ytd'), 2);
+    dataRow('DM Water Total Consumption', 'm³', findVal('WATER', 'DM Total Consumption', 'daily'), findVal('WATER', 'DM Total Consumption', 'mtd'), findVal('WATER', 'DM Total Consumption', 'ytd'), 2);
+    dataRow('DM Cycle Pct', '%', findVal('WATER', 'DM Cycle Pct', 'daily'), findVal('WATER', 'DM Cycle Pct', 'mtd'), findVal('WATER', 'DM Cycle Pct', 'ytd'), 4);
+    dataRow('DM Water Total / Usable Stock', 'm³', findVal('WATER', 'DM Water Total / Usable Stock', 'daily'), '-', '-', 2);
+    dataRow('Service Water Consumption', 'm³', findVal('WATER', 'Service Water Consumption', 'daily'), findVal('WATER', 'Service Water Consumption', 'mtd'), findVal('WATER', 'Service Water Consumption', 'ytd'), 2);
+    dataRow('Potable Water Consumption', 'm³', findVal('WATER', 'Potable Water Consumption', 'daily'), findVal('WATER', 'Potable Water Consumption', 'mtd'), findVal('WATER', 'Potable Water Consumption', 'ytd'), 2);
+    dataRow('Sea Water Consumption', 'm³', findVal('WATER', 'Sea Water Consumption', 'daily'), findVal('WATER', 'Sea Water Consumption', 'mtd'), findVal('WATER', 'Sea Water Consumption', 'ytd'), 2);
+    dataRow('SWI Flow', 'm³', findVal('WATER', 'SWI Flow', 'daily'), findVal('WATER', 'SWI Flow', 'mtd'), findVal('WATER', 'SWI Flow', 'ytd'), 2);
+    dataRow('Outfall (CT Blowdown & WTP Reject)', 'm³', findVal('WATER', 'Outfall (CT Blowdown & WTP Reject)', 'daily'), findVal('WATER', 'Outfall (CT Blowdown & WTP Reject)', 'mtd'), findVal('WATER', 'Outfall (CT Blowdown & WTP Reject)', 'ytd'), 2);
 
     // ── SECTION 4: SCHEDULING ─────────────────────────────────────────────
     secHead('POWER SCHEDULE');
-    const sc = dgr.scheduling || {};
-    dataRow('Declared Capacity (SEPC)', 'MU', sc.dcSEPC?.daily, sc.dcSEPC?.mtd, sc.dcSEPC?.ytd);
-    dataRow('Declared Capacity (TNPDCL)', 'MU', sc.dcTNPDCL?.daily, sc.dcTNPDCL?.mtd, sc.dcTNPDCL?.ytd);
-    dataRow('Schedule Generation (PPA)', 'MU', sc.sgPPA?.daily, sc.sgPPA?.mtd, sc.sgPPA?.ytd);
-    dataRow('Schedule Generation (DAM)', 'MU', sc.sgDAM?.daily, sc.sgDAM?.mtd, sc.sgDAM?.ytd);
-    dataRow('Schedule Generation (RTM)', 'MU', sc.sgRTM?.daily, sc.sgRTM?.mtd, sc.sgRTM?.ytd);
-    dataRow('URS @ DAM', 'MWH', sc.ursDAM?.daily, '-', '-', 2);
-    dataRow('URS @ RTM', 'MWH', sc.ursRTM?.daily, '-', '-', 2);
+    dataRow('Declared Capacity (SEPC)', 'MU', findVal('SCHEDULE', 'Declared Capacity (SEPC)'), findVal('SCHEDULE', 'Declared Capacity (SEPC)', 'mtd'), findVal('SCHEDULE', 'Declared Capacity (SEPC)', 'ytd'));
+    dataRow('Declared Capacity (TNPDCL)', 'MU', findVal('SCHEDULE', 'Declared Capacity (TNPDCL)'), findVal('SCHEDULE', 'Declared Capacity (TNPDCL)', 'mtd'), findVal('SCHEDULE', 'Declared Capacity (TNPDCL)', 'ytd'));
+    dataRow('Schedule Generation (PPA)', 'MU', findVal('SCHEDULE', 'Schedule Generation (SG – PPA)'), findVal('SCHEDULE', 'Schedule Generation (SG – PPA)', 'mtd'), findVal('SCHEDULE', 'Schedule Generation (SG – PPA)', 'ytd'));
+    dataRow('Schedule Generation (DAM)', 'MU', findVal('SCHEDULE', 'Schedule Generation (SG – DAM)'), findVal('SCHEDULE', 'Schedule Generation (SG – DAM)', 'mtd'), findVal('SCHEDULE', 'Schedule Generation (SG – DAM)', 'ytd'));
+    dataRow('Schedule Generation (RTM)', 'MU', findVal('SCHEDULE', 'Schedule Generation (SG – RTM)'), findVal('SCHEDULE', 'Schedule Generation (SG – RTM)', 'mtd'), findVal('SCHEDULE', 'Schedule Generation (SG – RTM)', 'ytd'));
+    dataRow('Asking Rate to Achieve 80% DC', 'MW', findVal('SCHEDULE', 'Asking Rate to Achieve 80% DC'), '-', '-', 2);
+    dataRow('Deemed Generation – DG (TB + RSD)', 'MU', findVal('SCHEDULE', 'Deemed Generation – DG (TB + RSD)'), '-', '-', 2);
 
-    const lss = dgr.dcLoss || {};
-    dataRow('DC Loss (Capacity - DC(SEPC))', '%', lss.capacityLoss?.pct, '-', '-', 2);
-    dataRow('DC Loss (Capacity - DC(SEPC))', 'MU', lss.capacityLoss?.mu, '-', '-', 3);
-
-    // Add dynamically the outage/loss reasons if any exist
-    if (lss.reasons && lss.reasons.length > 0) {
-      secHead('DC LOSS B/U REASONS');
-      lss.reasons.forEach((r, idx) => {
-        dataRow(`Reason ${idx + 1}: ${r.reason}`, 'MU/%', `${r.mu} / ${r.pct}%`, '-', '-');
-      });
-    }
+    secHead('DC LOSS B/U (Capacity – DC TNPDCL)');
+    dataRow('Coal Shortage', 'MU / %', findVal('DC LOSS', 'Coal Shortage'), '-', '-', 2);
+    dataRow('CRE to SMPS Failure Trip', 'MU / %', findVal('DC LOSS', 'CRE to SMPS Failure Trip'), '-', '-', 2);
+    dataRow('Bunker Choke', 'MU / %', findVal('DC LOSS', 'Bunker Choke'), '-', '-', 2);
+    dataRow('AOH', 'MU / %', findVal('DC LOSS', 'AOH'), '-', '-', 2);
+    dataRow('Low Vacuum Trip', 'MU / %', findVal('DC LOSS', 'Low Vacuum Trip'), '-', '-', 2);
 
     // ── SECTION 5: ASH ───────────────────────────────────────────────────
     secHead('ASH');
-    const ash = dgr.ash || {};
-    dataRow('Fly Ash to User', 'MT', ash.flyAshToUser?.daily, ash.flyAshToUser?.mtd, ash.flyAshToUser?.ytd, 3);
-    dataRow('Fly Ash to Dyke / Internal', 'MT', ash.flyAshToDyke?.daily, ash.flyAshToDyke?.mtd, ash.flyAshToDyke?.ytd, 3);
-    dataRow('Bottom Ash to User', 'MT', ash.bottomAshToUser?.daily, ash.bottomAshToUser?.mtd, ash.bottomAshToUser?.ytd, 3);
-    dataRow('Bottom Ash to Dyke / Internal', 'MT', ash.bottomAshToDyke?.daily, ash.bottomAshToDyke?.mtd, ash.bottomAshToDyke?.ytd, 3);
-    dataRow('Fly Ash Generated', 'MT', ash.flyAshGenerated?.daily, ash.flyAshGenerated?.mtd, ash.flyAshGenerated?.ytd, 3);
-    dataRow('Bottom & Eco Ash Generated', 'MT', ash.bottomAshGenerated?.daily, ash.bottomAshGenerated?.mtd, ash.bottomAshGenerated?.ytd, 3);
-    dataRow('Fly Ash in Silo', 'MT', ash.flyAshSilo?.daily, '-', '-', 3);
-    dataRow('Bottom Ash in Silo', 'MT', ash.bottomAshSilo?.daily, '-', '-', 3);
+    dataRow('Fly Ash to User', 'MT', findVal('ASH', 'Fly Ash to User'), findVal('ASH', 'Fly Ash to User', 'mtd'), findVal('ASH', 'Fly Ash to User', 'ytd'), 3);
+    dataRow('Fly Ash to Dyke / Internal', 'MT', findVal('ASH', 'Fly Ash to Dyke / Internal'), findVal('ASH', 'Fly Ash to Dyke / Internal', 'mtd'), findVal('ASH', 'Fly Ash to Dyke / Internal', 'ytd'), 3);
+    dataRow('Bottom Ash to User', 'MT', findVal('ASH', 'Bottom Ash to User'), findVal('ASH', 'Bottom Ash to User', 'mtd'), findVal('ASH', 'Bottom Ash to User', 'ytd'), 3);
+    dataRow('Bottom Ash to Dyke / Internal', 'MT', findVal('ASH', 'Bottom Ash to Dyke / Internal'), findVal('ASH', 'Bottom Ash to Dyke / Internal', 'mtd'), findVal('ASH', 'Bottom Ash to Dyke / Internal', 'ytd'), 3);
+    dataRow('Fly Ash Generated', 'MT', findVal('ASH', 'Fly Ash Generated'), findVal('ASH', 'Fly Ash Generated', 'mtd'), findVal('ASH', 'Fly Ash Generated', 'ytd'), 3);
+    dataRow('Bottom & Eco Ash Generated', 'MT', findVal('ASH', 'Bottom & Eco Ash Generated'), findVal('ASH', 'Bottom & Eco Ash Generated', 'mtd'), findVal('ASH', 'Bottom & Eco Ash Generated', 'ytd'), 3);
+    dataRow('Fly Ash in Silo', 'MT', findVal('ASH', 'Fly Ash in Silo'), '-', '-', 3);
+    dataRow('Bottom Ash in Silo', 'MT', findVal('ASH', 'Bottom Ash in Silo'), '-', '-', 3);
 
     // ── SECTION 6: DSM & URS ─────────────────────────────────────────────
     secHead('DSM & URS');
-    const dsm = dgr.dsm || {};
-    const urs = dgr.urs || {};
-    dataRow('DSM Net Profit', 'Lacs', dsm.netProfit?.daily, '-', dsm.netProfit?.ytd, 2);
-    dataRow('DSM Payable by SEPC', 'Lacs', dsm.payable?.daily, '-', dsm.payable?.ytd, 2);
-    dataRow('DSM Receivable by SEPC', 'Lacs', dsm.receivable?.daily, '-', dsm.receivable?.ytd, 2);
-    dataRow('DSM Coal Saving (+)/Lost (-) by SEPC', 'Lacs', dsm.coalSaving?.daily, '-', dsm.coalSaving?.ytd, 2);
-    dataRow('URS Net Profit', 'Lacs', urs.netProfit?.daily, '-', urs.netProfit?.ytd, 2);
+    dataRow('DSM Net Profit', 'Lacs', findVal('DSM', 'DSM Net Profit'), '-', findVal('DSM', 'DSM Net Profit', 'ytd'), 2);
+    dataRow('DSM Payable by SEPC', 'Lacs', findVal('DSM', 'DSM Payable by SEPC'), '-', findVal('DSM', 'DSM Payable by SEPC', 'ytd'), 2);
+    dataRow('DSM Receivable by SEPC', 'Lacs', findVal('DSM', 'DSM Receivable by SEPC'), '-', findVal('DSM', 'DSM Receivable by SEPC', 'ytd'), 2);
+    dataRow('DSM Coal Saving (+)/Lost (-) by SEPC', 'Lacs', findVal('DSM', 'DSM Coal Saving / (+Loss) by SEPC'), '-', findVal('DSM', 'DSM Coal Saving / (+Loss) by SEPC', 'ytd'), 2);
+    dataRow('URS Net Profit', 'Lacs', findVal('URS', 'URS Net Profit'), '-', findVal('URS', 'URS Net Profit', 'ytd'), 2);
 
     // ── Stream the file ───────────────────────────────────────────────────
     // Sanitize to ASCII-only for Content-Disposition header (no dashes, special chars)
