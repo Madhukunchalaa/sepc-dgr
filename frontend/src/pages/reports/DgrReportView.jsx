@@ -39,9 +39,17 @@ function TableBox({ title, rows }) {
                                     return (
                                         <td key={c} style={{ padding: '8px 16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: val != null && val !== '' ? 600 : 400 }}>
                                             {
-                                                val == null || val === '' ? '-' :
-                                                    typeof val === 'number' ? Number(val).toLocaleString('en-IN', { maximumFractionDigits: 3 }) :
-                                                        String(val)
+                                                (() => {
+                                                    if (val == null || val === '') return '-';
+                                                    if (typeof val === 'number') return Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+                                                    if (typeof val === 'string') {
+                                                        const num = Number(val);
+                                                        if (!isNaN(num) && val.trim() !== '') {
+                                                            return num.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+                                                        }
+                                                    }
+                                                    return String(val);
+                                                })()
                                             }
                                         </td>
                                     )
