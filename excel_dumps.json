@@ -1,0 +1,1730 @@
+﻿{
+    "45792":  [
+                  {
+                      "daily":  null,
+                      "particulars":  "POWER:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  1
+                  },
+                  {
+                      "daily":  11.007321818180994,
+                      "particulars":  "Power Generation ",
+                      "ytd":  411.67006363636364,
+                      "mtd":  135.7434272727271,
+                      "sn":  1.1
+                  },
+                  {
+                      "daily":  458.6384090908748,
+                      "particulars":  "Average Power Generation",
+                      "ytd":  381.175984848485,
+                      "mtd":  377.0650757575753,
+                      "sn":  1.2
+                  },
+                  {
+                      "daily":  10.429090909090917,
+                      "particulars":  "Total Export (GT)",
+                      "ytd":  386.71272727272714,
+                      "mtd":  127.57818181818182,
+                      "sn":  1.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Total Import (GT)",
+                      "ytd":  0.061818181818181869,
+                      "mtd":  0.061818181818181869,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  10.429090909090917,
+                      "particulars":  "Net Export (GT Export - GT Import)",
+                      "ytd":  386.65090909090895,
+                      "mtd":  127.51636363636364,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0.57823090909007746,
+                      "particulars":  "Auxiliary Power Consumption (APC incl Import)",
+                      "ytd":  25.019154545454683,
+                      "mtd":  8.2270636363634679,
+                      "sn":  1.4
+                  },
+                  {
+                      "daily":  1,
+                      "particulars":  "Hours on Grid",
+                      "ytd":  "44 Day(s), 19 Hrs, 55 Mins",
+                      "mtd":  "14 Day(s), 19 Hrs, 55 Mins",
+                      "sn":  1.5
+                  },
+                  {
+                      "daily":  "Min - 49.86 Hz / Max - 50.17 Hz / Avg - 49.98 Hz",
+                      "particulars":  "Grid Frequency on 15-May-2025",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  1.6
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "PERFORMANCE:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  2
+                  },
+                  {
+                      "daily":  0.87359696969690437,
+                      "particulars":  "Plant Load Factor",
+                      "ytd":  0.72604949494949522,
+                      "mtd":  0.71821919191919115,
+                      "sn":  2.1
+                  },
+                  {
+                      "daily":  0.12640303030309563,
+                      "particulars":  "Partial Loading",
+                      "ytd":  0.27395050505050478,
+                      "mtd":  0.28178080808080885,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0.99999999999999989,
+                      "particulars":  "Plant Availability Factor (SEPC)",
+                      "ytd":  0.96523305137356619,
+                      "mtd":  0.98949733729747535,
+                      "sn":  2.2
+                  },
+                  {
+                      "daily":  1.0000050793650794,
+                      "particulars":  "Plant Availability Factor (TNPDCL)",
+                      "ytd":  0.96523795414462088,
+                      "mtd":  0.98950236331569685,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Outage (Count)",
+                      "ytd":  1,
+                      "mtd":  1,
+                      "sn":  2.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific Oil  Consumption",
+                      "ytd":  0.055692657847114857,
+                      "mtd":  0.16889952213993037,
+                      "sn":  2.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific Coal Consumption",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  2.5
+                  },
+                  {
+                      "daily":  "0 / 420.85 MW",
+                      "particulars":  "GHR (As Fired) as on 13-May-2025",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  2.6
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "GHR Remarks - if any",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  4912,
+                      "particulars":  "GCV (As Fired) as on 13-May-2025",
+                      "ytd":  "",
+                      "mtd":  "",
+                      "sn":  2.7
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "CONSUMPTION \u0026 STOCK:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "LDO Consumption",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  3.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "HFO Consumption",
+                      "ytd":  22.927,
+                      "mtd":  22.927,
+                      "sn":  3.2
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Coal Consumption",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  3.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "LDO Receipt",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  3.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "HFO Receipt",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  3.5
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Coal Receipt",
+                      "ytd":  217587.53999999995,
+                      "mtd":  90832.3,
+                      "sn":  3.6
+                  },
+                  {
+                      "daily":  "156.5 / 101.5",
+                      "particulars":  "LDO Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.7
+                  },
+                  {
+                      "daily":  "707.394 / 197.394",
+                      "particulars":  "HFO Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.8
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Coal Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.9
+                  },
+                  {
+                      "daily":  312.57000000000016,
+                      "particulars":  "DM Water Consumption (Cycle Makeup)",
+                      "ytd":  14847.47785,
+                      "mtd":  5350.5755500000014,
+                      "sn":  3.1
+                  },
+                  {
+                      "daily":  312.57000000000016,
+                      "particulars":  "Total DM Water Consumption (Plant)",
+                      "ytd":  17780.620000000006,
+                      "mtd":  6308.49,
+                      "sn":  3.11
+                  },
+                  {
+                      "daily":  782.78000000000077,
+                      "particulars":  "Service Water Consumption",
+                      "ytd":  28041.16,
+                      "mtd":  11171.92,
+                      "sn":  3.12
+                  },
+                  {
+                      "daily":  41,
+                      "particulars":  "Potable Water Consumption",
+                      "ytd":  1872,
+                      "mtd":  613,
+                      "sn":  3.13
+                  },
+                  {
+                      "daily":  14500.86312728389,
+                      "particulars":  "Sea Water Consumption",
+                      "ytd":  952063.4317039653,
+                      "mtd":  309347.00004409306,
+                      "sn":  3.14
+                  },
+                  {
+                      "daily":  12,
+                      "particulars":  "H2 Consumption",
+                      "ytd":  174,
+                      "mtd":  61,
+                      "sn":  3.15
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "CO2 Consumption",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  3.16
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "N2 Consumption",
+                      "ytd":  4,
+                      "mtd":  2,
+                      "sn":  3.17
+                  },
+                  {
+                      "daily":  155,
+                      "particulars":  "H2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.18
+                  },
+                  {
+                      "daily":  69,
+                      "particulars":  "CO2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.19
+                  },
+                  {
+                      "daily":  4,
+                      "particulars":  "N2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  "3.20"
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "POWER SCHEDULE:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  4
+                  },
+                  {
+                      "daily":  11.81256,
+                      "particulars":  "Declared Capacity (SEPC)",
+                      "ytd":  513.08430000000033,
+                      "mtd":  175.32744999999997,
+                      "sn":  4.1
+                  },
+                  {
+                      "daily":  11.81256,
+                      "particulars":  "Declared Capacity (TNPDCL)",
+                      "ytd":  513.08430000000033,
+                      "mtd":  175.32744999999997,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  10.43465,
+                      "particulars":  "Schedule Generation (SG - PPA)",
+                      "ytd":  389.61319,
+                      "mtd":  128.74273,
+                      "sn":  4.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - DAM)",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  4.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - RTM)",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  4.4
+                  },
+                  {
+                      "daily":  10.43465,
+                      "particulars":  "Total Schedule Generation \n(SG - PPA+DAM+RTM)",
+                      "ytd":  389.61319,
+                      "mtd":  128.74273,
+                      "sn":  4.4
+                  },
+                  {
+                      "daily":  "MTD",
+                      "particulars":  "Asking Rate to Achieve 80% DC",
+                      "ytd":  null,
+                      "mtd":  "7.35 MU/day or 306.31 MW or 62.2 % of Full DC",
+                      "sn":  4.5
+                  },
+                  {
+                      "daily":  1.37791,
+                      "particulars":  "Deemed Generation - DG (TB + RSD)",
+                      "ytd":  123.47110999999997,
+                      "mtd":  46.584720000000004,
+                      "sn":  4.6
+                  },
+                  {
+                      "daily":  1.1102230246251565E-16,
+                      "particulars":  "DC Loss (Capacity - DC(SEPC))",
+                      "ytd":  0.034766948626433793,
+                      "mtd":  0.010502662702524652,
+                      "sn":  4.7
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DC Loss Reason - Daily",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  4.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "ASH:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5
+                  },
+                  {
+                      "daily":  1107.74,
+                      "particulars":  "Fly Ash to User",
+                      "ytd":  40350.539999999994,
+                      "mtd":  14995.68,
+                      "sn":  5.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Fly Ash to Dyke / Internal",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  5.2
+                  },
+                  {
+                      "daily":  168.04,
+                      "particulars":  "Bottom Ash to User",
+                      "ytd":  5911.7400000000007,
+                      "mtd":  2195.12,
+                      "sn":  5.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Bottom Ash to Dyke / Internal",
+                      "ytd":  90,
+                      "mtd":  0,
+                      "sn":  5.4
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Fly Ash Generated",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  5.5
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Bottom \u0026 Eco Ash Generated",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  5.6
+                  },
+                  {
+                      "daily":  497.63,
+                      "particulars":  "Fly Ash in Silo",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5.7
+                  },
+                  {
+                      "daily":  9.67,
+                      "particulars":  "Bottom Ash in Silo",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "WATER:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6
+                  },
+                  {
+                      "daily":  65093.800549309315,
+                      "particulars":  "IDCT Make Up (Sea water)",
+                      "ytd":  4596454.0046789143,
+                      "mtd":  1526724.0722120667,
+                      "sn":  6.1
+                  },
+                  {
+                      "daily":  71064.800549309322,
+                      "particulars":  "SWI Flow",
+                      "ytd":  4801659.0046789143,
+                      "mtd":  1606778.0722120667,
+                      "sn":  6.2
+                  },
+                  {
+                      "daily":  56563.937422025432,
+                      "particulars":  "Outfall (CT Blow Down \u0026 WTP Reject)",
+                      "ytd":  3849595.572974951,
+                      "mtd":  1297431.0721679737,
+                      "sn":  6.3
+                  },
+                  {
+                      "daily":  1.317383407772502,
+                      "particulars":  "Specific water Consumption",
+                      "ytd":  2.3126856086988634,
+                      "mtd":  2.2789096036493359,
+                      "sn":  6.4
+                  },
+                  {
+                      "daily":  537,
+                      "particulars":  "DM Water Generation",
+                      "ytd":  17761.8,
+                      "mtd":  6399,
+                      "sn":  6.5
+                  },
+                  {
+                      "daily":  852.08,
+                      "particulars":  "Filtered / Service Water Generation",
+                      "ytd":  27575.86,
+                      "mtd":  11181.819999999998,
+                      "sn":  6.6
+                  },
+                  {
+                      "daily":  "2311 / 1761",
+                      "particulars":  "DM Water Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6.7
+                  },
+                  {
+                      "daily":  "8494 / 6494",
+                      "particulars":  "Service Water Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DSM: till 31-Jan-2026",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  7
+                  },
+                  {
+                      "daily":  1.37936610655425,
+                      "particulars":  "DSM Net Profit",
+                      "ytd":  99.2363593107287,
+                      "mtd":  19.765144134731056,
+                      "sn":  7.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Payable by SEPC",
+                      "ytd":  -64.8765052,
+                      "mtd":  -47.145238199999994,
+                      "sn":  7.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Receivable by SEPC",
+                      "ytd":  6.5332423742467913,
+                      "mtd":  0,
+                      "sn":  7.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Coal Saving (+)/Lost (-) by SEPC",
+                      "ytd":  157.5796221364819,
+                      "mtd":  66.910382334731054,
+                      "sn":  7.4
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "URS Profit / Loss",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  8
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "URS Net Profit",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  8.1
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DC Loss B/U (Capacity - DC (TNPDCL)):",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  9
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "Coal Shortage (02 to 05 April 2025)",
+                      "ytd":  "16.62 / 3.13",
+                      "mtd":  "0 / 0",
+                      "sn":  9.1
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "CRE 16 SMPS Failure Trip (11 May 2025)",
+                      "ytd":  "1.86 / 0.35",
+                      "mtd":  "1.86 / 1.05",
+                      "sn":  9.2
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "Bunker Choke (10 June 2025)",
+                      "ytd":  "0 / 0",
+                      "mtd":  "0 / 0",
+                      "sn":  9.3
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "AOH (12 June 2025 to 04 August 2025)",
+                      "ytd":  "0 / 0",
+                      "mtd":  "0 / 0",
+                      "sn":  9.4
+                  }
+              ],
+    "45820":  [
+                  {
+                      "daily":  null,
+                      "particulars":  "POWER:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Power Generation ",
+                      "ytd":  528.97969090909089,
+                      "mtd":  97.972636363635829,
+                      "sn":  1.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Average Power Generation",
+                      "ytd":  301.92904732254044,
+                      "mtd":  340.18276515151331,
+                      "sn":  1.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Total Export (GT)",
+                      "ytd":  497.14181818181805,
+                      "mtd":  92.3490909090909,
+                      "sn":  1.3
+                  },
+                  {
+                      "daily":  0.21454545454545473,
+                      "particulars":  "Total Import (GT)",
+                      "ytd":  1.7490909090909093,
+                      "mtd":  0.38909090909090904,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  -0.21454545454545473,
+                      "particulars":  "Net Export (GT Export - GT Import)",
+                      "ytd":  495.39272727272731,
+                      "mtd":  91.96,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0.21454545454545473,
+                      "particulars":  "Auxiliary Power Consumption (APC incl Import)",
+                      "ytd":  33.586963636363748,
+                      "mtd":  6.0126363636358331,
+                      "sn":  1.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Hours on Grid",
+                      "ytd":  "57 Day(s), 7 Hrs, 56 Mins",
+                      "mtd":  "10 Day(s), 1 Hrs, 40 Mins",
+                      "sn":  1.5
+                  },
+                  {
+                      "daily":  "Min - 0 Hz / Max - 0 Hz / Avg - 0 Hz",
+                      "particulars":  "Grid Frequency on 12-Jun-2025",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  1.6
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "PERFORMANCE:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Load Factor",
+                      "ytd":  0.57510294728102962,
+                      "mtd":  0.64796717171716833,
+                      "sn":  2.1
+                  },
+                  {
+                      "daily":  1,
+                      "particulars":  "Partial Loading",
+                      "ytd":  0.42489705271897038,
+                      "mtd":  0.35203282828283167,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Availability Factor (SEPC)",
+                      "ytd":  0.96384174921868615,
+                      "mtd":  0.9104133650961348,
+                      "sn":  2.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Availability Factor (TNPDCL)",
+                      "ytd":  0.96384664492280991,
+                      "mtd":  0.91041798941798957,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Outage (Count)",
+                      "ytd":  1,
+                      "mtd":  0,
+                      "sn":  2.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific Oil  Consumption",
+                      "ytd":  0.36519549487430053,
+                      "mtd":  1.7377709360405924,
+                      "sn":  2.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific Coal Consumption",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  2.5
+                  },
+                  {
+                      "daily":  "0 / 311.82 MW",
+                      "particulars":  "GHR (As Fired) as on 10-Jun-2025",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  2.6
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "GHR Remarks - if any",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  4716,
+                      "particulars":  "GCV (As Fired) as on 10-Jun-2025",
+                      "ytd":  "",
+                      "mtd":  "",
+                      "sn":  2.7
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "CONSUMPTION \u0026 STOCK:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "LDO Consumption",
+                      "ytd":  41.688,
+                      "mtd":  41.688,
+                      "sn":  3.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "HFO Consumption",
+                      "ytd":  151.493,
+                      "mtd":  128.566,
+                      "sn":  3.2
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Coal Consumption",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  3.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "LDO Receipt",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  3.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "HFO Receipt",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  3.5
+                  },
+                  {
+                      "daily":  7435.08,
+                      "particulars":  "Coal Receipt",
+                      "ytd":  286880.62,
+                      "mtd":  69293.08,
+                      "sn":  3.6
+                  },
+                  {
+                      "daily":  "114.812 / 59.812",
+                      "particulars":  "LDO Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.7
+                  },
+                  {
+                      "daily":  "578.828 / 68.828",
+                      "particulars":  "HFO Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.8
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Coal Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.9
+                  },
+                  {
+                      "daily":  63.260649999999927,
+                      "particulars":  "DM Water Consumption (Cycle Makeup)",
+                      "ytd":  19878.06685,
+                      "mtd":  3886.2366500000003,
+                      "sn":  3.1
+                  },
+                  {
+                      "daily":  428.26000000000022,
+                      "particulars":  "Total DM Water Consumption (Plant)",
+                      "ytd":  24515.000000000007,
+                      "mtd":  5089.32,
+                      "sn":  3.11
+                  },
+                  {
+                      "daily":  1628.1349999999989,
+                      "particulars":  "Service Water Consumption",
+                      "ytd":  50234.51999999999,
+                      "mtd":  9165.37,
+                      "sn":  3.12
+                  },
+                  {
+                      "daily":  60,
+                      "particulars":  "Potable Water Consumption",
+                      "ytd":  2958,
+                      "mtd":  496,
+                      "sn":  3.13
+                  },
+                  {
+                      "daily":  2208.2299999999996,
+                      "particulars":  "Sea Water Consumption",
+                      "ytd":  1265454.9835227383,
+                      "mtd":  241816.45171110542,
+                      "sn":  3.14
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "H2 Consumption",
+                      "ytd":  226,
+                      "mtd":  25,
+                      "sn":  3.15
+                  },
+                  {
+                      "daily":  28,
+                      "particulars":  "CO2 Consumption",
+                      "ytd":  28,
+                      "mtd":  28,
+                      "sn":  3.16
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "N2 Consumption",
+                      "ytd":  9,
+                      "mtd":  0,
+                      "sn":  3.17
+                  },
+                  {
+                      "daily":  200,
+                      "particulars":  "H2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.18
+                  },
+                  {
+                      "daily":  41,
+                      "particulars":  "CO2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.19
+                  },
+                  {
+                      "daily":  7,
+                      "particulars":  "N2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  "3.20"
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "POWER SCHEDULE:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Declared Capacity (SEPC)",
+                      "ytd":  831.13700999999946,
+                      "mtd":  129.05175000000003,
+                      "sn":  4.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Declared Capacity (TNPDCL)",
+                      "ytd":  831.13700999999946,
+                      "mtd":  129.05175000000003,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - PPA)",
+                      "ytd":  500.17368999999991,
+                      "mtd":  92.4618,
+                      "sn":  4.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - DAM)",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  4.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - RTM)",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  4.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Total Schedule Generation \n(SG - PPA+DAM+RTM)",
+                      "ytd":  500.17368999999991,
+                      "mtd":  92.4618,
+                      "sn":  4.4
+                  },
+                  {
+                      "daily":  "MTD",
+                      "particulars":  "Asking Rate to Achieve 80% DC",
+                      "ytd":  null,
+                      "mtd":  "8.58 MU/day or 357.52 MW or 72.6 % of Full DC",
+                      "sn":  4.5
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Deemed Generation - DG (TB + RSD)",
+                      "ytd":  330.9633199999999,
+                      "mtd":  36.589949999999988,
+                      "sn":  4.6
+                  },
+                  {
+                      "daily":  1,
+                      "particulars":  "DC Loss (Capacity - DC(SEPC))",
+                      "ytd":  0.036158250781313718,
+                      "mtd":  0.089586634903865134,
+                      "sn":  4.7
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DC Loss Reason - Daily",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  4.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "ASH:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5
+                  },
+                  {
+                      "daily":  485.2,
+                      "particulars":  "Fly Ash to User",
+                      "ytd":  53541.319999999985,
+                      "mtd":  10743.380000000001,
+                      "sn":  5.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Fly Ash to Dyke / Internal",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  5.2
+                  },
+                  {
+                      "daily":  51.06,
+                      "particulars":  "Bottom Ash to User",
+                      "ytd":  8658.4800000000014,
+                      "mtd":  2102.14,
+                      "sn":  5.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Bottom Ash to Dyke / Internal",
+                      "ytd":  150,
+                      "mtd":  60,
+                      "sn":  5.4
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Fly Ash Generated",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  5.5
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Bottom \u0026 Eco Ash Generated",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  5.6
+                  },
+                  {
+                      "daily":  331.75,
+                      "particulars":  "Fly Ash in Silo",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5.7
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Bottom Ash in Silo",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "WATER:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "IDCT Make Up (Sea water)",
+                      "ytd":  6074674.90620072,
+                      "mtd":  1177037.0240556926,
+                      "sn":  6.1
+                  },
+                  {
+                      "daily":  7817,
+                      "particulars":  "SWI Flow",
+                      "ytd":  6411486.90620072,
+                      "mtd":  1240899.0240556926,
+                      "sn":  6.2
+                  },
+                  {
+                      "daily":  5608.77,
+                      "particulars":  "Outfall (CT Blow Down \u0026 WTP Reject)",
+                      "ytd":  5146031.9226779845,
+                      "mtd":  999082.57234458718,
+                      "sn":  6.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific water Consumption",
+                      "ytd":  2.3922562723494303,
+                      "mtd":  2.4682039872192272,
+                      "sn":  6.4
+                  },
+                  {
+                      "daily":  480,
+                      "particulars":  "DM Water Generation",
+                      "ytd":  24562.76,
+                      "mtd":  5076.6,
+                      "sn":  6.5
+                  },
+                  {
+                      "daily":  1668.23,
+                      "particulars":  "Filtered / Service Water Generation",
+                      "ytd":  50315.700000000004,
+                      "mtd":  10236.55,
+                      "sn":  6.6
+                  },
+                  {
+                      "daily":  "2378 / 1828",
+                      "particulars":  "DM Water Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6.7
+                  },
+                  {
+                      "daily":  "9041 / 7041",
+                      "particulars":  "Service Water Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DSM: till 31-Jan-2026",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  7
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Net Profit",
+                      "ytd":  114.78633109904197,
+                      "mtd":  8.3874640509360372,
+                      "sn":  7.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Payable by SEPC",
+                      "ytd":  -64.8765052,
+                      "mtd":  0,
+                      "sn":  7.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Receivable by SEPC",
+                      "ytd":  12.266328665182828,
+                      "mtd":  4.8131641909360381,
+                      "sn":  7.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Coal Saving (+)/Lost (-) by SEPC",
+                      "ytd":  167.39650763385913,
+                      "mtd":  3.5742998599999987,
+                      "sn":  7.4
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "URS Profit / Loss",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  8
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "URS Net Profit",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  8.1
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DC Loss B/U (Capacity - DC (TNPDCL)):",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  9
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "Coal Shortage (02 to 05 April 2025)",
+                      "ytd":  "16.62 / 1.93",
+                      "mtd":  "0 / 0",
+                      "sn":  9.1
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "CRE 16 SMPS Failure Trip (11 May 2025)",
+                      "ytd":  "1.86 / 0.22",
+                      "mtd":  "0 / 0",
+                      "sn":  9.2
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "Bunker Choke (10 June 2025)",
+                      "ytd":  "0.48 / 0.06",
+                      "mtd":  "0.48 / 0.34",
+                      "sn":  9.3
+                  },
+                  {
+                      "daily":  "11.81 / 100",
+                      "particulars":  "AOH (12 June 2025 to 04 August 2025)",
+                      "ytd":  "12.21 / 1.42",
+                      "mtd":  "12.21 / 8.62",
+                      "sn":  9.4
+                  }
+              ],
+    "45866":  [
+                  {
+                      "daily":  null,
+                      "particulars":  "POWER:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Power Generation ",
+                      "ytd":  528.97969090909089,
+                      "mtd":  0,
+                      "sn":  1.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Average Power Generation",
+                      "ytd":  185.21697860962567,
+                      "mtd":  0,
+                      "sn":  1.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Total Export (GT)",
+                      "ytd":  497.14181818181805,
+                      "mtd":  0,
+                      "sn":  1.3
+                  },
+                  {
+                      "daily":  0.2109090909090911,
+                      "particulars":  "Total Import (GT)",
+                      "ytd":  3.8072727272727289,
+                      "mtd":  1.4981818181818183,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  -0.2109090909090911,
+                      "particulars":  "Net Export (GT Export - GT Import)",
+                      "ytd":  493.334545454545,
+                      "mtd":  -1.4981818181818183,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0.2109090909090911,
+                      "particulars":  "Auxiliary Power Consumption (APC incl Import)",
+                      "ytd":  35.64514545454557,
+                      "mtd":  1.4981818181818183,
+                      "sn":  1.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Hours on Grid",
+                      "ytd":  "57 Day(s), 7 Hrs, 56 Mins",
+                      "mtd":  "0 Day(s), 0 Hrs, 0 Mins",
+                      "sn":  1.5
+                  },
+                  {
+                      "daily":  "Min - 0 Hz / Max - 0 Hz / Avg - 0 Hz",
+                      "particulars":  "Grid Frequency on 28-Jul-2025",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  1.6
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "PERFORMANCE:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Load Factor",
+                      "ytd":  0.3527942449707156,
+                      "mtd":  0,
+                      "sn":  2.1
+                  },
+                  {
+                      "daily":  1,
+                      "particulars":  "Partial Loading",
+                      "ytd":  0.64720575502928446,
+                      "mtd":  1,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Availability Factor (SEPC)",
+                      "ytd":  0.59126426632742934,
+                      "mtd":  0,
+                      "sn":  2.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Availability Factor (TNPDCL)",
+                      "ytd":  0.59126726957449682,
+                      "mtd":  0,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Plant Outage (Count)",
+                      "ytd":  1,
+                      "mtd":  0,
+                      "sn":  2.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific Oil  Consumption",
+                      "ytd":  0.36519549487430053,
+                      "mtd":  0,
+                      "sn":  2.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific Coal Consumption",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  2.5
+                  },
+                  {
+                      "daily":  "0 / 0 MW",
+                      "particulars":  "GHR (As Fired) as on 26-Jul-2025",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  2.6
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "GHR Remarks - if any",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  "-",
+                      "particulars":  "GCV (As Fired) as on 26-Jul-2025",
+                      "ytd":  "",
+                      "mtd":  "",
+                      "sn":  2.7
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "CONSUMPTION \u0026 STOCK:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "LDO Consumption",
+                      "ytd":  41.688,
+                      "mtd":  0,
+                      "sn":  3.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "HFO Consumption",
+                      "ytd":  151.493,
+                      "mtd":  0,
+                      "sn":  3.2
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Coal Consumption",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  3.3
+                  },
+                  {
+                      "daily":  20,
+                      "particulars":  "LDO Receipt",
+                      "ytd":  73,
+                      "mtd":  73,
+                      "sn":  3.4
+                  },
+                  {
+                      "daily":  183.865,
+                      "particulars":  "HFO Receipt",
+                      "ytd":  227.93800000000002,
+                      "mtd":  227.93800000000002,
+                      "sn":  3.5
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Coal Receipt",
+                      "ytd":  355003.35999999993,
+                      "mtd":  0,
+                      "sn":  3.6
+                  },
+                  {
+                      "daily":  "187.812 / 132.812",
+                      "particulars":  "LDO Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.7
+                  },
+                  {
+                      "daily":  "806.766 / 296.766",
+                      "particulars":  "HFO Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.8
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Coal Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.9
+                  },
+                  {
+                      "daily":  31.839600000000026,
+                      "particulars":  "DM Water Consumption (Cycle Makeup)",
+                      "ytd":  23109.120799999997,
+                      "mtd":  2561.5384499999946,
+                      "sn":  3.1
+                  },
+                  {
+                      "daily":  31.839999999999918,
+                      "particulars":  "Total DM Water Consumption (Plant)",
+                      "ytd":  27915.710000000006,
+                      "mtd":  2632,
+                      "sn":  3.11
+                  },
+                  {
+                      "daily":  248.00000000000057,
+                      "particulars":  "Service Water Consumption",
+                      "ytd":  66668.749999999971,
+                      "mtd":  9572.42,
+                      "sn":  3.12
+                  },
+                  {
+                      "daily":  46,
+                      "particulars":  "Potable Water Consumption",
+                      "ytd":  4914,
+                      "mtd":  1231,
+                      "sn":  3.13
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Sea Water Consumption",
+                      "ytd":  1265825.1235227382,
+                      "mtd":  0,
+                      "sn":  3.14
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "H2 Consumption",
+                      "ytd":  226,
+                      "mtd":  0,
+                      "sn":  3.15
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "CO2 Consumption",
+                      "ytd":  28,
+                      "mtd":  0,
+                      "sn":  3.16
+                  },
+                  {
+                      "daily":  1,
+                      "particulars":  "N2 Consumption",
+                      "ytd":  14,
+                      "mtd":  3,
+                      "sn":  3.17
+                  },
+                  {
+                      "daily":  227,
+                      "particulars":  "H2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.18
+                  },
+                  {
+                      "daily":  69,
+                      "particulars":  "CO2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  3.19
+                  },
+                  {
+                      "daily":  7,
+                      "particulars":  "N2 Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  "3.20"
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "POWER SCHEDULE:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Declared Capacity (SEPC)",
+                      "ytd":  831.13700999999946,
+                      "mtd":  0,
+                      "sn":  4.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Declared Capacity (TNPDCL)",
+                      "ytd":  831.13700999999946,
+                      "mtd":  0,
+                      "sn":  null
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - PPA)",
+                      "ytd":  500.17368999999991,
+                      "mtd":  0,
+                      "sn":  4.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - DAM)",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  4.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Schedule Generation (SG - RTM)",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  4.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Total Schedule Generation \n(SG - PPA+DAM+RTM)",
+                      "ytd":  500.17368999999991,
+                      "mtd":  0,
+                      "sn":  4.4
+                  },
+                  {
+                      "daily":  "MTD",
+                      "particulars":  "Asking Rate to Achieve 80% DC",
+                      "ytd":  null,
+                      "mtd":  "Asking Rate Crossed the Unit Capacity",
+                      "sn":  4.5
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Deemed Generation - DG (TB + RSD)",
+                      "ytd":  330.9633199999999,
+                      "mtd":  0,
+                      "sn":  4.6
+                  },
+                  {
+                      "daily":  1,
+                      "particulars":  "DC Loss (Capacity - DC(SEPC))",
+                      "ytd":  0.4087357336725706,
+                      "mtd":  1,
+                      "sn":  4.7
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DC Loss Reason - Daily",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  4.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "ASH:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Fly Ash to User",
+                      "ytd":  53541.319999999985,
+                      "mtd":  0,
+                      "sn":  5.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Fly Ash to Dyke / Internal",
+                      "ytd":  0,
+                      "mtd":  0,
+                      "sn":  5.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Bottom Ash to User",
+                      "ytd":  8658.4800000000014,
+                      "mtd":  0,
+                      "sn":  5.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Bottom Ash to Dyke / Internal",
+                      "ytd":  150,
+                      "mtd":  0,
+                      "sn":  5.4
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Fly Ash Generated",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  5.5
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "Bottom \u0026 Eco Ash Generated",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  5.6
+                  },
+                  {
+                      "daily":  331.75,
+                      "particulars":  "Fly Ash in Silo",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5.7
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Bottom Ash in Silo",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  5.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "WATER:",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "IDCT Make Up (Sea water)",
+                      "ytd":  6074674.90620072,
+                      "mtd":  0,
+                      "sn":  6.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "SWI Flow",
+                      "ytd":  6413527.90620072,
+                      "mtd":  0,
+                      "sn":  6.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Outfall (CT Blow Down \u0026 WTP Reject)",
+                      "ytd":  5147702.7826779848,
+                      "mtd":  0,
+                      "sn":  6.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "Specific water Consumption",
+                      "ytd":  2.3929559967554157,
+                      "mtd":  0,
+                      "sn":  6.4
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DM Water Generation",
+                      "ytd":  27307.25,
+                      "mtd":  2298.57,
+                      "sn":  6.5
+                  },
+                  {
+                      "daily":  485.6,
+                      "particulars":  "Filtered / Service Water Generation",
+                      "ytd":  62857.250000000007,
+                      "mtd":  7068.7100000000009,
+                      "sn":  6.6
+                  },
+                  {
+                      "daily":  "1761 / 1211",
+                      "particulars":  "DM Water Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6.7
+                  },
+                  {
+                      "daily":  "5148 / 3148",
+                      "particulars":  "Service Water Total / Usable Stock",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  6.8
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DSM: till 31-Jan-2026",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  7
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Net Profit",
+                      "ytd":  118.22288549320756,
+                      "mtd":  0,
+                      "sn":  7.1
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Payable by SEPC",
+                      "ytd":  -68.6616875,
+                      "mtd":  0,
+                      "sn":  7.2
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Receivable by SEPC",
+                      "ytd":  12.266328665182828,
+                      "mtd":  0,
+                      "sn":  7.3
+                  },
+                  {
+                      "daily":  0,
+                      "particulars":  "DSM Coal Saving (+)/Lost (-) by SEPC",
+                      "ytd":  174.61824432802467,
+                      "mtd":  0,
+                      "sn":  7.4
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "URS Profit / Loss",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  8
+                  },
+                  {
+                      "daily":  -2146826265,
+                      "particulars":  "URS Net Profit",
+                      "ytd":  -2146826265,
+                      "mtd":  -2146826265,
+                      "sn":  8.1
+                  },
+                  {
+                      "daily":  null,
+                      "particulars":  "DC Loss B/U (Capacity - DC (TNPDCL)):",
+                      "ytd":  null,
+                      "mtd":  null,
+                      "sn":  9
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "Coal Shortage (02 to 05 April 2025)",
+                      "ytd":  "16.62 / 1.18",
+                      "mtd":  "0 / 0",
+                      "sn":  9.1
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "CRE 16 SMPS Failure Trip (11 May 2025)",
+                      "ytd":  "1.86 / 0.13",
+                      "mtd":  "0 / 0",
+                      "sn":  9.2
+                  },
+                  {
+                      "daily":  "0 / 0",
+                      "particulars":  "Bunker Choke (10 June 2025)",
+                      "ytd":  "0.48 / 0.03",
+                      "mtd":  "0 / 0",
+                      "sn":  9.3
+                  },
+                  {
+                      "daily":  "11.81 / 100",
+                      "particulars":  "AOH (12 June 2025 to 04 August 2025)",
+                      "ytd":  "555.59 / 39.52",
+                      "mtd":  "330.75 / 100",
+                      "sn":  9.4
+                  }
+              ]
+}
