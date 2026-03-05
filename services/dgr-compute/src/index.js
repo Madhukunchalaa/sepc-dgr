@@ -199,7 +199,7 @@ app.get('/api/reports/dgr/excel/:plantId/:date', authenticate, requirePlantAcces
       return row;
     }
 
-    function fmt(v, dec = 3) {
+    function fmt(v, dec = 4) {
       if (v === null || v === undefined) return '-';
       const n = Number(v);
       return isNaN(n) ? v : n.toFixed(dec);
@@ -271,9 +271,9 @@ app.get('/api/reports/dgr/excel/:plantId/:date', authenticate, requirePlantAcces
     dataRow('Plant Outage (Forced)', 'Count', findVal('PERFORMANCE', 'Plant Outage (Forced)', 'daily'), findVal('PERFORMANCE', 'Plant Outage (Forced)', 'mtd'), findVal('PERFORMANCE', 'Plant Outage (Forced)', 'ytd'), 0);
     dataRow('Plant Outage (Planned)', 'Count', findVal('PERFORMANCE', 'Plant Outage (Planned)', 'daily'), findVal('PERFORMANCE', 'Plant Outage (Planned)', 'mtd'), findVal('PERFORMANCE', 'Plant Outage (Planned)', 'ytd'), 0);
     dataRow('Plant Outage (RSD)', 'Count', findVal('PERFORMANCE', 'Plant Outage (RSD)', 'daily'), findVal('PERFORMANCE', 'Plant Outage (RSD)', 'mtd'), findVal('PERFORMANCE', 'Plant Outage (RSD)', 'ytd'), 0);
-    dataRow('Specific Oil Consumption', 'ml/kWh', findVal('PERFORMANCE', 'Specific Oil Consumption', 'daily'), findVal('PERFORMANCE', 'Specific Oil Consumption', 'mtd'), findVal('PERFORMANCE', 'Specific Oil Consumption', 'ytd'), 5);
-    dataRow('Specific Coal Consumption', 'kg/kWh', findVal('PERFORMANCE', 'Specific Coal Consumption', 'daily'), findVal('PERFORMANCE', 'Specific Coal Consumption', 'mtd'), findVal('PERFORMANCE', 'Specific Coal Consumption', 'ytd'), 5);
-    dataRow('GHR (As Fired)', 'kCal/kWh', findVal('PERFORMANCE', 'GHR (As Fired)', 'daily'), findVal('PERFORMANCE', 'GHR (As Fired)', 'mtd'), findVal('PERFORMANCE', 'GHR (As Fired)', 'ytd'), 2);
+    dataRow('Specific Oil Consumption', 'ml/kWh', findVal('PERFORMANCE', 'Specific Oil Consumption', 'daily'), findVal('PERFORMANCE', 'Specific Oil Consumption', 'mtd'), findVal('PERFORMANCE', 'Specific Oil Consumption', 'ytd'), 4);
+    dataRow('Specific Coal Consumption', 'kg/kWh', findVal('PERFORMANCE', 'Specific Coal Consumption', 'daily'), findVal('PERFORMANCE', 'Specific Coal Consumption', 'mtd'), findVal('PERFORMANCE', 'Specific Coal Consumption', 'ytd'), 4);
+    dataRow('GHR (As Fired)', 'kCal/kWh', findVal('PERFORMANCE', 'GHR (As Fired)', 'daily'), findVal('PERFORMANCE', 'GHR (As Fired)', 'mtd'), findVal('PERFORMANCE', 'GHR (As Fired)', 'ytd'), 4);
     dataRow('GCV (As Fired)', 'kCal/kg', findVal('PERFORMANCE', 'GCV (As Fired)', 'daily'), findVal('PERFORMANCE', 'GCV (As Fired)', 'mtd'), findVal('PERFORMANCE', 'GCV (As Fired)', 'ytd'), 0);
 
     // ── SECTION 3: CONSUMPTION & STOCK ───────────────────────────────────

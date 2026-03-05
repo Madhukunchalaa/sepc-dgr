@@ -17,7 +17,7 @@ export const plants = {
   create: (data) => plantclient.post('/plants', data),
   update: (id, data) => plantclient.patch(`/plants/${id}`, data),
   meters: (id) => plantclient.get(`/plants/${id}/meters`),
-  submissionStatus: (id, date) => plantclient.get(`/plants/${id}/submission-status?date=${date}`),
+  submissionStatus: (id, date) => dataEntryClient.get(`/data-entry/submission/${id}?date=${date}`),
 }
 
 // ── Data Entry (port 3003) ──

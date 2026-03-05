@@ -47,7 +47,7 @@ app.use('/api/data-entry/scada', scadaRoutes);
 app.use('/api/data-entry/scheduling', schedRoutes);
 app.use('/api/data-entry/availability', availRoutes);
 app.use('/api/data-entry/operations', opsRoutes);
-app.use('/api/data-entry/submissions', submissionRoutes);
+app.use('/api/data-entry/submission', submissionRoutes);
 
 app.use((err, req, res, next) => {
   logger.error('Unhandled error', { message: err.message });

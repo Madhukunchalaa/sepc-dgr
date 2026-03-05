@@ -7,6 +7,7 @@ import { usePlant } from '../../context/PlantContext'
 const NAV = [
   { section: 'Main' },
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
+  { to: '/reports/view', icon: '🔍', label: 'DGR Report Viewer' },
   { section: 'Data Entry' },
   { to: '/data-entry/power', icon: '⚡', label: 'Power Generation' },
   { to: '/data-entry/fuel', icon: '🔥', label: 'Fuel' },
@@ -22,7 +23,7 @@ const NAV = [
   { section: 'Management' },
   { to: '/hq', icon: '🌐', label: 'HQ Fleet View', roles: ['hq_management', 'it_admin'] },
   { to: '/reports', icon: '📄', label: 'DGR Downloads' },
-  { to: '/reports/view', icon: '🔍', label: 'DGR Report Viewer' },
+
   { section: 'Admin' },
   { to: '/admin/plant-config', icon: '⚙️', label: 'Plant Config', roles: ['it_admin', 'plant_admin'] },
 ]

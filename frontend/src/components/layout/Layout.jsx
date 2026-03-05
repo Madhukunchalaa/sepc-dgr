@@ -6,14 +6,14 @@ import { usePlant } from '../../context/PlantContext'
 import { useAuth } from '../../context/AuthContext'
 
 const TITLES = {
-  '/dashboard':          'Dashboard',
-  '/data-entry/power':  'Power Generation Entry',
-  '/data-entry/fuel':   'Fuel & Performance Entry',
-  '/data-entry/scada':  'SCADA Upload',
-  '/approvals':         'Approvals',
-  '/reports':           'DGR Reports',
-  '/hq':                'HQ Fleet View',
-  '/admin/plant-config':'Plant Configuration',
+  '/dashboard': 'Dashboard',
+  '/data-entry/power': 'Power Generation Entry',
+  '/data-entry/fuel': 'Fuel & Performance Entry',
+  '/data-entry/scada': 'SCADA Upload',
+  '/approvals': 'Approvals',
+  '/reports': 'DGR Reports',
+  '/hq': 'HQ Fleet View',
+  '/admin/plant-config': 'Plant Configuration',
 }
 
 function todayStr() {
@@ -138,8 +138,9 @@ export default function Layout() {
         .sb-plant-option-sub  { font-size: 10px; color: var(--sb-text); }
 
         .sb-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
-        .sb-nav::-webkit-scrollbar { width: 3px; }
-        .sb-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        .sb-nav::-webkit-scrollbar { width: 6px; }
+        .sb-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        .sb-nav::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
         .sb-section {
           padding: 12px 14px 4px; font-size: 9.5px; font-weight: 600;

@@ -124,27 +124,7 @@ app.get('/api/plants/:id/meters', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/plants/:id/submission-status?date=
-app.get('/api/plants/:id/submission-status', authenticate, async (req, res) => {
-  try {
-    const date = req.query.date || new Date().toISOString().split('T')[0];
-    const { rows } = await query(
-      `SELECT ss.*, u1.full_name AS submitted_by_name, u2.full_name AS approved_by_name
-       FROM submission_status ss
-       LEFT JOIN users u1 ON ss.submitted_by = u1.id
-       LEFT JOIN users u2 ON ss.approved_by = u2.id
-       WHERE ss.plant_id=$1 AND ss.entry_date=$2 ORDER BY ss.module`,
-      [req.params.id, date]
-    );
-    const modules = ['power', 'fuel', 'performance', 'water', 'availability', 'scheduling', 'operations'];
-    const map = rows.reduce((a, r) => ({ ...a, [r.module]: r }), {});
-    const full = modules.map(m => map[m] || { module: m, status: 'not_started' });
-    return success(res, { date, modules: full });
-  } catch (err) {
-    return error(res, 'Failed to fetch status', 500);
-  }
-});
-
+// ── Endings
 app.use((err, req, res, next) => {
   logger.error('Unhandled error', { message: err.message });
   error(res, 'Internal server error', 500);

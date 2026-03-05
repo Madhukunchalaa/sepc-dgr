@@ -41,11 +41,11 @@ function TableBox({ title, rows }) {
                                             {
                                                 (() => {
                                                     if (val == null || val === '') return '-';
-                                                    if (typeof val === 'number') return Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+                                                    if (typeof val === 'number') return val.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
                                                     if (typeof val === 'string') {
-                                                        const num = Number(val);
+                                                        const num = parseFloat(val);
                                                         if (!isNaN(num) && val.trim() !== '') {
-                                                            return num.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+                                                            return num.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
                                                         }
                                                     }
                                                     return String(val);

@@ -129,8 +129,20 @@ async function run() {
             const coal_gcv_ar = parseNum(perfRow[1]);
             const coal_gcv_af = parseNum(perfRow[5]);
 
-            // SAP: H2 Cons=14
-            const h2_cons = parseNum(sapRow[14]);
+            // SAP: H2 Cons=14, CO2 Cons=15, N2 Cons=16
+            const h2_cons = parseNum(sapRow[14]) / 7; // Convert bottles to Nos (Cylinders)
+            const co2_cons = parseNum(sapRow[15]);
+            const n2_cons = parseNum(sapRow[16]);
+
+            // Fuel & Ash: H2 Stock (Filled + Empty)
+            // H2 Filled=84, H2 Filled Empty=85, H2 Empty=88, H2 Empty Empty=89
+            const h2_stock = parseNum(faRow[84]) + parseNum(faRow[85]);
+            const co2_stock = parseNum(faRow[94]);
+            const n2_stock = parseNum(faRow[103]);
+
+            const h2_receipt = parseNum(faRow[86]); // Assuming Column 86 is receipt
+            const co2_receipt = parseNum(faRow[93]);
+            const n2_receipt = parseNum(faRow[102]);
 
             // SCC and SOC need generation_mu
             const { rows: pw } = await pool.query(`SELECT generation_mu FROM daily_power WHERE plant_id=$1 AND entry_date=$2`, [plantId, entryDate]);
@@ -148,7 +160,9 @@ async function run() {
            ldo_receipt_kl, ldo_cons_kl, ldo_stock_kl,
            hfo_receipt_kl, hfo_cons_kl, hfo_stock_kl,
            soc_ml_kwh,
-           h2_cons,
+           h2_cons, h2_stock, h2_receipt,
+           co2_cons, co2_stock, co2_receipt,
+           n2_cons, n2_stock, n2_receipt,
            status
          ) VALUES (
            $1, $2,
@@ -156,7 +170,9 @@ async function run() {
            $9, $10, $11,
            $12, $13, $14,
            $15,
-           $16,
+           $16, $17, $18,
+           $19, $20, $21,
+           $22, $23, $24,
            'approved'
          ) ON CONFLICT (plant_id, entry_date) DO UPDATE SET
            coal_receipt_mt = EXCLUDED.coal_receipt_mt,
@@ -173,6 +189,14 @@ async function run() {
            hfo_stock_kl = EXCLUDED.hfo_stock_kl,
            soc_ml_kwh = EXCLUDED.soc_ml_kwh,
            h2_cons = EXCLUDED.h2_cons,
+           h2_stock = EXCLUDED.h2_stock,
+           h2_receipt = EXCLUDED.h2_receipt,
+           co2_cons = EXCLUDED.co2_cons,
+           co2_stock = EXCLUDED.co2_stock,
+           co2_receipt = EXCLUDED.co2_receipt,
+           n2_cons = EXCLUDED.n2_cons,
+           n2_stock = EXCLUDED.n2_stock,
+           n2_receipt = EXCLUDED.n2_receipt,
            status = 'approved',
            updated_at = NOW()
        `;
@@ -183,7 +207,9 @@ async function run() {
                 ldo_receipt_kl, ldo_cons_kl, ldo_stock_kl,
                 hfo_receipt_kl, hfo_cons_kl, hfo_stock_kl,
                 soc_ml_kwh,
-                h2_cons
+                h2_cons, h2_stock, h2_receipt,
+                co2_cons, co2_stock, co2_receipt,
+                n2_cons, n2_stock, n2_receipt
             ]);
 
             importedCount++;

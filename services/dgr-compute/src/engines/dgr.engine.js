@@ -90,16 +90,16 @@ async function assembleDGR(plantId, targetDate) {
             {
                 title: "2️⃣ PERFORMANCE",
                 rows: [
-                    { sn: "2.1", particulars: "Plant Load Factor", uom: "%", daily: power?.plf_daily != null ? Number(power.plf_daily) : null, mtd: power?.plf_mtd != null ? Number(power.plf_mtd) : (await getMTDAvg(plantId, targetDate, 'plf_daily')), ytd: power?.plf_ytd != null ? Number(power.plf_ytd) : (await getYTDAvg(plantId, targetDate, 'plf_daily')) },
-                    { sn: "2.2", particulars: "Partial Loading", uom: "%", daily: power?.plf_daily != null && Number(power.plf_daily) > 0 ? Math.max(0, 1 - Number(power.plf_daily)) : null, mtd: (power?.plf_mtd != null || await getMTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_mtd != null ? Number(power.plf_mtd) : await getMTDAvg(plantId, targetDate, 'plf_daily'))) : null, ytd: (power?.plf_ytd != null || await getYTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_ytd != null ? Number(power.plf_ytd) : await getYTDAvg(plantId, targetDate, 'plf_daily'))) : null },
-                    { sn: "2.3", particulars: "Plant Availability Factor (SEPC)", uom: "%", daily: availability?.paf_pct != null ? Number(availability.paf_pct) : null, mtd: availability?.paf_mtd != null ? Number(availability.paf_mtd) : (await getMTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')), ytd: availability?.paf_ytd != null ? Number(availability.paf_ytd) : (await getYTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) },
-                    { sn: "2.4", particulars: "Plant Availability Factor (TNPDCL)", uom: "%", daily: availability?.paf_tnpdcl != null ? Number(availability.paf_tnpdcl) : null, mtd: availability?.paf_tnpdcl_mtd != null ? Number(availability.paf_tnpdcl_mtd) : (await getMTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')), ytd: availability?.paf_tnpdcl_ytd != null ? Number(availability.paf_tnpdcl_ytd) : (await getYTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) },
+                    { sn: "2.1", particulars: "Plant Load Factor", uom: "%", daily: power?.plf_daily != null ? Number(power.plf_daily) * 100 : null, mtd: power?.plf_mtd != null ? Number(power.plf_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'plf_daily')) * 100, ytd: power?.plf_ytd != null ? Number(power.plf_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'plf_daily')) * 100 },
+                    { sn: "2.2", particulars: "Partial Loading", uom: "%", daily: power?.plf_daily != null && Number(power.plf_daily) > 0 ? Math.max(0, 1 - Number(power.plf_daily)) * 100 : null, mtd: (power?.plf_mtd != null || await getMTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_mtd != null ? Number(power.plf_mtd) : await getMTDAvg(plantId, targetDate, 'plf_daily'))) * 100 : null, ytd: (power?.plf_ytd != null || await getYTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_ytd != null ? Number(power.plf_ytd) : await getYTDAvg(plantId, targetDate, 'plf_daily'))) * 100 : null },
+                    { sn: "2.3", particulars: "Plant Availability Factor (SEPC)", uom: "%", daily: availability?.paf_pct != null ? Number(availability.paf_pct) * 100 : null, mtd: availability?.paf_mtd != null ? Number(availability.paf_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100, ytd: availability?.paf_ytd != null ? Number(availability.paf_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100 },
+                    { sn: "2.4", particulars: "Plant Availability Factor (TNPDCL)", uom: "%", daily: availability?.paf_tnpdcl != null ? Number(availability.paf_tnpdcl) * 100 : null, mtd: availability?.paf_tnpdcl_mtd != null ? Number(availability.paf_tnpdcl_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100, ytd: availability?.paf_tnpdcl_ytd != null ? Number(availability.paf_tnpdcl_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100 },
                     { sn: "2.5", particulars: "Plant Outage – Forced", uom: "Count", daily: power?.forced_outages, mtd: await getMTDSum(plantId, targetDate, 'forced_outages'), ytd: await getYTDSum(plantId, targetDate, 'forced_outages') },
                     { sn: "2.6", particulars: "Plant Outage – Planned", uom: "Count", daily: power?.planned_outages, mtd: await getMTDSum(plantId, targetDate, 'planned_outages'), ytd: await getYTDSum(plantId, targetDate, 'planned_outages') },
                     { sn: "2.7", particulars: "Plant Outage – RSD", uom: "Count", daily: power?.rsd_count, mtd: await getMTDSum(plantId, targetDate, 'rsd_count'), ytd: await getYTDSum(plantId, targetDate, 'rsd_count') },
                     { sn: "2.8", particulars: "Specific Oil Consumption", uom: "ml/kWh", daily: fuel?.soc_ml_kwh, mtd: socMtd, ytd: socYtd },
                     { sn: "2.9", particulars: "Specific Coal Consumption", uom: "kg/kWh", daily: fuel?.scc_kg_kwh, mtd: sccMtd, ytd: sccYtd },
-                    { sn: "2.10", particulars: "GHR (As Fired)", uom: "kCal/kWh", daily: ghrDirect !== null ? ghrDirect.toFixed(2) : null, mtd: perf?.ghr_mtd, ytd: perf?.ghr_ytd },
+                    { sn: "2.10", particulars: "GHR (As Fired)", uom: "kCal/kWh", daily: ghrDirect !== null ? Number(ghrDirect.toFixed(4)) : null, mtd: perf?.ghr_mtd, ytd: perf?.ghr_ytd },
                     { sn: "2.11", particulars: "GHR Remarks", uom: "Text", daily: perf?.ghr_remarks, mtd: null, ytd: null },
                     { sn: "2.12", particulars: "GCV (As Fired)", uom: "kCal/kg", daily: gcvAf, mtd: await getMTDAvg(plantId, targetDate, 'coal_gcv_af', 'daily_fuel'), ytd: await getYTDAvg(plantId, targetDate, 'coal_gcv_af', 'daily_fuel') },
                 ]
@@ -214,7 +214,7 @@ async function assembleDGR(plantId, targetDate) {
 
     function processNumbers(obj) {
         if (obj === null || obj === undefined) return obj;
-        if (typeof obj === 'number') return Number(obj.toFixed(4));
+        if (typeof obj === 'number') return obj != null ? Number(obj.toFixed(4)) : null;
         if (Array.isArray(obj)) return obj.map(processNumbers);
         if (typeof obj === 'object') {
             const newObj = {};
@@ -260,12 +260,16 @@ async function getWaterData(plantId, date) {
     return rows[0];
 }
 async function getAshData(plantId, date) {
-    const { rows } = await query(`SELECT * FROM daily_ash WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
-    return rows[0];
+    try {
+        const { rows } = await query(`SELECT * FROM daily_ash WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
+        return rows[0];
+    } catch (e) { return {} }
 }
 async function getDsmData(plantId, date) {
-    const { rows } = await query(`SELECT * FROM daily_dsm WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
-    return rows[0];
+    try {
+        const { rows } = await query(`SELECT * FROM daily_dsm WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
+        return rows[0];
+    } catch (e) { return {} }
 }
 async function getAvailabilityData(plantId, date) {
     const { rows } = await query(`SELECT * FROM daily_availability WHERE plant_id=$1 AND entry_date=$2`, [plantId, date]);
@@ -357,11 +361,11 @@ async function assembleFleetSummary(date) {
             location: p.location,
             capacityMW: p.capacity_mw,
             generationMU: power?.generation_mu || 0,
-            plfPct: power?.plf_daily || 0,
-            apcPct: power?.apc_pct || 0,
+            plfPct: (power?.plf_daily || 0) * 100,
+            apcPct: (power?.apc_pct || 0) * 100,
             coalStockMT: fuel?.coal_stock_mt || 0,
             submittedModules: submitted,
-            totalModules: 7,
+            totalModules: 9,
             submissionStatus: status,
         };
     }));

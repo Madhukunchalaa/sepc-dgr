@@ -1,7 +1,7 @@
 // services/data-entry/src/routes/submission.routes.js
 const router = require('express').Router();
 const { authenticate } = require('../middleware/auth.middleware');
-const { query }  = require('../shared/db');
+const { query } = require('../shared/db');
 const { success, error } = require('../shared/response');
 
 // GET /api/data-entry/submission/:plantId?date=YYYY-MM-DD
@@ -18,7 +18,7 @@ router.get('/:plantId', authenticate, async (req, res) => {
        ORDER BY ss.module`,
       [plantId, date]
     );
-    const modules = ['power','fuel','performance','water','availability','scheduling','operations'];
+    const modules = ['power', 'fuel', 'performance', 'water', 'availability', 'scheduling', 'operations', 'ash', 'dsm'];
     const map = rows.reduce((a, r) => ({ ...a, [r.module]: r }), {});
     const full = modules.map(m => map[m] || { module: m, status: 'not_started' });
     return success(res, { date, plantId, modules: full });
