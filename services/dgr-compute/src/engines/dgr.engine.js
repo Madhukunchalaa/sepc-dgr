@@ -27,8 +27,8 @@ async function assembleDGR(plantId, targetDate) {
 
     const apcMtd = await getMTDSum(plantId, targetDate, 'apc_mu');
     const apcYtd = await getYTDSum(plantId, targetDate, 'apc_mu');
-    const genMtd = power?.generation_mtd || (await getMTDSum(plantId, targetDate, 'generation_mu'));
-    const genYtd = power?.generation_ytd || (await getYTDSum(plantId, targetDate, 'generation_mu'));
+    const genMtd = Number(power?.generation_mtd || (await getMTDSum(plantId, targetDate, 'generation_mu')));
+    const genYtd = Number(power?.generation_ytd || (await getYTDSum(plantId, targetDate, 'generation_mu')));
 
     const formatHours = (hrs) => {
         if (hrs == null) return null;
@@ -50,16 +50,16 @@ async function assembleDGR(plantId, targetDate) {
 
     const ldoMtd = await getMTDSum(plantId, targetDate, 'ldo_cons_kl', 'daily_fuel');
     const hfoMtd = await getMTDSum(plantId, targetDate, 'hfo_cons_kl', 'daily_fuel');
-    const socMtd = genMtd > 0 ? (ldoMtd + hfoMtd) / genMtd : 0;
+    const socMtd = Number(genMtd) > 0 ? (Number(ldoMtd) + Number(hfoMtd)) / Number(genMtd) : 0;
 
     const ldoYtd = await getYTDSum(plantId, targetDate, 'ldo_cons_kl', 'daily_fuel');
     const hfoYtd = await getYTDSum(plantId, targetDate, 'hfo_cons_kl', 'daily_fuel');
-    const socYtd = genYtd > 0 ? (ldoYtd + hfoYtd) / genYtd : 0;
+    const socYtd = Number(genYtd) > 0 ? (Number(ldoYtd) + Number(hfoYtd)) / Number(genYtd) : 0;
 
     const coalMtd = await getMTDSum(plantId, targetDate, 'coal_cons_mt', 'daily_fuel');
     const coalYtd = await getYTDSum(plantId, targetDate, 'coal_cons_mt', 'daily_fuel');
-    const sccMtd = genMtd > 0 ? coalMtd / (genMtd * 1000) : 0;
-    const sccYtd = genYtd > 0 ? coalYtd / (genYtd * 1000) : 0;
+    const sccMtd = Number(genMtd) > 0 ? Number(coalMtd) / (Number(genMtd) * 1000) : 0;
+    const sccYtd = Number(genYtd) > 0 ? Number(coalYtd) / (Number(genYtd) * 1000) : 0;
 
     const report = {
         header: {
@@ -90,10 +90,10 @@ async function assembleDGR(plantId, targetDate) {
             {
                 title: "2️⃣ PERFORMANCE",
                 rows: [
-                    { sn: "2.1", particulars: "Plant Load Factor", uom: "%", daily: power?.plf_daily != null ? Number(power.plf_daily) * 100 : null, mtd: power?.plf_mtd != null ? Number(power.plf_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'plf_daily')) * 100, ytd: power?.plf_ytd != null ? Number(power.plf_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'plf_daily')) * 100 },
-                    { sn: "2.2", particulars: "Partial Loading", uom: "%", daily: power?.plf_daily != null && Number(power.plf_daily) > 0 ? Math.max(0, 100 - Number(power.plf_daily) * 100) : null, mtd: (power?.plf_mtd != null || await getMTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 100 - (power?.plf_mtd != null ? Number(power.plf_mtd) : await getMTDAvg(plantId, targetDate, 'plf_daily')) * 100) : null, ytd: (power?.plf_ytd != null || await getYTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 100 - (power?.plf_ytd != null ? Number(power.plf_ytd) : await getYTDAvg(plantId, targetDate, 'plf_daily')) * 100) : null },
-                    { sn: "2.3", particulars: "Plant Availability Factor (SEPC)", uom: "%", daily: availability?.paf_pct != null ? Number(availability.paf_pct) * 100 : null, mtd: availability?.paf_mtd != null ? Number(availability.paf_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100, ytd: availability?.paf_ytd != null ? Number(availability.paf_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100 },
-                    { sn: "2.4", particulars: "Plant Availability Factor (TNPDCL)", uom: "%", daily: availability?.paf_tnpdcl != null ? Number(availability.paf_tnpdcl) * 100 : null, mtd: availability?.paf_tnpdcl_mtd != null ? Number(availability.paf_tnpdcl_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100, ytd: availability?.paf_tnpdcl_ytd != null ? Number(availability.paf_tnpdcl_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100 },
+                    { sn: "2.1", particulars: "Plant Load Factor", uom: "%", daily: power?.plf_daily != null ? Number(power.plf_daily) : null, mtd: power?.plf_mtd != null ? Number(power.plf_mtd) : (await getMTDAvg(plantId, targetDate, 'plf_daily')), ytd: power?.plf_ytd != null ? Number(power.plf_ytd) : (await getYTDAvg(plantId, targetDate, 'plf_daily')) },
+                    { sn: "2.2", particulars: "Partial Loading", uom: "%", daily: power?.plf_daily != null && Number(power.plf_daily) > 0 ? Math.max(0, 1 - Number(power.plf_daily)) : null, mtd: (power?.plf_mtd != null || await getMTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_mtd != null ? Number(power.plf_mtd) : await getMTDAvg(plantId, targetDate, 'plf_daily'))) : null, ytd: (power?.plf_ytd != null || await getYTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_ytd != null ? Number(power.plf_ytd) : await getYTDAvg(plantId, targetDate, 'plf_daily'))) : null },
+                    { sn: "2.3", particulars: "Plant Availability Factor (SEPC)", uom: "%", daily: availability?.paf_pct != null ? Number(availability.paf_pct) : null, mtd: availability?.paf_mtd != null ? Number(availability.paf_mtd) : (await getMTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')), ytd: availability?.paf_ytd != null ? Number(availability.paf_ytd) : (await getYTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) },
+                    { sn: "2.4", particulars: "Plant Availability Factor (TNPDCL)", uom: "%", daily: availability?.paf_tnpdcl != null ? Number(availability.paf_tnpdcl) : null, mtd: availability?.paf_tnpdcl_mtd != null ? Number(availability.paf_tnpdcl_mtd) : (await getMTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')), ytd: availability?.paf_tnpdcl_ytd != null ? Number(availability.paf_tnpdcl_ytd) : (await getYTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) },
                     { sn: "2.5", particulars: "Plant Outage – Forced", uom: "Count", daily: power?.forced_outages, mtd: await getMTDSum(plantId, targetDate, 'forced_outages'), ytd: await getYTDSum(plantId, targetDate, 'forced_outages') },
                     { sn: "2.6", particulars: "Plant Outage – Planned", uom: "Count", daily: power?.planned_outages, mtd: await getMTDSum(plantId, targetDate, 'planned_outages'), ytd: await getYTDSum(plantId, targetDate, 'planned_outages') },
                     { sn: "2.7", particulars: "Plant Outage – RSD", uom: "Count", daily: power?.rsd_count, mtd: await getMTDSum(plantId, targetDate, 'rsd_count'), ytd: await getYTDSum(plantId, targetDate, 'rsd_count') },
