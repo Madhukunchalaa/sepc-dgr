@@ -147,7 +147,7 @@ async function run() {
 
     const doc = new Document({ sections: [{ properties: {}, children }] });
     const b64 = await Packer.toBase64String(doc);
-    fs.writeFileSync('SEPC_DGR_Exhaustive_Comparison_Report_V4.docx', Buffer.from(b64, 'base64'));
+    fs.writeFileSync('SEPC_DGR_Exhaustive_Comparison_Report_V6.docx', Buffer.from(b64, 'base64'));
     console.log('Successfully wrote massive report.');
     process.exit(0);
 }
