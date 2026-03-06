@@ -51,9 +51,10 @@ async function run() {
     gcvAr = 1; gcvAf = 5; ghrDir = 9; loiBa = 6; loiFa = 7; fc = 8; vm = 9;
 
     const parseNum = (val) => {
-        if (!val) return 0;
+        if (val === null || val === undefined || val === '') return null;
         const str = String(val).split('/')[0].trim();
-        return parseFloat(str.replace(/[^0-9.-]/g, '')) || 0;
+        const num = parseFloat(str.replace(/[^0-9.-]/g, ''));
+        return isNaN(num) ? null : num;
     };
 
     const { rows: plants } = await pool.query(`SELECT id FROM plants WHERE short_name = 'TTPP' LIMIT 1`);
@@ -62,7 +63,7 @@ async function run() {
 
     console.log(`Working on Plant ${plantId}...`);
 
-    for (let r = 6; r <= 316; r++) {
+    for (let r = 6; r < faData.length; r++) {
         const faRow = faData[r] || [];
         if (!faRow[0]) continue;
 

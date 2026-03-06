@@ -67,7 +67,7 @@ async function run() {
 
             const dateStr = parseDate(rowPower[0]);
             if (!dateStr) continue;
-            if (new Date(dateStr) > new Date('2026-02-05')) break;
+            // removed date limit
 
             // ---- DSM ----
             const dsmRec = parseNum(rowPower[239]);
@@ -124,7 +124,7 @@ async function run() {
             if (!row) continue;
             const ds = parseDate(row[0]);
             if (ds) {
-                if (new Date(ds) > new Date('2026-02-05')) break;
+                // limit removed
 
                 const boilerAct = String(row[1] || '').trim();
                 const turbAct = String(row[2] || '').trim();

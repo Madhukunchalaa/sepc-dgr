@@ -84,7 +84,7 @@ async function run() {
         let importedCount = 0;
 
         // Iterate starting from row 6 (2025-04-01) up to row 316 (2026-02-05) in Fuel & Ash
-        for (let r = 6; r <= 316; r++) {
+        for (let r = 6; r < faData.length; r++) {
             const faRow = faData[r] || [];
             if (!faRow[0]) continue;
 

@@ -103,7 +103,7 @@ async function run() {
                 continue;
             }
 
-            if (new Date(dateStr) > new Date('2026-02-05')) break;
+            // removed date limit
 
             const meterReadings = {
                 "GEN_MAIN": parseNum(row[1]),
