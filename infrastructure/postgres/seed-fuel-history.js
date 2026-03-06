@@ -121,9 +121,9 @@ async function run() {
             const hfo_cons_kl = parseNum(faRow[hfoCons]);
             const hfo_stock_kl = parseNum(faRow[hfoStock]);
 
-            const coal_receipt_mt = parseNum(faRow[coalReceipt]);
-            const coal_cons_mt = parseNum(faRow[coalCons]);
-            const coal_stock_mt = parseNum(faRow[coalStock]);
+            const coal_receipt_mt = parseNum(faRow[coalReceipt]) || parseNum(perfRow[4]);
+            const coal_cons_mt = parseNum(faRow[coalCons]) || parseNum(perfRow[103]);
+            const coal_stock_mt = parseNum(faRow[coalStock]) || parseNum(perfRow[31]); // Index 31 is label Stock in Perf or something? Let's check.
 
             // Perf: GCV AR=1, GCV AF=5
             const coal_gcv_ar = parseNum(perfRow[1]);
