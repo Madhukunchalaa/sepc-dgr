@@ -11,7 +11,7 @@ try {
         throw new Error(`Module resolution failed in taqa.engine.js: ${e2.message}`);
     }
 }
-const { getTaqaStats, getFYStartDate, getSubmissionStatus, processNumbers, query } = helpers;
+const { getTaqaStats, getFYStartDate, getSubmissionStatus, processNumbers, query, getPlant } = helpers;
 
 async function assembleTaqaDGR(plant, targetDate) {
     console.log(`[taqa.engine] Assembling DGR for ${plant?.short_name} on ${targetDate}`);
@@ -19,7 +19,13 @@ async function assembleTaqaDGR(plant, targetDate) {
     const date = new Date(targetDate);
     const dayOfMonth = date.getDate();
     const fyStartDate = await getFYStartDate(plantId, targetDate);
-    const daysSinceFyStart = Math.floor((date - new Date(fyStartDate)) / (1000 * 60 * 60 * 24)) + 1;
+
+    // Derive FY Label (e.g. 2025-2026)
+    const fyDate = new Date(fyStartDate);
+    const fyYear = fyDate.getFullYear();
+    const fyLabel = `${fyYear}-${fyYear + 1}`;
+
+    const daysSinceFyStart = Math.floor((date - fyDate) / (1000 * 60 * 60 * 24)) + 1;
 
     // 1. Fetch Day's Raw Data & Bulk Stats (MTD/YTD sums)
     const [rawRes, stats, submissionStatus] = await Promise.all([
@@ -183,7 +189,7 @@ async function assembleTaqaDGR(plant, targetDate) {
 
     const report = {
         header: {
-            title: `DAILY GENERATION REPORT — ${plant?.fy_label || ''}`,
+            title: `DAILY GENERATION REPORT — ${fyLabel}`,
             company: plant?.company_name || 'MEIL Neyveli Energy Pvt Ltd',
             plantName: (plant?.name || 'TAQA Plant') + ' (1 X 250 MW)',
             documentNumber: plant?.document_number || 'TAQA/DGR/001',
