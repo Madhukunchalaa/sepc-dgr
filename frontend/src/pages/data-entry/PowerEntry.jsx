@@ -95,6 +95,18 @@ export default function PowerEntry() {
   })
   const prevReadings = prevData?.data?.data?.meter_readings || {}
 
+  // Clear state when date or plant changes to avoid showing stale data
+  useEffect(() => {
+    setReadings({})
+    setExtras({
+      freqMin: '', freqMax: '', freqAvg: '',
+      hoursOnGrid: 24, forcedOutages: 0, plannedOutages: 0,
+      rsdCount: 0, outageRemarks: '', partialLoadingPct: '',
+    })
+    setSavedComputed(null)
+    setMsg(null)
+  }, [date, plantId])
+
   useEffect(() => {
     const entry = existingData?.data?.data
     if (entry?.meter_readings) {
@@ -123,7 +135,8 @@ export default function PowerEntry() {
         plfMTD: entry.plf_mtd ? entry.plf_mtd * 100 : null,
         plfYTD: entry.plf_ytd ? entry.plf_ytd * 100 : null,
       })
-    } else {
+    } else if (!existingData?.isFetching) {
+      // Only clear if NOT fetching (redundant but safe)
       setReadings({}); setSavedComputed(null)
     }
   }, [existingData])

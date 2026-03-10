@@ -45,7 +45,7 @@ export default function OpsInput() {
     const qc = useQueryClient()
 
     const plantId = selectedPlant?.id
-    const isTaqa = selectedPlant?.short_name === 'TAQA'
+    const isTaqa = useMemo(() => selectedPlant?.short_name?.startsWith('TAQA'), [selectedPlant])
 
     const prevDate = useMemo(() => {
         const d = new Date(date)
@@ -82,6 +82,15 @@ export default function OpsInput() {
     })
 
     // Sync state (mirrors stable SEPC entry pages)
+    // Clear form when date or plant changes to avoid showing stale data
+    useEffect(() => {
+        if (isTaqa) {
+            setForm({})
+            setPrevForm({})
+            setMsg(null)
+        }
+    }, [date, plantId, isTaqa])
+
     useEffect(() => {
         if (!isTaqa) return
         const row = currentRes?.data?.data ?? {}
@@ -89,22 +98,10 @@ export default function OpsInput() {
             setForm(cleanRowToForm(row))
             setMsg({ type: 'info', text: `📂 Loaded saved data for ${date}` })
         } else if (!isFetchingCurrent) {
+            // Only clear if we are NOT fetching (e.g. 404 / no data)
             setForm({})
         }
-        // do not clear msg while fetching to avoid flicker
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentRes, isFetchingCurrent, date, isTaqa])
-
-    useEffect(() => {
-        if (!isTaqa) return
-        const row = prevRes?.data?.data ?? {}
-        if (row && Object.keys(row).length > 0) {
-            setPrevForm(cleanRowToForm(row))
-        } else if (!isFetchingPrev) {
-            setPrevForm({})
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [prevRes, isFetchingPrev, isTaqa])
+    }, [currentRes, isFetchingCurrent, isTaqa])
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
@@ -169,7 +166,7 @@ export default function OpsInput() {
                 </div>
             </div>
 
-            {selectedPlant?.short_name !== 'TAQA' && (
+            {!isTaqa && (
                 <div className="alert alert-error">
                     <strong>Invalid Plant Selected:</strong> This form is specifically for high-detail TAQA station input.
                     Please switch to <b>TAQA</b> in the sidebar to proceed.

@@ -82,6 +82,13 @@ export default function FuelEntry() {
 
   const [savedComputed, setSavedComputed] = useState(null)
 
+  // Clear state when date or plant changes to avoid showing stale data
+  useEffect(() => {
+    setForm({})
+    setSavedComputed(null)
+    setMsg(null)
+  }, [date, plantId])
+
   useEffect(() => {
     const e = existing?.data?.data
     if (e) {
@@ -104,7 +111,7 @@ export default function FuelEntry() {
         socMlKwh: e.soc_ml_kwh,
         ghrDirect: ghrDirect,
       })
-    } else {
+    } else if (!existing?.isFetching) {
       setForm({})
       setSavedComputed(null)
     }

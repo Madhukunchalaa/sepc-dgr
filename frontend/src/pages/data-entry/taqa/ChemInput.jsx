@@ -21,7 +21,7 @@ export default function ChemInput() {
     const [msg, setMsg] = useState(null)
     const qc = useQueryClient()
     const plantId = selectedPlant?.id
-    const isTaqa = selectedPlant?.short_name === 'TAQA'
+    const isTaqa = selectedPlant?.short_name?.startsWith('TAQA')
 
     const { data: currentRes, isFetching } = useQuery({
         queryKey: ['taqa-chem-input', plantId, date],
@@ -29,6 +29,14 @@ export default function ChemInput() {
         enabled: !!plantId && !!date && isTaqa,
         retry: false,
     })
+
+    // Clear form when date or plant changes to avoid showing stale data
+    useEffect(() => {
+        if (isTaqa) {
+            setForm({})
+            setMsg(null)
+        }
+    }, [date, plantId, isTaqa])
 
     useEffect(() => {
         if (!isTaqa) return
@@ -44,7 +52,7 @@ export default function ChemInput() {
         } else if (!isFetching) {
             setForm({})
         }
-    }, [currentRes, isFetching, isTaqa, date, setForm, setMsg])
+    }, [currentRes, isFetching, isTaqa])
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 

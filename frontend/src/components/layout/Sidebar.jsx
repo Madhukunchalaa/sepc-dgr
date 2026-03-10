@@ -24,7 +24,7 @@ const TAQA_DATA_ENTRY = [
 ]
 
 function getNav(selectedPlant) {
-  const isTaqa = selectedPlant?.short_name === 'TAQA'
+  const isTaqa = selectedPlant?.short_name?.startsWith('TAQA')
   const dataEntryItems = isTaqa ? TAQA_DATA_ENTRY : SEPC_DATA_ENTRY
   return [
     { section: 'Main' },
@@ -62,7 +62,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         <div className="sb-logo">⚡</div>
         <div className="sb-brand-text">
           <div className="sb-brand-name">DGR Portal</div>
-          <div className="sb-brand-sub">{selectedPlant?.short_name === 'TAQA' ? 'TAQA MEIL Neyveli' : 'SEPC Power Pvt Ltd'}</div>
+          <div className="sb-brand-sub">{selectedPlant?.short_name?.startsWith('TAQA') ? 'TAQA MEIL Neyveli' : 'SEPC Power Pvt Ltd'}</div>
         </div>
       </div>
 
