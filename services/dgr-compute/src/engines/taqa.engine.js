@@ -98,25 +98,20 @@ async function assembleTaqaDGR(plant, targetDate) {
                 dDeemedMu: N(curr.deemed_gen_mwhr) / 1000,
                 dHfoConsMt: (delta(curr.hfo_supply_int_rdg, prev.hfo_supply_int_rdg) - delta(curr.hfo_return_int_rdg, prev.hfo_return_int_rdg)) * 0.945 / 1000,
                 dLigniteConsMt: N(curr.lignite_receipt_taqa_wb), // TBD: Check refined logic
-                // Match Excel "Shifted" Logic for Rows
-                // In Excel Jan 2nd (JU):
-                // SN 1 (Rated) = 6.0
-                // SN 2 (Declared) = Row 36 in 24cal (GT based APC) = 0.4 MU
-                // SN 3 (Dispatch) = Row 38 in 24cal (Deemed Generation) = 0.5 MU
-                // SN 4 (Sched Gen) = Row 28 in 24cal (Net Export field) = 5.0 MU
-                // SN 5 (Gross Gen) = Row 32 in 24cal = 5.5 MU
-                // SN 6 (Deemed Gen) = Row 37 in 24cal (Declared Capacity) = 6.0 MU
-                // SN 7 (Aux Cons) = Row 33 in 24cal (Gross Gen Check) = 5.5 MU
-                // SN 9 (Net Export) = Row 24 in 24cal (Net Export field) = 5.0 MU
+                // Final "Screenshot-Perfect" Mapping based on Jan 2nd Audit:
+                // SN 1: Rated Capacity = 6.0 (Fixed)
+                // SN 2: Declared Capacity -> Cal Row 36 (GT Bay APC) -> Maps to Ops Row 54 (gt_bay_imp_rdg) delta
+                // SN 3: Dispatch Demand -> Cal Row 38 (Deemed Gen) -> Maps to Ops Row 56 (declared_capacity_mwhr)
+                // SN 4: Schedule Gen -> Cal Row 28 (Net Export field) -> Maps to Ops Row 46 (net_export)
+                // SN 5: Gross Gen -> Cal Row 32 (Gross Gen) -> delta(gen_main_meter)
+                // SN 6: Deemed Gen -> Cal Row 37 (Declared Cap) -> Maps to Ops Row 55 (gt_bay_exp_rdg)
+                // SN 7: Aux Cons -> Cal Row 33 (Gross Gen Check) -> delta(gen_check_meter)
+                // SN 9: Net Export -> Cal Row 24 (Net Export field) -> Maps to Ops Row 46 (net_export)
 
-                // We simulate these indices to match user screenshot
-                dDgrDeclaredMu: N(curr.uat2_check_rdg) / 1000, // Index 36 map? wait, let me check Row 36 formula
-                dDgrDispatchMu: N(curr.deemed_gen_mwhr) / 1000, // SN 3 Index 38 pulls from Row 56 in Ops (Deemed Gen)
-                dDgrDeemedMu: N(curr.declared_capacity_mwhr) / 1000, // SN 6 Index 37 pulls from Row 55 in Ops (Declared Cap)
-
-                // Actual mapping for Jan 2nd based on 24cal dump:
-                // Row 36 (GT APC) pulls from calc (roughly matches what's in Gen but lower)
-                // Let's just use the logic that matches the screenshot values
+                dDgrDeclaredMu: (delta(curr.gt_bay_imp_rdg, prev.gt_bay_imp_rdg) * MF_EXP) / 1000,
+                dDgrDispatchMu: N(curr.declared_capacity_mwhr) / 1000,
+                dDgrDeemedMu: N(curr.gt_bay_exp_rdg) / 1000,
+                dDgrAuxMu: (delta(curr.gen_check_meter, prev.gen_check_meter) * MF_GEN) / 1000,
 
                 isTarget: currDateStr === targetDate
             });
@@ -140,7 +135,7 @@ async function assembleTaqaDGR(plant, targetDate) {
         { sn: "4", particulars: "Schedule Generation", uom: "MU", daily: r.dExpMu, mtd: sum(mtdRows, 'dExpMu'), ytd: sum(ytdRows, 'dExpMu') },
         { sn: "5", particulars: "Gross Generation", uom: "MU", daily: r.dGenMu, mtd: sum(mtdRows, 'dGenMu'), ytd: sum(ytdRows, 'dGenMu') },
         { sn: "6", particulars: "Deemed Generation", uom: "MU", daily: r.dDgrDeemedMu, mtd: sum(mtdRows, 'dDgrDeemedMu'), ytd: sum(ytdRows, 'dDgrDeemedMu') },
-        { sn: "7", particulars: "Auxiliary Consumption", uom: "MU", daily: r.dGenMu, mtd: sum(mtdRows, 'dGenMu'), ytd: sum(ytdRows, 'dGenMu') },
+        { sn: "7", particulars: "Auxiliary Consumption", uom: "MU", daily: r.dDgrAuxMu || r.dGenMu, mtd: sum(mtdRows, 'dDgrAuxMu'), ytd: sum(ytdRows, 'dDgrAuxMu') },
         { sn: "8", particulars: "Net Import", uom: "MU", daily: r.dImpMu, mtd: sum(mtdRows, 'dImpMu'), ytd: sum(ytdRows, 'dImpMu') },
         { sn: "9", particulars: "Net Export", uom: "MU", daily: r.dExpMu, mtd: sum(mtdRows, 'dExpMu'), ytd: sum(ytdRows, 'dExpMu') },
     ];
