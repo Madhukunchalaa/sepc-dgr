@@ -21,7 +21,7 @@ export default function ChemInput() {
     const [msg, setMsg] = useState(null)
     const qc = useQueryClient()
     const plantId = selectedPlant?.id
-    const isTaqa = selectedPlant?.short_name?.startsWith('TAQA')
+    const isTaqa = useMemo(() => selectedPlant?.short_name?.startsWith('TAQA'), [selectedPlant])
 
     const { data: currentRes, isFetching } = useQuery({
         queryKey: ['taqa-chem-input', plantId, date],
@@ -30,6 +30,7 @@ export default function ChemInput() {
         retry: false,
     })
 
+    // Sync state (mirrors robust OpsInput logic)
     // Clear form when date or plant changes to avoid showing stale data
     useEffect(() => {
         if (isTaqa) {
@@ -40,7 +41,16 @@ export default function ChemInput() {
 
     useEffect(() => {
         if (!isTaqa) return
+        if (isFetching) return
+
         const row = currentRes?.data?.data ?? {}
+
+        // Guard against stale cached responses
+        const rowDate = row?.entry_date ? String(row.entry_date).slice(0, 10) : null
+        const rowPlant = row?.plant_id != null ? String(row.plant_id) : null
+        if (rowDate && rowDate !== date) return
+        if (rowPlant && rowPlant !== String(plantId)) return
+
         const fields = Object.fromEntries(
             Object.entries(row)
                 .filter(([k]) => k.startsWith('chem_'))
@@ -49,10 +59,10 @@ export default function ChemInput() {
         if (Object.keys(fields).length > 0) {
             setForm(fields)
             setMsg({ type: 'info', text: `📂 Loaded saved data for ${date}` })
-        } else if (!isFetching) {
+        } else {
             setForm({})
         }
-    }, [currentRes, isFetching, isTaqa])
+    }, [currentRes, isFetching, isTaqa, date, plantId])
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 

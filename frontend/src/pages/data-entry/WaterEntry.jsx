@@ -38,7 +38,16 @@ export default function WaterEntry() {
     const [savedComputed, setSavedComputed] = useState(null)
 
     useEffect(() => {
+        if (!existing || existing.isFetching) return
         const e = existing?.data?.data
+
+        // Robust guard against stale cached responses: only apply if the returned row
+        // matches the currently selected date AND plant.
+        const rowDate = e?.entry_date ? String(e.entry_date).slice(0, 10) : null
+        const rowPlant = e?.plant_id != null ? String(e.plant_id) : null
+        if (rowDate && rowDate !== date) return
+        if (rowPlant && rowPlant !== String(plantId)) return
+
         if (e) {
             setForm({
                 dmGenerationM3: e.dm_generation_m3,
@@ -62,7 +71,7 @@ export default function WaterEntry() {
             setForm({})
             setSavedComputed(null)
         }
-    }, [existing, powerData])
+    }, [existing, powerData, date, plantId])
 
     // Compute live values dynamically exactly like the backend
     const liveComputed = useMemo(() => {

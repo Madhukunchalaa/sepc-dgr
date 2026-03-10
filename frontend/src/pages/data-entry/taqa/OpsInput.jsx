@@ -93,15 +93,28 @@ export default function OpsInput() {
 
     useEffect(() => {
         if (!isTaqa) return
+        if (isFetchingCurrent) return // wait until fetch for the CURRENT date completes
+
         const row = currentRes?.data?.data ?? {}
+
+        // Guard against stale cached responses: only apply if the returned row
+        // matches the currently selected date AND plant. Without this check,
+        // React Query's stale-while-revalidate behaviour can fire this effect
+        // with the previous date's cached data AFTER the clear-on-date-change
+        // effect has already blanked the form — causing the old data to
+        // reappear in the inputs (the bug seen on TAQA but not TTPP).
+        const rowDate = row?.entry_date ? String(row.entry_date).slice(0, 10) : null
+        const rowPlant = row?.plant_id != null ? String(row.plant_id) : null
+        if (rowDate && rowDate !== date) return           // stale date — ignore
+        if (rowPlant && rowPlant !== String(plantId)) return  // stale plant — ignore
+
         if (row && Object.keys(row).length > 0) {
             setForm(cleanRowToForm(row))
             setMsg({ type: 'info', text: `📂 Loaded saved data for ${date}` })
-        } else if (!isFetchingCurrent) {
-            // Only clear if we are NOT fetching (e.g. 404 / no data)
+        } else {
             setForm({})
         }
-    }, [currentRes, isFetchingCurrent, isTaqa])
+    }, [currentRes, isFetchingCurrent, isTaqa, date, plantId])
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 

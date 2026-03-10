@@ -90,7 +90,16 @@ export default function FuelEntry() {
   }, [date, plantId])
 
   useEffect(() => {
+    if (!existing || existing.isFetching) return
     const e = existing?.data?.data
+
+    // Robust guard against stale cached responses: only apply if the returned row
+    // matches the currently selected date AND plant.
+    const rowDate = e?.entry_date ? String(e.entry_date).slice(0, 10) : null
+    const rowPlant = e?.plant_id != null ? String(e.plant_id) : null
+    if (rowDate && rowDate !== date) return
+    if (rowPlant && rowPlant !== String(plantId)) return
+
     if (e) {
       setForm({
         coalReceiptMt: e.coal_receipt_mt, coalConsMt: e.coal_cons_mt, coalStockMt: e.coal_stock_mt,
@@ -111,11 +120,11 @@ export default function FuelEntry() {
         socMlKwh: e.soc_ml_kwh,
         ghrDirect: ghrDirect,
       })
-    } else if (!existing?.isFetching) {
+    } else {
       setForm({})
       setSavedComputed(null)
     }
-  }, [existing, powerData])
+  }, [existing, powerData, date, plantId])
 
   // Compute live values dynamically exactly like the backend
   const liveComputed = useMemo(() => {

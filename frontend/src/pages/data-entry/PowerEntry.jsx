@@ -108,7 +108,16 @@ export default function PowerEntry() {
   }, [date, plantId])
 
   useEffect(() => {
+    if (!existingData || existingData.isFetching) return
     const entry = existingData?.data?.data
+
+    // Robust guard against stale cached responses: only apply if the returned row
+    // matches the currently selected date AND plant.
+    const rowDate = entry?.entry_date ? String(entry.entry_date).slice(0, 10) : null
+    const rowPlant = entry?.plant_id != null ? String(entry.plant_id) : null
+    if (rowDate && rowDate !== date) return
+    if (rowPlant && rowPlant !== String(plantId)) return
+
     if (entry?.meter_readings) {
       setReadings(entry.meter_readings)
       setExtras({
@@ -135,11 +144,16 @@ export default function PowerEntry() {
         plfMTD: entry.plf_mtd ? entry.plf_mtd * 100 : null,
         plfYTD: entry.plf_ytd ? entry.plf_ytd * 100 : null,
       })
-    } else if (!existingData?.isFetching) {
-      // Only clear if NOT fetching (redundant but safe)
-      setReadings({}); setSavedComputed(null)
+    } else {
+      setReadings({})
+      setSavedComputed(null)
+      setExtras({
+        freqMin: '', freqMax: '', freqAvg: '',
+        hoursOnGrid: 24, forcedOutages: 0, plannedOutages: 0,
+        rsdCount: 0, outageRemarks: '', partialLoadingPct: '',
+      })
     }
-  }, [existingData])
+  }, [existingData, date, plantId])
 
   const liveComputed = useMemo(() => {
     if (!meters.length) return null
