@@ -1,10 +1,15 @@
+const path = require('path');
 let helpers;
 try {
-    helpers = require('./helpers');
+    helpers = require(path.join(__dirname, 'helpers.js'));
 } catch (e) {
-    console.error('CRITICAL: Failed to load ./helpers from taqa.engine.js', e);
-    // Fallback or rethrow with better context
-    throw new Error(`Module resolution failed in taqa.engine.js: ${e.message}`);
+    console.error('CRITICAL: Failed to load helpers from taqa.engine.js using path.join', e);
+    try {
+        helpers = require('./helpers');
+    } catch (e2) {
+        console.error('CRITICAL: Fallback require("./helpers") also failed', e2);
+        throw new Error(`Module resolution failed in taqa.engine.js: ${e2.message}`);
+    }
 }
 const { getTaqaStats, getFYStartDate, getSubmissionStatus, processNumbers, query } = helpers;
 

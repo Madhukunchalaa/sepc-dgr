@@ -141,7 +141,7 @@ app.get('/api/dgr/:plantId/:date', authenticate, requirePlantAccess, async (req,
     if (!plant) return error(res, 'Plant not found', 404);
 
     let dgr;
-    if (plant.short_name === 'TAQA') {
+    if (plant.short_name?.startsWith('TAQA')) {
       dgr = await assembleTaqaDGR(plant, date);
     } else {
       dgr = await assembleDGR(plantId, date);
