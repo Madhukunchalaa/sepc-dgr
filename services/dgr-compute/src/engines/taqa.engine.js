@@ -46,12 +46,28 @@ async function assembleTaqaDGR(plant, targetDate) {
     // 2. Constants & Common Helpers
     const CAPACITY_MW = 250;
     const DP_MU = (CAPACITY_MW * 24 / 1000); // 6.0 MU
-    const pct = (num, den) => den > 0 ? (num / den) : 0;
+    const pct = (num, den) => (den != null && Number(den) > 0) ? (Number(num) / Number(den)) : 0;
     const mu = (val) => Number(val || 0) / 1000;
     const N = (val) => Number(val || 0);
 
+    // gen_main_meter is a CUMULATIVE meter reading — fetch previous day's reading
+    // to compute the daily delta generation correctly. This prevents 500 errors
+    // on outage days where the meter reading doesn't change (delta = 0 is valid).
+    const prevDateStr = (() => {
+        const d = new Date(targetDate);
+        d.setDate(d.getDate() - 1);
+        return d.toISOString().split('T')[0];
+    })();
+    const prevRes = await query(
+        'SELECT gen_main_meter FROM taqa_daily_input WHERE plant_id=$1 AND entry_date=$2',
+        [plantId, prevDateStr]
+    );
+    const prevGenMeter = Number(prevRes.rows[0]?.gen_main_meter || 0);
+    const dailyGenMWhr = Math.max(0, N(r.gen_main_meter) - prevGenMeter);
+    const dailyGenMu = dailyGenMWhr / 1000;
+
     // Derived Metrics for sections
-    const calcAux = (gen, exp, imp) => gen - exp + imp;
+    const calcAux = (gen, exp, imp) => Math.max(0, gen - exp + imp);
     const calcSpOil = (oilMt, genMu) => genMu > 0 ? (oilMt / genMu) * 1000 : 0; // ml/kWh
     const calcSpLig = (ligMt, genMu) => genMu > 0 ? (ligMt / (genMu * 1000)) : 0; // kg/kWh
 
@@ -62,11 +78,12 @@ async function assembleTaqaDGR(plant, targetDate) {
         { sn: "2", particulars: "Declared Capacity", uom: "MU", daily: mu(r.declared_capacity_mwhr), mtd: mu(m.declared_capacity_mwhr), ytd: mu(y.declared_capacity_mwhr) },
         { sn: "3", particulars: "Dispatch Demand", uom: "MU", daily: mu(r.dispatch_demand_mwhr), mtd: mu(m.dispatch_demand_mwhr), ytd: mu(y.dispatch_demand_mwhr) },
         { sn: "4", particulars: "Schedule Generation", uom: "MU", daily: mu(r.schedule_gen_mldc), mtd: mu(m.schedule_gen_mldc), ytd: mu(y.schedule_gen_mldc) },
-        { sn: "5", particulars: "Gross Generation", uom: "MU", daily: mu(r.gen_main_meter), mtd: mu(m.gen_main_meter), ytd: mu(y.gen_main_meter) },
+        // dailyGenMu = delta of cumulative meter (today - yesterday), safe for outage days
+        { sn: "5", particulars: "Gross Generation", uom: "MU", daily: dailyGenMu, mtd: mu(m.gen_main_meter), ytd: mu(y.gen_main_meter) },
         { sn: "6", particulars: "Deemed Generation", uom: "MU", daily: mu(r.deemed_gen_mwhr), mtd: mu(m.deemed_gen_mwhr), ytd: mu(y.deemed_gen_mwhr) },
         {
             sn: "7", particulars: "Auxiliary Consumption", uom: "MU",
-            daily: calcAux(mu(r.gen_main_meter), mu(r.net_export), mu(r.net_import_sy)),
+            daily: calcAux(dailyGenMu, mu(r.net_export), mu(r.net_import_sy)),
             mtd: calcAux(mu(m.gen_main_meter), mu(m.net_export), mu(m.net_import_sy)),
             ytd: calcAux(mu(y.gen_main_meter), mu(y.net_export), mu(y.net_import_sy))
         },
@@ -77,12 +94,12 @@ async function assembleTaqaDGR(plant, targetDate) {
     const kpiRows = [
         {
             sn: "10", particulars: "Auxiliary Power Consumption (APC)", uom: "%",
-            daily: pct(calcAux(mu(r.gen_main_meter), mu(r.net_export), mu(r.net_import_sy)), mu(r.gen_main_meter)),
+            daily: pct(calcAux(dailyGenMu, mu(r.net_export), mu(r.net_import_sy)), dailyGenMu),
             mtd: pct(calcAux(mu(m.gen_main_meter), mu(m.net_export), mu(m.net_import_sy)), mu(m.gen_main_meter)),
             ytd: pct(calcAux(mu(y.gen_main_meter), mu(y.net_export), mu(y.net_import_sy)), mu(y.gen_main_meter))
         },
         { sn: "11", particulars: "Plant Availability Factor (PAF)", uom: "%", daily: pct(mu(r.declared_capacity_mwhr), DP_MU), mtd: pct(mu(m.declared_capacity_mwhr), DP_MU * dayOfMonth), ytd: pct(mu(y.declared_capacity_mwhr), DP_MU * daysSinceFyStart) },
-        { sn: "12", particulars: "Plant Load Factor (PLF)", uom: "%", daily: pct(mu(r.gen_main_meter), DP_MU), mtd: pct(mu(m.gen_main_meter), DP_MU * dayOfMonth), ytd: pct(mu(y.gen_main_meter), DP_MU * daysSinceFyStart) },
+        { sn: "12", particulars: "Plant Load Factor (PLF)", uom: "%", daily: pct(dailyGenMu, DP_MU), mtd: pct(mu(m.gen_main_meter), DP_MU * dayOfMonth), ytd: pct(mu(y.gen_main_meter), DP_MU * daysSinceFyStart) },
         {
             sn: "13", particulars: "Forced Outage Rate (FOR)", uom: "%",
             daily: pct(N(r.forced_outage_hrs), (N(r.total_hours) - N(r.scheduled_outage_hrs))),
@@ -113,11 +130,11 @@ async function assembleTaqaDGR(plant, targetDate) {
         { sn: "25", particulars: "HFO Consumption", uom: "MT", daily: hfo_cons, mtd: m_hfo_cons, ytd: y_hfo_cons },
         { sn: "26", particulars: "HFO Receipt", uom: "MT", daily: N(r.hfo_receipt_mt), mtd: N(m.hfo_receipt_mt), ytd: N(y.hfo_receipt_mt) },
         { sn: "27", particulars: "HFO Stock", uom: "MT", daily: N(r.hfo_t10_lvl_calc) + N(r.hfo_t20_lvl_calc), mtd: null, ytd: null },
-        { sn: "28", particulars: "Sp Oil Consumption", uom: "ml/kWh", daily: calcSpOil(hfo_cons, mu(r.gen_main_meter)), mtd: calcSpOil(m_hfo_cons, mu(m.gen_main_meter)), ytd: calcSpOil(y_hfo_cons, mu(y.gen_main_meter)) },
+        { sn: "28", particulars: "Sp Oil Consumption", uom: "ml/kWh", daily: calcSpOil(hfo_cons, dailyGenMu), mtd: calcSpOil(m_hfo_cons, mu(m.gen_main_meter)), ytd: calcSpOil(y_hfo_cons, mu(y.gen_main_meter)) },
         { sn: "29", particulars: "Lignite Consumption", uom: "MT", daily: N(r.lignite_receipt_taqa_wb), mtd: N(m.lignite_receipt_taqa_wb), ytd: N(y.lignite_receipt_taqa_wb) },
         { sn: "30", particulars: "Lignite Receipt", uom: "MT", daily: N(r.lignite_receipt_taqa_wb), mtd: N(m.lignite_receipt_taqa_wb), ytd: N(y.lignite_receipt_taqa_wb) },
         { sn: "31", particulars: "Lignite Stock at Plant", uom: "MT", daily: N(r.lignite_vadallur_silo), mtd: null, ytd: null },
-        { sn: "32", particulars: "Sp Lignite Consumption", uom: "kg/kWh", daily: calcSpLig(N(r.lignite_receipt_taqa_wb), mu(r.gen_main_meter)), mtd: calcSpLig(N(m.lignite_receipt_taqa_wb), mu(m.gen_main_meter)), ytd: calcSpLig(N(y.lignite_receipt_taqa_wb), mu(y.gen_main_meter)) },
+        { sn: "32", particulars: "Sp Lignite Consumption", uom: "kg/kWh", daily: calcSpLig(N(r.lignite_receipt_taqa_wb), dailyGenMu), mtd: calcSpLig(N(m.lignite_receipt_taqa_wb), mu(m.gen_main_meter)), ytd: calcSpLig(N(y.lignite_receipt_taqa_wb), mu(y.gen_main_meter)) },
         { sn: "33", particulars: "Lignite Lifted from NLC", uom: "MT", daily: N(r.lignite_lifted_nlcil_wb), mtd: N(m.lignite_lifted_nlcil_wb), ytd: N(y.lignite_lifted_nlcil_wb) },
         { sn: "34", particulars: "HSD Consumption", uom: "kl", daily: N(r.hsd_t30_receipt_kl) + N(r.hsd_t40_receipt_kl), mtd: N(m.hsd_t30_receipt_kl) + N(m.hsd_t40_receipt_kl), ytd: N(y.hsd_t30_receipt_kl) + N(y.hsd_t40_receipt_kl) },
         { sn: "35", particulars: "HSD Receipt", uom: "kl", daily: N(r.hsd_t30_receipt_kl) + N(r.hsd_t40_receipt_kl), mtd: N(m.hsd_t30_receipt_kl) + N(m.hsd_t40_receipt_kl), ytd: N(y.hsd_t30_receipt_kl) + N(y.hsd_t40_receipt_kl) },
@@ -129,7 +146,7 @@ async function assembleTaqaDGR(plant, targetDate) {
         { sn: "38", particulars: "GCV (As Fired)", uom: "kcal/kg", daily: N(r.chem_gcv_nlcil), mtd: pct(N(m.chem_gcv_nlcil), m.days), ytd: pct(N(y.chem_gcv_nlcil), y.days) },
         {
             sn: "39", particulars: "GHR (As Fired)", uom: "kcal/kWh",
-            daily: calcSpLig(N(r.lignite_receipt_taqa_wb), mu(r.gen_main_meter)) * N(r.chem_gcv_nlcil),
+            daily: calcSpLig(N(r.lignite_receipt_taqa_wb), dailyGenMu) * N(r.chem_gcv_nlcil),
             mtd: calcSpLig(N(m.lignite_receipt_taqa_wb), mu(m.gen_main_meter)) * pct(N(m.chem_gcv_nlcil), m.days),
             ytd: calcSpLig(N(y.lignite_receipt_taqa_wb), mu(y.gen_main_meter)) * pct(N(y.chem_gcv_nlcil), y.days)
         },
@@ -150,7 +167,7 @@ async function assembleTaqaDGR(plant, targetDate) {
         { sn: "51", particulars: "Ash water reuse to CW forebay", uom: "M3", daily: N(r.ash_pond_overflow), mtd: N(m.ash_pond_overflow), ytd: N(y.ash_pond_overflow) },
         { sn: "52", particulars: "Cooling water blow down", uom: "M3", daily: N(r.cw_blowdown), mtd: N(m.cw_blowdown), ytd: N(y.cw_blowdown) },
         { sn: "53", particulars: "Cooling water blow down rate", uom: "M3/hr", daily: pct(N(r.cw_blowdown), 24), mtd: pct(N(m.cw_blowdown), m.days * 24), ytd: pct(N(y.cw_blowdown), y.days * 24) },
-        { sn: "54", particulars: "Total Water consumption", uom: "M3/MWh", daily: pct(N(r.service_water_flow), mu(r.gen_main_meter) * 1000), mtd: pct(N(m.service_water_flow), mu(m.gen_main_meter) * 1000), ytd: pct(N(y.service_water_flow), mu(y.gen_main_meter) * 1000) },
+        { sn: "54", particulars: "Total Water consumption", uom: "M3/MWh", daily: pct(N(r.service_water_flow), dailyGenMu * 1000), mtd: pct(N(m.service_water_flow), mu(m.gen_main_meter) * 1000), ytd: pct(N(y.service_water_flow), mu(y.gen_main_meter) * 1000) },
         { sn: "55", particulars: "Raw Water Consumption Rate", uom: "M3/MWh", daily: 0, mtd: 0, ytd: 0 },
         { sn: "56", particulars: "Ash water reuse rate", uom: "M3/MWh", daily: 0, mtd: 0, ytd: 0 },
         { sn: "57", particulars: "H2 Consumption", uom: "No's", daily: N(r.h2_cylinders), mtd: N(m.h2_cylinders), ytd: N(y.h2_cylinders) },
