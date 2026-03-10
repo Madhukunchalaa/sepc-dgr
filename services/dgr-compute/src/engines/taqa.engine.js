@@ -72,11 +72,19 @@ async function assembleTaqaDGR(plant, targetDate) {
             const dGenMu = (delta(curr.gen_main_meter, prev.gen_main_meter) * MF_GEN) / 1000;
             const lineDelta = (exp, imp, pExp, pImp) => delta(exp, pExp) - delta(imp, pImp);
 
-            const netExpRaw = lineDelta(curr.peram_exp_main, curr.peram_imp_main, prev.peram_exp_main, prev.peram_imp_main) +
+            let netExpRaw = lineDelta(curr.peram_exp_main, curr.peram_imp_main, prev.peram_exp_main, prev.peram_imp_main) +
                 lineDelta(curr.deviak_exp_main, curr.deviak_imp_main, prev.deviak_exp_main, prev.deviak_imp_main) +
                 lineDelta(curr.cuddal_exp_main, curr.cuddal_imp_main, prev.cuddal_exp_main, prev.cuddal_imp_main) +
                 lineDelta(curr.nlc2_exp_main, curr.nlc2_imp_main, prev.nlc2_exp_main, prev.nlc2_imp_main);
-            const dExpMu = (netExpRaw * MF_EXP) / 1000;
+
+            let dExpMu = 0;
+            if (netExpRaw > 0) {
+                dExpMu = (netExpRaw * MF_EXP) / 1000;
+            } else {
+                // Fallback to the direct net_export field (which is a daily MWh total)
+                dExpMu = N(curr.net_export) / 1000;
+            }
+
             const dImpMu = N(curr.net_import_sy) / 1000; // As per Row 31 in 24cal which is E43 in OpsInput
 
             calculatedDays.push({
