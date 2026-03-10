@@ -17,7 +17,7 @@ export default function ChemInput() {
 
     const { data: currentRes, isFetching } = useQuery({
         queryKey: ['taqa-chem-input', plantId, date],
-        queryFn: () => dataEntry.getTaqaChem(plantId, date),
+        queryFn: () => dataEntry.getTaqaEntry(plantId, date),
         enabled: !!plantId && !!date && isTaqa,
         retry: false,
     })
@@ -41,7 +41,7 @@ export default function ChemInput() {
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
     const saveMutation = useMutation({
-        mutationFn: () => dataEntry.saveTaqaChem({ ...form, plantId, date }),
+        mutationFn: () => dataEntry.saveTaqaEntry(plantId, date, form),
         onSuccess: async () => {
             setMsg({ type: 'success', text: '✅ Chem Input saved.' })
             await qc.invalidateQueries({ queryKey: ['taqa-chem-input', plantId, date] })

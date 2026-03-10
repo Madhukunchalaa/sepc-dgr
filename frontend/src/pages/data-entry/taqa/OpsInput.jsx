@@ -67,14 +67,14 @@ export default function OpsInput() {
 
     const { data: currentRes, isFetching: isFetchingCurrent } = useQuery({
         queryKey: ['taqa-ops-input', plantId, date],
-        queryFn: () => dataEntry.getTaqaOps(plantId, date),
+        queryFn: () => dataEntry.getTaqaEntry(plantId, date),
         enabled: !!plantId && !!date && isTaqa,
         retry: false,
     })
 
     const { data: prevRes, isFetching: isFetchingPrev } = useQuery({
         queryKey: ['taqa-ops-input-prev', plantId, prevDate],
-        queryFn: () => dataEntry.getTaqaOps(plantId, prevDate),
+        queryFn: () => dataEntry.getTaqaEntry(plantId, prevDate),
         enabled: !!plantId && !!prevDate && isTaqa,
         retry: false,
     })
@@ -109,7 +109,7 @@ export default function OpsInput() {
     const payload = { plantId, date, form }
 
     const saveMutation = useMutation({
-        mutationFn: () => dataEntry.saveTaqaOps(payload),
+        mutationFn: () => dataEntry.saveTaqaEntry(plantId, date, form),
         onSuccess: async () => {
             setMsg({ type: 'success', text: '✅ Ops Input saved as draft.' })
             await qc.invalidateQueries({ queryKey: ['taqa-ops-input', plantId, date] })
@@ -118,7 +118,7 @@ export default function OpsInput() {
     })
 
     const submitMutation = useMutation({
-        mutationFn: () => dataEntry.submitTaqaOps({ plantId, date }),
+        mutationFn: () => dataEntry.submitTaqaEntry(plantId, date),
         onSuccess: () => {
             setMsg({ type: 'success', text: '✅ Submitted! DGR metrics calculated.' })
             qc.invalidateQueries({ queryKey: ['taqa-ops-input', plantId, date] })
