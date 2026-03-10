@@ -5,7 +5,7 @@ import { auth } from '../api'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser]       = useState(null)
+  const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
   }
 
   const logout = async () => {
-    await auth.logout().catch(() => {})
+    await auth.logout().catch(() => { })
     localStorage.removeItem('accessToken')
     setUser(null)
   }
@@ -42,4 +42,5 @@ export function AuthProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext)

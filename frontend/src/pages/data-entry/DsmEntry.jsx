@@ -13,6 +13,18 @@ const DSM_FIELDS = [
     FIELD('DSM Coal Saving', 'dsm_coal_saving_lacs', '₹ Lacs'),
 ]
 
+const FieldInput = ({ field, form, isLocked, onChange }) => (
+    <div className="form-group">
+        <label className="form-label">{field.label} <span className="unit">{field.unit}</span></label>
+        <input
+            className="form-input mono" type="number" step="0.001" placeholder="0.000"
+            value={form[field.key] ?? ''}
+            disabled={isLocked}
+            onChange={e => onChange(field.key, e.target.value)}
+        />
+    </div>
+)
+
 export default function DsmEntry() {
     const { selectedPlant } = usePlant()
     const qc = useQueryClient()
@@ -58,17 +70,6 @@ export default function DsmEntry() {
 
     const isLocked = false // DSM doesn't have approval workflow yet
 
-    const FieldInput = ({ field }) => (
-        <div className="form-group">
-            <label className="form-label">{field.label} <span className="unit">{field.unit}</span></label>
-            <input
-                className="form-input mono" type="number" step="0.001" placeholder="0.000"
-                value={form[field.key] ?? ''}
-                disabled={isLocked}
-                onChange={e => set(field.key, e.target.value)}
-            />
-        </div>
-    )
 
     return (
         <div>
@@ -102,7 +103,7 @@ export default function DsmEntry() {
                     <div className="card" style={{ marginBottom: 16 }}>
                         <div className="card-hdr"><div className="card-title">DSM Financials</div></div>
                         <div className="card-body">
-                            <div className="form-grid-3">{DSM_FIELDS.map(f => <FieldInput key={f.key} field={f} />)}</div>
+                            <div className="form-grid-3">{DSM_FIELDS.map(f => <FieldInput key={f.key} field={f} form={form} isLocked={isLocked} onChange={set} />)}</div>
                         </div>
                     </div>
 

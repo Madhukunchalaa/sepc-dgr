@@ -7,9 +7,9 @@ const PlantContext = createContext(null)
 
 export function PlantProvider({ children }) {
   const { user } = useAuth()
-  const [plantList, setPlantList]         = useState([])
+  const [plantList, setPlantList] = useState([])
   const [selectedPlant, setSelectedPlant] = useState(null)
-  const [loading, setLoading]             = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -39,4 +39,5 @@ export function PlantProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePlant = () => useContext(PlantContext)

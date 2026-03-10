@@ -86,7 +86,7 @@ export default function SchedulingEntry() {
             qc.invalidateQueries(['scheduling-entry', plantId, date])
             qc.invalidateQueries(['availability-entry', plantId, date])
             qc.invalidateQueries(['submission-status', plantId])
-        } catch (err) {
+        } catch {
             setMsg({ type: 'error', text: 'Submit failed' })
         }
     }
@@ -102,7 +102,7 @@ export default function SchedulingEntry() {
             qc.invalidateQueries(['availability-entry', plantId, date])
             qc.invalidateQueries(['submission-status', plantId])
             setTimeout(() => setMsg(null), 3000)
-        } catch (err) {
+        } catch {
             setMsg({ type: 'error', text: 'Failed to save entries' })
         }
     }

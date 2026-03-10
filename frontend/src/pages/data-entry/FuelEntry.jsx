@@ -43,6 +43,18 @@ const GAS_FIELDS = [
   FIELD('N₂ Stock', 'n2Stock', 'Nos', 'gas'),
 ]
 
+const FieldInput = ({ field, form, isLocked, onChange }) => (
+  <div className="form-group">
+    <label className="form-label">{field.label} <span className="unit">{field.unit}</span></label>
+    <input
+      className="form-input mono" type="number" step="0.001" placeholder="0.000"
+      value={form[field.key] ?? ''}
+      disabled={isLocked}
+      onChange={e => onChange(field.key, e.target.value)}
+    />
+  </div>
+)
+
 export default function FuelEntry() {
   const { selectedPlant } = usePlant()
   const qc = useQueryClient()
@@ -147,17 +159,6 @@ export default function FuelEntry() {
   const status = existing?.data?.data?.status || 'unsubmitted'
   const isLocked = status === 'submitted' || status === 'approved'
 
-  const FieldInput = ({ field }) => (
-    <div className="form-group">
-      <label className="form-label">{field.label} <span className="unit">{field.unit}</span></label>
-      <input
-        className="form-input mono" type="number" step="0.001" placeholder="0.000"
-        value={form[field.key] ?? ''}
-        disabled={isLocked}
-        onChange={e => set(field.key, e.target.value)}
-      />
-    </div>
-  )
 
   return (
     <div>
@@ -236,7 +237,7 @@ export default function FuelEntry() {
           <div className="card" style={{ marginBottom: 16 }}>
             <div className="card-hdr"><div className="card-title">🏔 Coal</div></div>
             <div className="card-body">
-              <div className="form-grid-3">{COAL_FIELDS.map(f => <FieldInput key={f.key} field={f} />)}</div>
+              <div className="form-grid-3">{COAL_FIELDS.map(f => <FieldInput key={f.key} field={f} form={form} isLocked={isLocked} onChange={set} />)}</div>
             </div>
           </div>
 
@@ -244,11 +245,11 @@ export default function FuelEntry() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <div className="card">
               <div className="card-hdr"><div className="card-title">🛢 Light Diesel Oil (LDO)</div></div>
-              <div className="card-body">{LDO_FIELDS.map(f => <FieldInput key={f.key} field={f} />)}</div>
+              <div className="card-body">{LDO_FIELDS.map(f => <FieldInput key={f.key} field={f} form={form} isLocked={isLocked} onChange={set} />)}</div>
             </div>
             <div className="card">
               <div className="card-hdr"><div className="card-title">🛢 Heavy Fuel Oil (HFO)</div></div>
-              <div className="card-body">{HFO_FIELDS.map(f => <FieldInput key={f.key} field={f} />)}</div>
+              <div className="card-body">{HFO_FIELDS.map(f => <FieldInput key={f.key} field={f} form={form} isLocked={isLocked} onChange={set} />)}</div>
             </div>
           </div>
 
@@ -256,7 +257,7 @@ export default function FuelEntry() {
           <div className="card" style={{ marginBottom: 20 }}>
             <div className="card-hdr"><div className="card-title">💨 Gas Cylinders</div></div>
             <div className="card-body">
-              <div className="form-grid-3">{GAS_FIELDS.map(f => <FieldInput key={f.key} field={f} />)}</div>
+              <div className="form-grid-3">{GAS_FIELDS.map(f => <FieldInput key={f.key} field={f} form={form} isLocked={isLocked} onChange={set} />)}</div>
             </div>
           </div>
 

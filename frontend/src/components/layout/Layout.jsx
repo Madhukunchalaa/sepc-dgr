@@ -25,7 +25,7 @@ function todayStr() {
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false)
   const { selectedPlant } = usePlant()
-  const { user } = useAuth()
+  useAuth()
   const location = useLocation()
   const navigate = useNavigate()
 

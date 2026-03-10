@@ -5,6 +5,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../../context/PlantContext'
 import { dataEntry } from '../../../api'
 
+const F = ({ label, name, unit, form, onChange, step = "0.01" }) => (
+    <div className="form-group">
+        <label className="form-label">{label} <span style={{ color: 'var(--muted)', fontWeight: 400 }}>({unit})</span></label>
+        <input className="form-input" type="number" step={step} name={name}
+            value={form[name] ?? ''} onChange={onChange} />
+    </div>
+)
+
 export default function ChemInput() {
     const { selectedPlant } = usePlant()
     const today = new Date().toISOString().split('T')[0]
@@ -36,7 +44,7 @@ export default function ChemInput() {
         } else if (!isFetching) {
             setForm({})
         }
-    }, [currentRes, isFetching, isTaqa, date])
+    }, [currentRes, isFetching, isTaqa, date, setForm, setMsg])
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
@@ -50,13 +58,6 @@ export default function ChemInput() {
         onError: (e) => setMsg({ type: 'error', text: e?.response?.data?.message || 'Save failed' }),
     })
 
-    const F = ({ label, name, unit, step = "0.01" }) => (
-        <div className="form-group">
-            <label className="form-label">{label} <span style={{ color: 'var(--muted)', fontWeight: 400 }}>({unit})</span></label>
-            <input className="form-input" type="number" step={step} name={name}
-                value={form[name] ?? ''} onChange={onChange} />
-        </div>
-    )
 
     return (
         <div style={{ paddingBottom: 40 }}>
@@ -86,11 +87,11 @@ export default function ChemInput() {
                 <div className="card-hdr" style={{ fontWeight: 700 }}>🔬 Laboratory Results (Chem Input)</div>
                 <div className="card-body">
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px 24px' }}>
-                        <F label="Ash Sales" name="chem_ash_sales_mt" unit="Mton" step="0.001" />
-                        <F label="Ash Percentage" name="chem_ash_pct" unit="%" step="0.01" />
-                        <F label="GCV Results from NLCIL" name="chem_gcv_nlcil" unit="kCal/kg" step="1" />
-                        <F label="UBC in Bottom Ash" name="chem_ubc_bottom_ash" unit="%" step="0.001" />
-                        <F label="UBC in Fly Ash" name="chem_ubc_fly_ash" unit="%" step="0.001" />
+                        <F label="Ash Sales" name="chem_ash_sales_mt" unit="Mton" step="0.001" form={form} onChange={onChange} />
+                        <F label="Ash Percentage" name="chem_ash_pct" unit="%" step="0.01" form={form} onChange={onChange} />
+                        <F label="GCV Results from NLCIL" name="chem_gcv_nlcil" unit="kCal/kg" step="1" form={form} onChange={onChange} />
+                        <F label="UBC in Bottom Ash" name="chem_ubc_bottom_ash" unit="%" step="0.001" form={form} onChange={onChange} />
+                        <F label="UBC in Fly Ash" name="chem_ubc_fly_ash" unit="%" step="0.001" form={form} onChange={onChange} />
                     </div>
 
                     <div style={{ marginTop: 24, padding: 16, background: 'var(--bg)', borderRadius: 8, fontSize: 13, color: 'var(--muted)' }}>

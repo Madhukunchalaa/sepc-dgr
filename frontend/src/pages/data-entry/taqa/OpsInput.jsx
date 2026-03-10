@@ -56,7 +56,9 @@ export default function OpsInput() {
     const cleanRowToForm = (obj) => {
         if (!obj || typeof obj !== 'object') return {}
         const {
+            // eslint-disable-next-line no-unused-vars
             id, plant_id, entry_date, created_at, updated_at,
+            // eslint-disable-next-line no-unused-vars
             submitted_by, submitted_at, approved_by, approved_at, status,
             ...fields
         } = obj
@@ -106,7 +108,7 @@ export default function OpsInput() {
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
-    const payload = { plantId, date, form }
+
 
     const saveMutation = useMutation({
         mutationFn: () => dataEntry.saveTaqaEntry(plantId, date, form),
