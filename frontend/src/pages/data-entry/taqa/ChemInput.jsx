@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../../context/PlantContext'
-import { dataEntryClient } from '../../../api/client'
+import { dataEntry } from '../../../api'
 
 export default function ChemInput() {
     const { selectedPlant } = usePlant()
@@ -17,7 +17,7 @@ export default function ChemInput() {
 
     const { data: currentRes, isFetching } = useQuery({
         queryKey: ['taqa-chem-input', plantId, date],
-        queryFn: () => dataEntryClient.get(`/data-entry/taqa/${plantId}/${date}`),
+        queryFn: () => dataEntry.getTaqaChem(plantId, date),
         enabled: !!plantId && !!date && isTaqa,
         retry: false,
     })
@@ -41,7 +41,7 @@ export default function ChemInput() {
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
     const saveMutation = useMutation({
-        mutationFn: () => dataEntryClient.post(`/data-entry/taqa/${plantId}/${date}`, form),
+        mutationFn: () => dataEntry.saveTaqaChem({ ...form, plantId, date }),
         onSuccess: async () => {
             setMsg({ type: 'success', text: '✅ Chem Input saved.' })
             await qc.invalidateQueries({ queryKey: ['taqa-chem-input', plantId, date] })

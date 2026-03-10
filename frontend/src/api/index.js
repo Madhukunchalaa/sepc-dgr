@@ -73,6 +73,16 @@ export const dataEntry = {
   submitOperations: (data) => dataEntryClient.post('/data-entry/operations/submit', data),
   approveOperations: (data) => dataEntryClient.post('/data-entry/operations/approve', data),
 
+  // TAQA Specific
+  getTaqaOps: (plantId, date) => dataEntryClient.get(`/data-entry/taqa/ops/${plantId}/${date}`),
+  saveTaqaOps: (data) => dataEntryClient.post('/data-entry/taqa/ops/upsert', data),
+  submitTaqaOps: (data) => dataEntryClient.post('/data-entry/taqa/ops/submit', data),
+  approveTaqaOps: (data) => dataEntryClient.post('/data-entry/taqa/ops/approve', data),
+  getTaqaChem: (plantId, date) => dataEntryClient.get(`/data-entry/taqa/chem/${plantId}/${date}`),
+  saveTaqaChem: (data) => dataEntryClient.post('/data-entry/taqa/chem/upsert', data),
+  submitTaqaChem: (data) => dataEntryClient.post('/data-entry/taqa/chem/submit', data),
+  approveTaqaChem: (data) => dataEntryClient.post('/data-entry/taqa/chem/approve', data),
+
   // SCADA
   getMappings: (plantId) => dataEntryClient.get(`/data-entry/scada/mappings/${plantId}`),
   saveMappings: (plantId, data) => dataEntryClient.post(`/data-entry/scada/mappings/${plantId}`, data),

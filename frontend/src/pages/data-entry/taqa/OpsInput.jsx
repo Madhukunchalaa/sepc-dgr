@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../../context/PlantContext'
-import { dataEntryClient } from '../../../api/client'
+import { dataEntry } from '../../../api'
 
 const F = ({ label, name, unit, type = 'number', form, onChange, wide, prevForm }) => {
     const value = form?.[name] ?? ''
@@ -67,14 +67,14 @@ export default function OpsInput() {
 
     const { data: currentRes, isFetching: isFetchingCurrent } = useQuery({
         queryKey: ['taqa-ops-input', plantId, date],
-        queryFn: () => dataEntryClient.get(`/data-entry/taqa/${plantId}/${date}`),
+        queryFn: () => dataEntry.getTaqaOps(plantId, date),
         enabled: !!plantId && !!date && isTaqa,
         retry: false,
     })
 
     const { data: prevRes, isFetching: isFetchingPrev } = useQuery({
         queryKey: ['taqa-ops-input-prev', plantId, prevDate],
-        queryFn: () => dataEntryClient.get(`/data-entry/taqa/${plantId}/${prevDate}`),
+        queryFn: () => dataEntry.getTaqaOps(plantId, prevDate),
         enabled: !!plantId && !!prevDate && isTaqa,
         retry: false,
     })
@@ -106,8 +106,10 @@ export default function OpsInput() {
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
+    const payload = { plantId, date, form }
+
     const saveMutation = useMutation({
-        mutationFn: () => dataEntryClient.post(`/data-entry/taqa/${plantId}/${date}`, form),
+        mutationFn: () => dataEntry.saveTaqaOps(payload),
         onSuccess: async () => {
             setMsg({ type: 'success', text: '✅ Ops Input saved as draft.' })
             await qc.invalidateQueries({ queryKey: ['taqa-ops-input', plantId, date] })
@@ -116,7 +118,7 @@ export default function OpsInput() {
     })
 
     const submitMutation = useMutation({
-        mutationFn: () => dataEntryClient.post(`/data-entry/taqa/${plantId}/${date}/submit`, {}),
+        mutationFn: () => dataEntry.submitTaqaOps({ plantId, date }),
         onSuccess: () => {
             setMsg({ type: 'success', text: '✅ Submitted! DGR metrics calculated.' })
             qc.invalidateQueries({ queryKey: ['taqa-ops-input', plantId, date] })
