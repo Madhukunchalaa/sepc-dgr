@@ -1,6 +1,6 @@
 // src/pages/data-entry/taqa/ChemInput.jsx
 // 5-field Chem Input form mirroring TAQA Excel "Chem Input" sheet
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../../context/PlantContext'
 import { dataEntry } from '../../../api'
