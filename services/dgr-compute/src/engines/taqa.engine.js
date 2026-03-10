@@ -1,8 +1,15 @@
-const {
-    getTaqaStats, getFYStartDate, getSubmissionStatus, processNumbers, query
-} = require('./helpers');
+let helpers;
+try {
+    helpers = require('./helpers');
+} catch (e) {
+    console.error('CRITICAL: Failed to load ./helpers from taqa.engine.js', e);
+    // Fallback or rethrow with better context
+    throw new Error(`Module resolution failed in taqa.engine.js: ${e.message}`);
+}
+const { getTaqaStats, getFYStartDate, getSubmissionStatus, processNumbers, query } = helpers;
 
 async function assembleTaqaDGR(plant, targetDate) {
+    console.log(`[taqa.engine] Assembling DGR for ${plant?.short_name} on ${targetDate}`);
     const plantId = plant.id;
     const date = new Date(targetDate);
     const dayOfMonth = date.getDate();
