@@ -9,6 +9,7 @@ const logger = require('./shared/logger');
 const { error, success } = require('./shared/response');
 const { query } = require('./shared/db');
 const { assembleDGR, assembleFleetSummary } = require('./engines/dgr.engine');
+const { assembleTaqaDGR } = require('./engines/taqa.engine');
 const { authenticate, requirePlantAccess } = require('./middleware/auth.middleware');
 
 // Temporary auto-migrate missing tables
@@ -133,7 +134,18 @@ app.get('/api/dgr/:plantId/history', authenticate, requirePlantAccess, async (re
 // GET /api/dgr/:plantId/:date — Full DGR for a date
 app.get('/api/dgr/:plantId/:date', authenticate, requirePlantAccess, async (req, res) => {
   try {
-    const dgr = await assembleDGR(req.params.plantId, req.params.date);
+    const { plantId, date } = req.params;
+    // Check if this is a TAQA plant
+    const { rows } = await query('SELECT * FROM plants WHERE id = $1', [plantId]);
+    const plant = rows[0];
+    if (!plant) return error(res, 'Plant not found', 404);
+
+    let dgr;
+    if (plant.short_name === 'TAQA') {
+      dgr = await assembleTaqaDGR(plant, date);
+    } else {
+      dgr = await assembleDGR(plantId, date);
+    }
     return success(res, dgr);
   } catch (err) {
     logger.error('DGR compute error', { message: err.message, stack: err.stack });

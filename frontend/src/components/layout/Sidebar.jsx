@@ -4,10 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { usePlant } from '../../context/PlantContext'
 
-const NAV = [
-  { section: 'Main' },
-  { to: '/dashboard', icon: '📊', label: 'Dashboard' },
-  { to: '/reports/view', icon: '🔍', label: 'DGR Report Viewer' },
+const SEPC_DATA_ENTRY = [
   { section: 'Data Entry' },
   { to: '/data-entry/power', icon: '⚡', label: 'Power Generation' },
   { to: '/data-entry/fuel', icon: '🔥', label: 'Fuel' },
@@ -18,15 +15,31 @@ const NAV = [
   { to: '/data-entry/ash', icon: '💨', label: 'Ash Production' },
   { to: '/data-entry/dsm', icon: '💰', label: 'DSM Accounting' },
   { to: '/data-entry/scada', icon: '📤', label: 'SCADA Upload' },
-  { section: 'Operations' },
-  { to: '/approvals', icon: '✅', label: 'Approvals', badge: 'approvals' },
-  { section: 'Management' },
-  { to: '/hq', icon: '🌐', label: 'HQ Fleet View', roles: ['hq_management', 'it_admin'] },
-  { to: '/reports', icon: '📄', label: 'DGR Downloads' },
-
-  { section: 'Admin' },
-  { to: '/admin/plant-config', icon: '⚙️', label: 'Plant Config', roles: ['it_admin', 'plant_admin'] },
 ]
+
+const TAQA_DATA_ENTRY = [
+  { section: 'TAQA Data Entry' },
+  { to: '/data-entry/taqa/ops', icon: '⚙️', label: 'Ops Input' },
+  { to: '/data-entry/taqa/chem', icon: '🧪', label: 'Chem Input' },
+]
+
+function getNav(selectedPlant) {
+  const isTaqa = selectedPlant?.short_name === 'TAQA'
+  const dataEntryItems = isTaqa ? TAQA_DATA_ENTRY : SEPC_DATA_ENTRY
+  return [
+    { section: 'Main' },
+    { to: '/dashboard', icon: '📊', label: 'Dashboard' },
+    { to: '/reports/view', icon: '🔍', label: 'DGR Report Viewer' },
+    ...dataEntryItems,
+    { section: 'Operations' },
+    { to: '/approvals', icon: '✅', label: 'Approvals', badge: 'approvals' },
+    { section: 'Management' },
+    { to: '/hq', icon: '🌐', label: 'HQ Fleet View', roles: ['hq_management', 'it_admin'] },
+    { to: '/reports', icon: '📄', label: 'DGR Downloads' },
+    { section: 'Admin' },
+    { to: '/admin/plant-config', icon: '⚙️', label: 'Plant Config', roles: ['it_admin', 'plant_admin'] },
+  ]
+}
 
 export default function Sidebar({ collapsed, onToggle }) {
   const { user, logout, isRole } = useAuth()
@@ -49,7 +62,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         <div className="sb-logo">⚡</div>
         <div className="sb-brand-text">
           <div className="sb-brand-name">DGR Portal</div>
-          <div className="sb-brand-sub">SEPC Power Pvt Ltd</div>
+          <div className="sb-brand-sub">{selectedPlant?.short_name === 'TAQA' ? 'TAQA MEIL Neyveli' : 'SEPC Power Pvt Ltd'}</div>
         </div>
       </div>
 
@@ -84,7 +97,7 @@ export default function Sidebar({ collapsed, onToggle }) {
 
       {/* Navigation */}
       <div className="sb-nav">
-        {NAV.map((item, i) => {
+        {getNav(selectedPlant).map((item, i) => {
           if (item.section) {
             return <div key={i} className="sb-section">{item.section}</div>
           }
