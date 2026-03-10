@@ -50,20 +50,9 @@ async function assembleTaqaDGR(plant, targetDate) {
     const mu = (val) => Number(val || 0) / 1000;
     const N = (val) => Number(val || 0);
 
-    // gen_main_meter is a CUMULATIVE meter reading — fetch previous day's reading
-    // to compute the daily delta generation correctly. This prevents 500 errors
-    // on outage days where the meter reading doesn't change (delta = 0 is valid).
-    const prevDateStr = (() => {
-        const d = new Date(targetDate);
-        d.setDate(d.getDate() - 1);
-        return d.toISOString().split('T')[0];
-    })();
-    const prevRes = await query(
-        'SELECT gen_main_meter FROM taqa_daily_input WHERE plant_id=$1 AND entry_date=$2',
-        [plantId, prevDateStr]
-    );
-    const prevGenMeter = Number(prevRes.rows[0]?.gen_main_meter || 0);
-    const dailyGenMWhr = Math.max(0, N(r.gen_main_meter) - prevGenMeter);
+    // gen_main_meter in TAQA is already the DAILY absolute generation in MWh.
+    // We just need to convert it to MU (1 MU = 1000 MWh).
+    const dailyGenMWhr = N(r.gen_main_meter);
     const dailyGenMu = dailyGenMWhr / 1000;
 
     // Derived Metrics for sections
