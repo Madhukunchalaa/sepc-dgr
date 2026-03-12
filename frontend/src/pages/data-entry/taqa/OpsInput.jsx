@@ -97,13 +97,15 @@ export default function OpsInput() {
 
         const row = currentRes?.data?.data ?? {}
 
-        // Guard against stale cached responses: only apply if the returned row
-        // matches the currently selected date AND plant. Without this check,
-        // React Query's stale-while-revalidate behaviour can fire this effect
-        // with the previous date's cached data AFTER the clear-on-date-change
-        // effect has already blanked the form — causing the old data to
-        // reappear in the inputs (the bug seen on TAQA but not TTPP).
-        const rowDate = row?.entry_date ? String(row.entry_date).slice(0, 10) : null
+        // Guard against stale cached responses — use local-date formatter to avoid IST→UTC shift
+        const toLocalDate = (v) => {
+            if (!v) return null;
+            const d = new Date(v);
+            if (isNaN(d)) return String(v).slice(0, 10);
+            // Use local date methods so midnight IST stays as the correct day
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        };
+        const rowDate = toLocalDate(row?.entry_date);
         const rowPlant = row?.plant_id != null ? String(row.plant_id) : null
         if (rowDate && rowDate !== date) return           // stale date — ignore
         if (rowPlant && rowPlant !== String(plantId)) return  // stale plant — ignore
@@ -112,7 +114,12 @@ export default function OpsInput() {
             setForm(cleanRowToForm(row))
             setMsg({ type: 'info', text: `📂 Loaded saved data for ${date}` })
         } else {
-            setForm({})
+            // Only clear if the form is already empty OR if we've just changed date (handled by other effect)
+            // If the user has typed something, and a background refetch returns empty, we DON'T wipe their work.
+            const formHasData = Object.keys(form).some(k => form[k] !== '' && form[k] !== null)
+            if (!formHasData) {
+                setForm({})
+            }
         }
     }, [currentRes, isFetchingCurrent, isTaqa, date, plantId])
 

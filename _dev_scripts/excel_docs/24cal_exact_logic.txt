@@ -1,0 +1,34 @@
+Row | Label | Formula | Value
+---|---|---|---
+19 | Lignite Bunker level | 'Ops Input'!E24 | 344.08
+20 | Lignite consumption (corr with bunker lvl) | -(E19-D19)*3.4+E18 | 2217.128
+21 | Lignite direct feeding | 'Ops Input'!E23 | 0
+22 | Lignite Inventory | D22+E17-E18 | 89155
+23 | Fuel Master at 250 MW ( 24 hrs. Avg) | 'Ops Input'!E25 | 88
+24 | Export ( from Switchyard main meters ) | IF(E32=0,0,((((('Ops Input'!E28-'Ops Input'!D28)-('Ops Input'!E27-'Ops Input'!D27))+(('Ops Input'!E32-'Ops Input'!D32)-('Ops Input'!E31-'Ops Input'!D31))+(('Ops Input'!E36-'Ops Input'!D36)-('Ops Input'!E35-'Ops Input'!D35))+(('Ops Input'!E40-'Ops Input'!D40)-('Ops Input'!E39-'Ops Input'!D39))))*(230/110)*(500/1))) | 2205.9090909088673
+25 | Export ( from Switchyard check meters ) | IF(E33=0,0,((((('Ops Input'!E30-'Ops Input'!D30)-('Ops Input'!E29-'Ops Input'!D29))+(('Ops Input'!E34-'Ops Input'!D34)-('Ops Input'!E33-'Ops Input'!D33))+(('Ops Input'!E38-'Ops Input'!D38)-('Ops Input'!E37-'Ops Input'!D37))+(('Ops Input'!E42-'Ops Input'!D42)-('Ops Input'!E41-'Ops Input'!D41))))*(230/110)*(500/1))) | 0
+26 | Export ( GT bay meters ) | ('Ops Input'!E54-'Ops Input'!D54)*(230/110)*(1000/1) | 2225.63054545433
+27 | Station Net Export for the day | IF(E24="Nil","shutdown",E24-E31) | 2122.2690909088674
+28 | Schedule Generation from MLDC (SG) | 'Ops Input'!E46 | 2201.88
+29 | Export/SG  | IF(E24>0,E24/E28) | 1.001829841276031
+30 | Net Import ( Unit not on grid full day ) | IF(E32="Shutdown",((((('Ops Input'!E28-'Ops Input'!D28)-('Ops Input'!E27-'Ops Input'!D27))+(('Ops Input'!E32-'Ops Input'!D32)-('Ops Input'!E31-'Ops Input'!D31))+(('Ops Input'!E36-'Ops Input'!D36)-('Ops Input'!E35-'Ops Input'!D35))+(('Ops Input'!E40-'Ops Input'!D40)-('Ops Input'!E39-'Ops Input'!D39))))*(230/110)*(500/1)),"0") | 0
+31 | Net Import ( Unit not on grid partly on day ) | 'Ops Input'!E43 | 83.64
+32 | Gross Generation - Main Meter. | IF(OR('Ops Input'!D47<=0,'Ops Input'!E47<=0),0,('Ops Input'!E47-'Ops Input'!D47)*(18*12000/110)) | 2415.9855272720797
+33 | Gross Generation - Check meter. | IF('Ops Input'!D48<=0,"0",('Ops Input'!E48-'Ops Input'!D48)*(18*12000/110)) | 2415.9855272720797
+34 | Aux. Power Consumption ( Export based APC)     | IF(E32="Shutdown",E30,E32-E24) | 210.07643636321245
+35 | Aux. Power Consumption ( UAT based APC)     | ('Ops Input'!E49-'Ops Input'!D49+'Ops Input'!E51-'Ops Input'!D51)*(18000/110)*(1200/1)/1000 | 283.04581090912586
+36 | Aux. Power Consumption ( GT based APC)     | IFERROR(E32-E26,"0") | 190.35498181774983
+37 | Declared capacity for the day | 'Ops Input'!E55 | 2683.33
+38 | Deemed Generation for the day | 'Ops Input'!E56 | 0
+39 | Dispatch Demand for the day | 'Ops Input'!E57 | 2683.33
+40 | No of Unit trip  | 'Ops Input'!E58 | 0
+41 | No of Unit Shutdown | 'Ops Input'!E59 | 1
+42 | Dispatch duration | 'Ops Input'!E60 | 0.44722222222222224
+43 | Load Backdown duration | 'Ops Input'!E61 | 0
+44 | Unit on standby | 'Ops Input'!E62 | 0
+45 | Scheduled Outage duration | 'Ops Input'!E63 | 0.5527777777777778
+46 | Forced Outage duration | 'Ops Input'!E64 | 0
+47 | De-rated  Equivalent Outage duration | 'Ops Input'!E65 | 0
+48 | GCV (As Fired)  | 'Chem Input'!E4 | 2769
+49 | Gross Heat rate  | IFERROR((E48*E20+E5*10350)/MAX(E32,E33),0) | 2879.9927755150707
+50 | Aux.Power consumption % | IF(E32="Shutdown","Nil",E34/E32) | 0.08695268824743849

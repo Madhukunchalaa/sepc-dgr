@@ -21,6 +21,7 @@ const TAQA_DATA_ENTRY = [
   { section: 'TAQA Data Entry' },
   { to: '/data-entry/taqa/ops', icon: '⚙️', label: 'Ops Input' },
   { to: '/data-entry/taqa/chem', icon: '🧪', label: 'Chem Input' },
+  { to: '/data-entry/taqa/cal', icon: '🧮', label: '24 Cal' },
 ]
 
 function getNav(selectedPlant) {

@@ -79,7 +79,7 @@ exports.login = async (req, res) => {
     // 4. Set refresh token as httpOnly cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true, // required for SameSite='none'
+      secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -96,7 +96,7 @@ exports.login = async (req, res) => {
     }, 'Login successful');
 
   } catch (err) {
-    console.log(err);
+    console.error('[AUTH] Login error:', err.message);
     logger.error('Login error', { message: err.message });
     return error(res, 'Login failed', 500);
   }
@@ -130,6 +130,7 @@ exports.refreshToken = async (req, res) => {
     return success(res, { accessToken: newAccessToken }, 'Token refreshed');
 
   } catch (err) {
+    console.error('[AUTH] Refresh error:', err.message);
     logger.error('Refresh error', { message: err.message });
     return error(res, 'Token refresh failed', 500);
   }

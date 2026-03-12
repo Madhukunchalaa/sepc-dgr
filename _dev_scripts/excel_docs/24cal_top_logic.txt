@@ -1,0 +1,21 @@
+Row | Label | Formula | Value
+1 | 2025-26 - Daily Station Data | 'Ops Input'!E1 | 45748
+2 | Heavy Fuel Oil Stock  T-10 Lvl           | 'Ops Input'!E2 | 449.2
+3 | Heavy Fuel Oil Stock  T-20 Lvl           | 'Ops Input'!E6 | 248.3
+4 | Heavy Fuel Oil  Receipt         | 'Ops Input'!E10 | 0
+5 | Heavy Fuel Oil Consumption     | IF(($D$6+SUM($D$4:E4)-E6-SUM($D$5:D5))<0.3,0,($D$6+SUM($D$4:E4)-E6-SUM($D$5:D5))) | 79.11047655000561
+6 | Heavy Fuel Oil Inventory  | (IF(E2=0,0,VLOOKUP(E2,'TANK CALI'!$B$3:$C$8003,2))+IF(E3=0,0,VLOOKUP(E3,'TANK CALI'!$E$3:$F$8003,2)))/1000*0.945 | 336.9061259549868
+7 | High Speed Diesel      T-30 Lvl      | 'Ops Input'!E13 | 73.5
+8 | High Speed Diesel  Receipt | 'Ops Input'!E14 | 0
+9 | HSD consumption    | IF(E10=0,0,D10+E8-E10) | 1.397564000000017
+10 | HSD Inventory | IF(E7=0,0,(VLOOKUP(E7,'TANK CALI'!$H$3:$I$5803,2))/1000) | 15.712225999999813
+11 | High Speed Diesel     T-40 Lvl      | 'Ops Input'!E15 | 54.4
+12 | High Speed Diesel oil Receipt | 'Ops Input'!E16 | 0
+13 | HSD consumption  | IF(E14=0,0,D14+E12-E14) | 0
+14 | HSD Inventory   | IF(E11=0,0,VLOOKUP(E11,'TANK CALI'!$K$3:$L$163,2)/1000) | 3.283
+15 | Lignite lifted from Mines - NLCIL - WB (06:00 hrs to 06:00 hrs) | 'Ops Input'!E19 | 0
+16 | BC # 1 Lignite Receipt  | 'Ops Input'!E17-'Ops Input'!D17 | 0
+17 | Lignite Receipt - TAQA - WB (06:00 hrs to 06:00 hrs) | 'Ops Input'!E18 | 0
+18 | Lignite consumption 1A1B | IF(('Ops Input'!E21-'Ops Input'!D21)+('Ops Input'!E22-'Ops Input'!D22)<0,0,('Ops Input'!E21-'Ops Input'!D21)+('Ops Input'!E22-'Ops Input'!D22)) | 3387
+19 | Lignite Bunker level | 'Ops Input'!E24 | 344.08
+20 | Lignite consumption (corr with bunker lvl) | -(E19-D19)*3.4+E18 | 2217.128

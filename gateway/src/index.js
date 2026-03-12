@@ -47,7 +47,11 @@ app.use(rateLimit({
 
 // ── Request logger ──
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`, { ip: req.ip });
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.info(`${req.method} ${req.path} ${res.statusCode} (${duration}ms)`, { ip: req.ip });
+  });
   next();
 });
 

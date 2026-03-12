@@ -19,8 +19,16 @@ async function getEntry(req, res) {
             'SELECT * FROM taqa_daily_input WHERE plant_id = $1 AND entry_date = $2',
             [plantId, date]
         );
+        const row = rows[0];
+        if (row && row.entry_date) {
+            // Return as plain YYYY-MM-DD to avoid IST→UTC timezone shift in JSON serialization
+            const d = row.entry_date;
+            row.entry_date = typeof d === 'string'
+                ? d.split('T')[0]
+                : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
         // Return 200 with empty object when no row so frontend can always render the form and save new data
-        success(res, rows[0] || {});
+        success(res, row || {});
     } catch (err) {
         logger.error('taqa.getEntry', { message: err.message });
         error(res, 'Failed to fetch TAQA entry');
@@ -82,21 +90,44 @@ async function submitEntry(req, res) {
         const { plantId, date } = req.params;
         const userId = req.user?.sub;
 
-        // 1. Fetch the raw input
-        const { rows } = await query(
+        // 1. Fetch the raw input for current day
+        const { rows: currentRows } = await query(
             'SELECT * FROM taqa_daily_input WHERE plant_id = $1 AND entry_date = $2',
             [plantId, date]
         );
-        if (!rows.length) return notFound(res, 'No TAQA entry found. Save data first.');
-        const r = rows[0];
+        if (!currentRows.length) return notFound(res, 'No TAQA entry found. Save data first.');
+        const r = currentRows[0];
+
+        // 1b. Fetch raw input for previous day to calculate deltas
+        const prevDate = new Date(date);
+        prevDate.setDate(prevDate.getDate() - 1);
+        const { rows: prevRows } = await query(
+            'SELECT * FROM taqa_daily_input WHERE plant_id = $1 AND entry_date = $2',
+            [plantId, prevDate.toISOString().split('T')[0]]
+        );
+        const p = prevRows[0] || {};
+
+        const delta = (curr, prev) => {
+            const c = N0(curr);
+            const pr = N0(prev);
+            if (pr <= 0) return 0; // If yesterday was 0 or null, we can't calculate a meaningful delta
+            return Math.max(0, c - pr);
+        };
 
         // ── 2. DERIVE CALCULATED METRICS (mirrors Excel 'DGR' sheet formulas) ──
 
-        // Generation  (Main Meter MWhr → MU)
-        const grossGenMu = N0(r.gen_main_meter) / 1000;
+        // Multipliers from Excel Analysis
+        const MF_GEN = (18 * 12000 / 110);      // ~1963.636
+        const MF_EXP = (230 / 110 * 500);       // ~1045.454
+
+        // Generation (Deltas for integrators)
+        const dGenUnit = delta(r.gen_main_meter, p.gen_main_meter);
+        const grossGenMu = (dGenUnit * MF_GEN) / 1000 / 1000; // units → MWh → MU
+
+        // Export/Import
         const netExportMu = N0(r.net_export) / 1000;
         const netImportMu = N0(r.net_import_sy) / 1000;
-        const auxMu = grossGenMu - netExportMu + netImportMu;
+        const auxMu = Math.max(0, grossGenMu - netExportMu + netImportMu);
         const apcPct = grossGenMu > 0 ? (auxMu / grossGenMu) : 0;
         const plfDaily = (CAPACITY_MW * 24 / 1000) > 0 ? grossGenMu / (CAPACITY_MW * 24 / 1000) : 0;
 
@@ -107,34 +138,26 @@ async function submitEntry(req, res) {
         const scheduleMu = N0(r.schedule_gen_mldc) / 1000;
         const pafPct = (CAPACITY_MW * 24 / 1000) > 0 ? dcMu / (CAPACITY_MW * 24 / 1000) : 0;
 
-        // Grid hours  (dispatch_duration is hrs on grid)
+        // Grid hours
         const hoursOnGrid = N0(r.dispatch_duration);
 
-        // HFO Consumption (Supply - Return integrators, convert Litres → KL → MT)
-        // If both integrator readings exist, use the difference. Otherwise use 0.
-        const hfoSupplyL = N0(r.hfo_supply_int_rdg);
-        const hfoReturnL = N0(r.hfo_return_int_rdg);
-        const hfoConsKl = (hfoSupplyL - hfoReturnL) / 1000;   // Litres → KL
-        const hfoConsMt = hfoConsKl * 0.945;                    // KL → MT (density)
+        // HFO Consumption (Deltas)
+        const hfoDelta = delta(r.hfo_supply_int_rdg, p.hfo_supply_int_rdg) - delta(r.hfo_return_int_rdg, p.hfo_return_int_rdg);
+        const hfoConsKl = hfoDelta / 1000;
+        const hfoConsMt = hfoConsKl * 0.945;
 
-        // HSD Consumption (T-30 receipt = proxy for consumption since no return meter)
+        // HSD / Lignite (Using deltas where available)
         const hsdConsKl = N0(r.hsd_t30_receipt_kl) + N0(r.hsd_t40_receipt_kl);
+        const ligniteMt = delta(r.lignite_bc1_int_rdg, p.lignite_bc1_int_rdg) || N0(r.lignite_receipt_taqa_wb);
 
-        // Lignite Consumption (Conveyor 1A + 1B load cell difference from previous day)
-        // For simplicity we use the receipt from WB as the daily consumption proxy
-        const ligniteMt = N0(r.lignite_receipt_taqa_wb);
-
-        // GCV from Chem Input
+        // GCV / Ash / Water
         const gcvAf = N0(r.chem_gcv_nlcil);
-
-        // Ash from Chem Input
         const ashGenMt = (ligniteMt * N0(r.chem_ash_pct)) / 100;
         const ashSalesMt = N0(r.chem_ash_sales_mt);
 
-        // Water
-        const dmProdM3 = N0(r.dm_water_prod_m3);
+        const dmProdM3 = delta(r.dm_water_prod_m3, p.dm_water_prod_m3) || N0(r.dm_water_prod_m3);
         const dmCstM3 = N0(r.cst_to_main_unit);
-        const totalWaterM3 = N0(r.service_water_flow) + N0(r.potable_tank_makeup) + N0(r.raw_water_to_dm);
+        const totalWaterM3 = delta(r.service_water_flow, p.service_water_flow) || N0(r.service_water_flow);
 
         // ── 3. WRITE TO STANDARD DGR TABLES (inside a transaction) ──
         await db.transaction(async (client) => {

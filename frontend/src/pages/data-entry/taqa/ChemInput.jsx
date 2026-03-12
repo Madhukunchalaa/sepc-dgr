@@ -60,7 +60,11 @@ export default function ChemInput() {
             setForm(fields)
             setMsg({ type: 'info', text: `📂 Loaded saved data for ${date}` })
         } else {
-            setForm({})
+            // Only clear if the form is already empty
+            const formHasData = Object.keys(form).some(k => form[k] !== '' && form[k] !== null)
+            if (!formHasData) {
+                setForm({})
+            }
         }
     }, [currentRes, isFetching, isTaqa, date, plantId])
 
