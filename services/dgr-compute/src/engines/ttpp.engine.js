@@ -8,13 +8,25 @@ const {
 
 async function assembleTtppDGR(plant, targetDate) {
     const plantId = plant.id;
+
+    // T-2 date for GHR/GCV (Excel uses 2-day lag for lab analysis)
+    const t2Date = (() => {
+        const d = new Date(targetDate);
+        d.setDate(d.getDate() - 2);
+        return d.toISOString().split('T')[0];
+    })();
+    const t2Label = new Date(t2Date)
+        .toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+        .replace(/ /g, '-');
+
     const [
-        power, fuel, perf, water, availability, scheduling, ash, dsm, opsLog,
+        power, fuel, perf, water, availability, scheduling, ash, dsm, opsLog, perfT2, fuelT2,
     ] = await Promise.all([
         getPowerData(plantId, targetDate), getFuelData(plantId, targetDate),
         getPerfData(plantId, targetDate), getWaterData(plantId, targetDate), getAvailabilityData(plantId, targetDate),
         getSchedulingData(plantId, targetDate), getAshData(plantId, targetDate), getDsmData(plantId, targetDate),
         getOpsLog(plantId, targetDate),
+        getPerfData(plantId, t2Date), getFuelData(plantId, t2Date),
     ]);
 
     const date = new Date(targetDate);
@@ -24,7 +36,21 @@ async function assembleTtppDGR(plant, targetDate) {
     const coalMt = Number(fuel?.coal_cons_mt || 0);
     const ldoKl = Number(fuel?.ldo_cons_kl || 0);
     const hfoKl = Number(fuel?.hfo_cons_kl || 0);
-    const gcvAf = Number(perf?.gcv_af || fuel?.coal_gcv_af || 0);
+
+    // GCV and GHR use T-2 date (lab analysis lag — matches Excel exactly)
+    const gcvAf = Number(perfT2?.gcv_af || fuelT2?.coal_gcv_af || perf?.gcv_af || fuel?.coal_gcv_af || 0);
+    // GHR (kCal/kWh) = (GCV × Coal_MT × 1000 + Oil_KL × 10700) / (Gen_MU × 1,000,000)
+    const _t2Coal = Number(fuelT2?.coal_cons_mt || 0);
+    const _t2Ldo  = Number(fuelT2?.ldo_cons_kl  || 0);
+    const _t2Hfo  = Number(fuelT2?.hfo_cons_kl  || 0);
+    const _t2Gen  = Number((await getPowerData(plantId, t2Date))?.generation_mu || 0);
+    const ghrT2 = perfT2?.ghr_direct != null && Number(perfT2.ghr_direct) > 0
+        ? Number(perfT2.ghr_direct)
+        : (gcvAf > 0 && _t2Coal > 0 && _t2Gen > 0
+            ? ((gcvAf * _t2Coal * 1000) + (_t2Ldo + _t2Hfo) * 10700) / (_t2Gen * 1000000)
+            : null);
+    const ghrLabel = `GHR (As Fired) as on ${t2Label}`;
+    const gcvLabel = `GCV (As Fired) as on ${t2Label}`;
 
     // Computed daily values (fallbacks for missing DB columns)
     const exportMu = Number(power?.export_mu || 0);
@@ -36,28 +62,35 @@ async function assembleTtppDGR(plant, targetDate) {
     const sccDaily = fuel?.scc_kg_kwh != null ? Number(fuel.scc_kg_kwh) : (genMu > 0 ? coalMt / (genMu * 1000) : null);
     const apcPctDaily = genMu > 0 && apcDaily != null ? (apcDaily / genMu) * 100 : null;
 
-    // GHR = ((GCV_AF * Coal Cons) + ((LDO Cons + HFO Cons) * 10700)) / (Generation MU * 1000)
-    const ghrDirect = genMu > 0 ? (((gcvAf * coalMt) + ((ldoKl + hfoKl) * 10700)) / (genMu * 1000)) : null;
-
     const apcMtd = await getMTDSum(plantId, targetDate, 'apc_mu');
     const apcYtd = await getYTDSum(plantId, targetDate, 'apc_mu');
     const genMtd = Number(power?.generation_mtd || (await getMTDSum(plantId, targetDate, 'generation_mu')));
     const genYtd = Number(power?.generation_ytd || (await getYTDSum(plantId, targetDate, 'generation_mu')));
 
+    // Format hours as HH:MM — matches Excel display (no "D" prefix)
     const formatHours = (hrs) => {
         if (hrs == null) return null;
-        const mm = Math.round((hrs % 1) * 60);
-        const h = Math.floor(hrs);
-        const d = Math.floor(h / 24);
-        const rem_h = h % 24;
-        return d > 0 ? (d + 'D ' + rem_h + ':' + String(mm).padStart(2, '0')) : (rem_h + ':' + String(mm).padStart(2, '0'));
+        const n = Number(hrs);
+        const h = Math.floor(n);
+        const mm = Math.round((n % 1) * 60);
+        return h + ':' + String(mm).padStart(2, '0');
     };
+
+    // Return null instead of 0 for optional meter values (matches Excel blank cells)
+    const nz = (v) => (v == null || Number(v) === 0) ? null : Number(v);
 
     const getDcLossRemarks = () => {
         try {
             const reasons = (typeof scheduling?.dc_loss_reasons === 'string' ? JSON.parse(scheduling.dc_loss_reasons) : scheduling?.dc_loss_reasons) || [];
+            if (!reasons.length) return 'Nil';
             return reasons.map(r => `${r.reason}: ${r.mu}MU`).join(', ');
-        } catch (e) { return '' }
+        } catch (e) { return 'Nil'; }
+    };
+
+    // Format grid frequency — strip trailing zeros (49.950 → 49.95, 50.000 → 50)
+    const fmtFreq = (v) => {
+        if (v == null) return null;
+        return parseFloat(Number(v).toFixed(3)).toString();
     };
 
     const formatLoss = (mu, pct) => mu != null ? `${mu} / ${pct ?? 0}%` : null;
@@ -93,12 +126,12 @@ async function assembleTtppDGR(plant, targetDate) {
                     { sn: "1.1", particulars: "Power Generation", uom: "MU", daily: power?.generation_mu, mtd: power?.generation_mtd || await getMTDSum(plantId, targetDate, 'generation_mu'), ytd: power?.generation_ytd || await getYTDSum(plantId, targetDate, 'generation_mu') },
                     { sn: "1.2", particulars: "Average Power Generation", uom: "MW", daily: avgLoadMw, mtd: await getMTDAvg(plantId, targetDate, 'avg_load_mw'), ytd: await getYTDAvg(plantId, targetDate, 'avg_load_mw') },
                     { sn: "1.3", particulars: "Total Export (GT)", uom: "MU", daily: power?.export_mu, mtd: await getMTDSum(plantId, targetDate, 'export_mu'), ytd: await getYTDSum(plantId, targetDate, 'export_mu') },
-                    { sn: "1.4", particulars: "Total Import (GT)", uom: "MU", daily: power?.import_mu, mtd: await getMTDSum(plantId, targetDate, 'import_mu'), ytd: await getYTDSum(plantId, targetDate, 'import_mu') },
+                    { sn: "1.4", particulars: "Total Import (GT)", uom: "MU", daily: nz(power?.import_mu), mtd: nz(await getMTDSum(plantId, targetDate, 'import_mu')), ytd: nz(await getYTDSum(plantId, targetDate, 'import_mu')) },
                     { sn: "1.5", particulars: "Net Export (GT Export − GT Import)", uom: "MU", daily: power?.export_mu != null ? netExportDaily : null, mtd: (await getMTDSum(plantId, targetDate, 'export_mu')) - (await getMTDSum(plantId, targetDate, 'import_mu')), ytd: (await getYTDSum(plantId, targetDate, 'export_mu')) - (await getYTDSum(plantId, targetDate, 'import_mu')) },
                     { sn: "1.6", particulars: "Auxiliary Power Consumption (APC incl Import)", uom: "MU", daily: apcDaily, mtd: apcMtd, ytd: apcYtd },
                     { sn: "1.7", particulars: "APC %", uom: "%", daily: apcPctDaily, mtd: genMtd > 0 ? (apcMtd / genMtd) * 100 : 0, ytd: genYtd > 0 ? (apcYtd / genYtd) * 100 : 0 },
                     { sn: "1.8", particulars: "Hours on Grid", uom: "D(s) HH:MM", daily: formatHours(power?.hours_on_grid), mtd: null, ytd: null },
-                    { sn: "1.9", particulars: "Grid Frequency", uom: "Hz", daily: (power?.freq_min || power?.freq_max || power?.freq_avg) ? `Min - ${power.freq_min || 0} Hz / Max - ${power.freq_max || 0} Hz / Avg - ${power.freq_avg || 0} Hz` : null, mtd: null, ytd: null }
+                    { sn: "1.9", particulars: "Grid Frequency", uom: "Hz", daily: (power?.freq_min || power?.freq_max || power?.freq_avg) ? `Min - ${fmtFreq(power.freq_min)} Hz / Max - ${fmtFreq(power.freq_max)} Hz / Avg - ${fmtFreq(power.freq_avg)} Hz` : null, mtd: null, ytd: null }
                 ]
             },
             {
@@ -113,9 +146,9 @@ async function assembleTtppDGR(plant, targetDate) {
                     { sn: "2.7", particulars: "Plant Outage – RSD", uom: "Count", daily: power?.rsd_count, mtd: await getMTDSum(plantId, targetDate, 'rsd_count'), ytd: await getYTDSum(plantId, targetDate, 'rsd_count') },
                     { sn: "2.8", particulars: "Specific Oil Consumption", uom: "ml/kWh", daily: socDaily, mtd: socMtd, ytd: socYtd },
                     { sn: "2.9", particulars: "Specific Coal Consumption", uom: "kg/kWh", daily: sccDaily, mtd: sccMtd, ytd: sccYtd },
-                    { sn: "2.10", particulars: "GHR (As Fired)", uom: "kCal/kWh", daily: ghrDirect !== null ? Number(ghrDirect.toFixed(4)) : null, mtd: perf?.ghr_mtd, ytd: perf?.ghr_ytd },
-                    { sn: "2.11", particulars: "GHR Remarks", uom: "Text", daily: perf?.ghr_remarks, mtd: null, ytd: null },
-                    { sn: "2.12", particulars: "GCV (As Fired)", uom: "kCal/kg", daily: gcvAf, mtd: await getMTDAvg(plantId, targetDate, 'coal_gcv_af', 'daily_fuel'), ytd: await getYTDAvg(plantId, targetDate, 'coal_gcv_af', 'daily_fuel') },
+                    { sn: "2.10", particulars: ghrLabel, uom: "kCal/kWh", daily: ghrT2, mtd: null, ytd: null },
+                    { sn: "2.11", particulars: "GHR Remarks", uom: "Text", daily: perfT2?.ghr_remarks || perf?.ghr_remarks, mtd: null, ytd: null },
+                    { sn: "2.12", particulars: gcvLabel, uom: "kCal/kg", daily: gcvAf || null, mtd: null, ytd: null },
                 ]
             },
             {
@@ -125,11 +158,11 @@ async function assembleTtppDGR(plant, targetDate) {
                     { sn: "3.2", particulars: "HFO Consumption", uom: "KL", daily: fuel?.hfo_cons_kl, mtd: await getMTDSum(plantId, targetDate, 'hfo_cons_kl', 'daily_fuel'), ytd: await getYTDSum(plantId, targetDate, 'hfo_cons_kl', 'daily_fuel') },
                     { sn: "3.3", particulars: "Coal Consumption", uom: "MT", daily: fuel?.coal_cons_mt, mtd: await getMTDSum(plantId, targetDate, 'coal_cons_mt', 'daily_fuel'), ytd: await getYTDSum(plantId, targetDate, 'coal_cons_mt', 'daily_fuel') },
                     { sn: "3.4", particulars: "LDO Receipt", uom: "KL", daily: fuel?.ldo_receipt_kl, mtd: await getMTDSum(plantId, targetDate, 'ldo_receipt_kl', 'daily_fuel'), ytd: await getYTDSum(plantId, targetDate, 'ldo_receipt_kl', 'daily_fuel') },
-                    { sn: "3.5", particulars: "HFO Receipt", uom: "KL", daily: fuel?.hfo_receipt_kl, mtd: await getMTDSum(plantId, targetDate, 'hfo_receipt_kl', 'daily_fuel'), ytd: await getYTDSum(plantId, targetDate, 'hfo_receipt_kl', 'daily_fuel') },
+                    { sn: "3.5", particulars: "HFO Receipt", uom: "KL", daily: nz(fuel?.hfo_receipt_kl), mtd: nz(await getMTDSum(plantId, targetDate, 'hfo_receipt_kl', 'daily_fuel')), ytd: nz(await getYTDSum(plantId, targetDate, 'hfo_receipt_kl', 'daily_fuel')) },
                     { sn: "3.6", particulars: "Coal Receipt", uom: "MT", daily: fuel?.coal_receipt_mt, mtd: await getMTDSum(plantId, targetDate, 'coal_receipt_mt', 'daily_fuel'), ytd: await getYTDSum(plantId, targetDate, 'coal_receipt_mt', 'daily_fuel') },
                     { sn: "3.7", particulars: "LDO Total / Usable Stock", uom: "KL", daily: fuel?.ldo_stock_kl, mtd: null, ytd: null },
                     { sn: "3.8", particulars: "HFO Total / Usable Stock", uom: "KL", daily: fuel?.hfo_stock_kl, mtd: null, ytd: null },
-                    { sn: "3.9", particulars: "Coal Stock", uom: "MT", daily: fuel?.coal_stock_mt, mtd: null, ytd: null },
+                    { sn: "3.9", particulars: "Coal Stock", uom: "MT", daily: nz(fuel?.coal_stock_mt), mtd: null, ytd: null },
                     { sn: "3.10", particulars: "DM Water Consumption (Cycle Makeup)", uom: "m³", daily: water?.dm_cycle_makeup_m3, mtd: await getMTDSum(plantId, targetDate, 'dm_cycle_makeup_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'dm_cycle_makeup_m3', 'daily_water') },
                     { sn: "3.11", particulars: "Total DM Water Consumption (Plant)", uom: "m³", daily: water?.dm_total_cons_m3, mtd: await getMTDSum(plantId, targetDate, 'dm_total_cons_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'dm_total_cons_m3', 'daily_water') },
                     { sn: "3.12", particulars: "Service Water Consumption", uom: "m³", daily: water?.service_water_m3, mtd: await getMTDSum(plantId, targetDate, 'service_water_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'service_water_m3', 'daily_water') },
@@ -149,9 +182,9 @@ async function assembleTtppDGR(plant, targetDate) {
                     { sn: "4.1", particulars: "Declared Capacity (SEPC)", uom: "MU", daily: scheduling?.dc_sepc_mu, mtd: await getMTDSum(plantId, targetDate, 'dc_sepc_mu', 'daily_scheduling'), ytd: await getYTDSum(plantId, targetDate, 'dc_sepc_mu', 'daily_scheduling') },
                     { sn: "4.2", particulars: "Declared Capacity (TNPDCL)", uom: "MU", daily: scheduling?.dc_tnpdcl_mu, mtd: await getMTDSum(plantId, targetDate, 'dc_tnpdcl_mu', 'daily_scheduling'), ytd: await getYTDSum(plantId, targetDate, 'dc_tnpdcl_mu', 'daily_scheduling') },
                     { sn: "4.3", particulars: "Schedule Generation (SG – PPA)", uom: "MU", daily: scheduling?.sg_ppa_mu, mtd: await getMTDSum(plantId, targetDate, 'sg_ppa_mu', 'daily_scheduling'), ytd: await getYTDSum(plantId, targetDate, 'sg_ppa_mu', 'daily_scheduling') },
-                    { sn: "4.4", particulars: "Schedule Generation (SG – DAM)", uom: "MU", daily: scheduling?.sg_dam_mu, mtd: await getMTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling'), ytd: await getYTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling') },
-                    { sn: "4.5", particulars: "Schedule Generation (SG – RTM)", uom: "MU", daily: scheduling?.sg_rtm_mu, mtd: await getMTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling'), ytd: await getYTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling') },
-                    { sn: "4.6", particulars: "Total Schedule Generation", uom: "MU", daily: ((scheduling?.sg_ppa_mu || 0) + (scheduling?.sg_dam_mu || 0) + (scheduling?.sg_rtm_mu || 0)) || null, mtd: ((await getMTDSum(plantId, targetDate, 'sg_ppa_mu', 'daily_scheduling')) + (await getMTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling')) + (await getMTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling'))) || null, ytd: ((await getYTDSum(plantId, targetDate, 'sg_ppa_mu', 'daily_scheduling')) + (await getYTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling')) + (await getYTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling'))) || null },
+                    { sn: "4.4", particulars: "Schedule Generation (SG – DAM)", uom: "MU", daily: nz(scheduling?.sg_dam_mu), mtd: nz(await getMTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling')), ytd: nz(await getYTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling')) },
+                    { sn: "4.5", particulars: "Schedule Generation (SG – RTM)", uom: "MU", daily: nz(scheduling?.sg_rtm_mu), mtd: nz(await getMTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling')), ytd: nz(await getYTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling')) },
+                    { sn: "4.6", particulars: "Total Schedule Generation", uom: "MU", daily: (Number(scheduling?.sg_ppa_mu||0) + Number(scheduling?.sg_dam_mu||0) + Number(scheduling?.sg_rtm_mu||0)) || null, mtd: (Number(await getMTDSum(plantId, targetDate, 'sg_ppa_mu', 'daily_scheduling')) + Number(await getMTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling')) + Number(await getMTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling'))) || null, ytd: (Number(await getYTDSum(plantId, targetDate, 'sg_ppa_mu', 'daily_scheduling')) + Number(await getYTDSum(plantId, targetDate, 'sg_dam_mu', 'daily_scheduling')) + Number(await getYTDSum(plantId, targetDate, 'sg_rtm_mu', 'daily_scheduling'))) || null },
                     { sn: "4.7", particulars: "Asking Rate to Achieve 80% DC", uom: "MW", daily: scheduling?.asking_rate_mw, mtd: null, ytd: null },
                     { sn: "4.8", particulars: "Deemed Generation – DG (TB + RSD)", uom: "MU", daily: scheduling?.deemed_gen_mu, mtd: await getMTDSum(plantId, targetDate, 'deemed_gen_mu', 'daily_scheduling'), ytd: await getYTDSum(plantId, targetDate, 'deemed_gen_mu', 'daily_scheduling') },
                     { sn: "4.9", particulars: "DC Loss (Capacity − DC SEPC)", uom: "%", daily: scheduling?.dc_tnpdcl_mu > 0 ? ((1 - ((scheduling.dc_sepc_mu || 0) / scheduling.dc_tnpdcl_mu)) * 100).toFixed(2) : 0, mtd: null, ytd: null },
@@ -162,9 +195,9 @@ async function assembleTtppDGR(plant, targetDate) {
                 title: "5️⃣ ASH",
                 rows: [
                     { sn: "5.1", particulars: "Fly Ash to User", uom: "MT", daily: ash?.fa_to_user_mt, mtd: await getMTDSum(plantId, targetDate, 'fa_to_user_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'fa_to_user_mt', 'daily_ash') },
-                    { sn: "5.2", particulars: "Fly Ash to Dyke / Internal", uom: "MT", daily: ash?.fa_to_dyke_mt, mtd: await getMTDSum(plantId, targetDate, 'fa_to_dyke_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'fa_to_dyke_mt', 'daily_ash') },
+                    { sn: "5.2", particulars: "Fly Ash to Dyke / Internal", uom: "MT", daily: nz(ash?.fa_to_dyke_mt), mtd: nz(await getMTDSum(plantId, targetDate, 'fa_to_dyke_mt', 'daily_ash')), ytd: nz(await getYTDSum(plantId, targetDate, 'fa_to_dyke_mt', 'daily_ash')) },
                     { sn: "5.3", particulars: "Bottom Ash to User", uom: "MT", daily: ash?.ba_to_user_mt, mtd: await getMTDSum(plantId, targetDate, 'ba_to_user_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'ba_to_user_mt', 'daily_ash') },
-                    { sn: "5.4", particulars: "Bottom Ash to Dyke / Internal", uom: "MT", daily: ash?.ba_to_dyke_mt, mtd: await getMTDSum(plantId, targetDate, 'ba_to_dyke_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'ba_to_dyke_mt', 'daily_ash') },
+                    { sn: "5.4", particulars: "Bottom Ash to Dyke / Internal", uom: "MT", daily: nz(ash?.ba_to_dyke_mt), mtd: nz(await getMTDSum(plantId, targetDate, 'ba_to_dyke_mt', 'daily_ash')), ytd: nz(await getYTDSum(plantId, targetDate, 'ba_to_dyke_mt', 'daily_ash')) },
                     { sn: "5.5", particulars: "Fly Ash Generated", uom: "MT", daily: ash?.fa_generated_mt, mtd: await getMTDSum(plantId, targetDate, 'fa_generated_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'fa_generated_mt', 'daily_ash') },
                     { sn: "5.6", particulars: "Bottom & Eco Ash Generated", uom: "MT", daily: ash?.ba_generated_mt, mtd: await getMTDSum(plantId, targetDate, 'ba_generated_mt', 'daily_ash'), ytd: await getYTDSum(plantId, targetDate, 'ba_generated_mt', 'daily_ash') },
                     { sn: "5.7", particulars: "Fly Ash in Silo", uom: "MT", daily: ash?.fa_silo_mt, mtd: null, ytd: null },
@@ -177,7 +210,7 @@ async function assembleTtppDGR(plant, targetDate) {
                     { sn: "6.1", particulars: "IDCT Make Up (Sea Water)", uom: "m³", daily: water?.idct_makeup_m3, mtd: await getMTDSum(plantId, targetDate, 'idct_makeup_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'idct_makeup_m3', 'daily_water') },
                     { sn: "6.2", particulars: "SWI Flow", uom: "m³", daily: water?.swi_flow_m3, mtd: await getMTDSum(plantId, targetDate, 'swi_flow_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'swi_flow_m3', 'daily_water') },
                     { sn: "6.3", particulars: "Outfall (CT Blowdown & WTP Reject)", uom: "m³", daily: water?.outfall_m3, mtd: await getMTDSum(plantId, targetDate, 'outfall_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'outfall_m3', 'daily_water') },
-                    { sn: "6.4", particulars: "Specific Water Consumption", uom: "m³/MW", daily: genMu > 0 ? ((water?.dm_total_cons_m3 || 0) + (water?.service_water_m3 || 0) + (water?.potable_water_m3 || 0)) / genMu : null, mtd: null, ytd: null },
+                    { sn: "6.4", particulars: "Specific Water Consumption", uom: "m³/MWh", daily: (genMu > 0 && Number(water?.sea_water_m3||0) > 0) ? Number(water.sea_water_m3) / (genMu * 1000) : null, mtd: null, ytd: null },
                     { sn: "6.5", particulars: "DM Water Generation", uom: "m³", daily: water?.dm_generation_m3, mtd: await getMTDSum(plantId, targetDate, 'dm_generation_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'dm_generation_m3', 'daily_water') },
                     { sn: "6.6", particulars: "Filtered / Service Water Generation", uom: "m³", daily: water?.filtered_water_gen_m3, mtd: await getMTDSum(plantId, targetDate, 'filtered_water_gen_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'filtered_water_gen_m3', 'daily_water') },
                     { sn: "6.7", particulars: "DM Water Total / Usable Stock", uom: "m³", daily: water?.dm_stock_m3, mtd: null, ytd: null },
@@ -187,10 +220,10 @@ async function assembleTtppDGR(plant, targetDate) {
             {
                 title: "7️⃣ DSM (Till Date)",
                 rows: [
-                    { sn: "7.1", particulars: "DSM Net Profit", uom: "Lacs", daily: dsm?.dsm_net_profit_lacs, mtd: await getMTDSum(plantId, targetDate, 'dsm_net_profit_lacs', 'daily_dsm'), ytd: await getYTDSum(plantId, targetDate, 'dsm_net_profit_lacs', 'daily_dsm') },
-                    { sn: "7.2", particulars: "DSM Payable by SEPC", uom: "Lacs", daily: dsm?.dsm_payable_lacs, mtd: await getMTDSum(plantId, targetDate, 'dsm_payable_lacs', 'daily_dsm'), ytd: await getYTDSum(plantId, targetDate, 'dsm_payable_lacs', 'daily_dsm') },
-                    { sn: "7.3", particulars: "DSM Receivable by SEPC", uom: "Lacs", daily: dsm?.dsm_receivable_lacs, mtd: await getMTDSum(plantId, targetDate, 'dsm_receivable_lacs', 'daily_dsm'), ytd: await getYTDSum(plantId, targetDate, 'dsm_receivable_lacs', 'daily_dsm') },
-                    { sn: "7.4", particulars: "DSM Coal Saving / (+Loss) by SEPC", uom: "Lacs", daily: dsm?.dsm_coal_saving_lacs, mtd: await getMTDSum(plantId, targetDate, 'dsm_coal_saving_lacs', 'daily_dsm'), ytd: await getYTDSum(plantId, targetDate, 'dsm_coal_saving_lacs', 'daily_dsm') }
+                    { sn: "7.1", particulars: "DSM Net Profit", uom: "Lacs", daily: dsm?.dsm_net_profit_lacs != null ? Number(dsm.dsm_net_profit_lacs) / 100000 : null, mtd: null, ytd: (await getYTDSum(plantId, targetDate, 'dsm_net_profit_lacs', 'daily_dsm')) / 100000 },
+                    { sn: "7.2", particulars: "DSM Payable by SEPC", uom: "Lacs", daily: dsm?.dsm_payable_lacs != null ? Number(dsm.dsm_payable_lacs) / 100000 : null, mtd: null, ytd: (await getYTDSum(plantId, targetDate, 'dsm_payable_lacs', 'daily_dsm')) / 100000 },
+                    { sn: "7.3", particulars: "DSM Receivable by SEPC", uom: "Lacs", daily: dsm?.dsm_receivable_lacs != null ? Number(dsm.dsm_receivable_lacs) / 100000 : null, mtd: null, ytd: (await getYTDSum(plantId, targetDate, 'dsm_receivable_lacs', 'daily_dsm')) / 100000 },
+                    { sn: "7.4", particulars: "DSM Coal Saving / (+Loss) by SEPC", uom: "Lacs", daily: dsm?.dsm_coal_saving_lacs != null ? Number(dsm.dsm_coal_saving_lacs) / 100000 : null, mtd: null, ytd: (await getYTDSum(plantId, targetDate, 'dsm_coal_saving_lacs', 'daily_dsm')) / 100000 }
                 ]
             },
             {
