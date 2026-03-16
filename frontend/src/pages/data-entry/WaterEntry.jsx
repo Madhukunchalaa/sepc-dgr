@@ -20,7 +20,7 @@ export default function WaterEntry() {
     const qc = useQueryClient()
 
     // Fetch Water Data
-    const { data: existing } = useQuery({
+    const { data: existing, isFetching } = useQuery({
         queryKey: ['water-entry', plantId, date],
         queryFn: () => dataEntry.getWater(plantId, date),
         enabled: !!plantId && !!date,
@@ -37,16 +37,16 @@ export default function WaterEntry() {
 
     const [savedComputed, setSavedComputed] = useState(null)
 
+    // Clear form immediately when date or plant changes
     useEffect(() => {
-        if (!existing || existing.isFetching) return
-        const e = existing?.data?.data
+        setForm({})
+        setSavedComputed(null)
+        setMsg(null)
+    }, [date, plantId])
 
-        // Robust guard against stale cached responses: only apply if the returned row
-        // matches the currently selected date AND plant.
-        const rowDate = e?.entry_date ? String(e.entry_date).slice(0, 10) : null
-        const rowPlant = e?.plant_id != null ? String(e.plant_id) : null
-        if (rowDate && rowDate !== date) return
-        if (rowPlant && rowPlant !== String(plantId)) return
+    useEffect(() => {
+        if (isFetching) return
+        const e = existing?.data?.data
 
         if (e) {
             setForm({
@@ -71,7 +71,7 @@ export default function WaterEntry() {
             setForm({})
             setSavedComputed(null)
         }
-    }, [existing, powerData, date, plantId])
+    }, [existing, isFetching, powerData, date, plantId])
 
     // Compute live values dynamically exactly like the backend
     const liveComputed = useMemo(() => {

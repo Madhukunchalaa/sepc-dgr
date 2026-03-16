@@ -110,7 +110,7 @@ async function submitEntry(req, res) {
         const delta = (curr, prev) => {
             const c = N0(curr);
             const pr = N0(prev);
-            if (pr <= 0) return 0; // If yesterday was 0 or null, we can't calculate a meaningful delta
+            if (pr <= 0 || c <= 0) return 0; // If yesterday or today is 0 or null, we can't calculate a meaningful delta
             return Math.max(0, c - pr);
         };
 
@@ -122,12 +122,13 @@ async function submitEntry(req, res) {
 
         // Generation (Deltas for integrators)
         const dGenUnit = delta(r.gen_main_meter, p.gen_main_meter);
-        const grossGenMu = (dGenUnit * MF_GEN) / 1000 / 1000; // units → MWh → MU
+        const grossGenMu = (dGenUnit * MF_GEN) / 1000; // units → MWh → MU
+        // Note: dGenUnit * MF_GEN gives MWh. MWh / 1000 = MU.
 
         // Export/Import
         const netExportMu = N0(r.net_export) / 1000;
         const netImportMu = N0(r.net_import_sy) / 1000;
-        const auxMu = Math.max(0, grossGenMu - netExportMu + netImportMu);
+        const auxMu = Math.max(0, grossGenMu - netExportMu);
         const apcPct = grossGenMu > 0 ? (auxMu / grossGenMu) : 0;
         const plfDaily = (CAPACITY_MW * 24 / 1000) > 0 ? grossGenMu / (CAPACITY_MW * 24 / 1000) : 0;
 

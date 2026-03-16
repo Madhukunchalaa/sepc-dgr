@@ -23,6 +23,12 @@ export default function OperationsEntry() {
         retry: false,
     })
 
+    // Clear form immediately when date or plant changes
+    useEffect(() => {
+        setForm({})
+        setMsg(null)
+    }, [date, plantId])
+
     useEffect(() => {
         const e = existing?.data?.data
         if (e) {

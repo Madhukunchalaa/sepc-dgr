@@ -75,7 +75,7 @@ export default function PowerEntry() {
   })
   const meters = plantsData?.data?.data?.meters || []
 
-  const { data: existingData } = useQuery({
+  const { data: existingData, isFetching } = useQuery({
     queryKey: ['power-entry', plantId, date],
     queryFn: () => dataEntry.getPower(plantId, date),
     enabled: !!plantId && !!date,
@@ -108,18 +108,12 @@ export default function PowerEntry() {
   }, [date, plantId])
 
   useEffect(() => {
-    if (!existingData || existingData.isFetching) return
+    if (isFetching) return
     const entry = existingData?.data?.data
 
-    // Robust guard against stale cached responses: only apply if the returned row
-    // matches the currently selected date AND plant.
-    const rowDate = entry?.entry_date ? String(entry.entry_date).slice(0, 10) : null
-    const rowPlant = entry?.plant_id != null ? String(entry.plant_id) : null
-    if (rowDate && rowDate !== date) return
-    if (rowPlant && rowPlant !== String(plantId)) return
-
-    if (entry?.meter_readings) {
-      setReadings(entry.meter_readings)
+    if (entry) {
+      // meter_readings may be null for TAQA-submitted entries — that's expected
+      setReadings(entry.meter_readings || {})
       setExtras({
         freqMin: entry.freq_min ?? '',
         freqMax: entry.freq_max ?? '',
@@ -131,19 +125,23 @@ export default function PowerEntry() {
         outageRemarks: entry.outage_remarks ?? '',
         partialLoadingPct: entry.partial_loading_pct ?? '',
       })
-      setSavedComputed({
-        generationMU: entry.generation_mu,
-        exportMU: entry.export_mu,
-        importMU: entry.import_mu,
-        apcMU: entry.apc_mu,
-        apcPct: (entry.apc_pct || 0) * 100,
-        avgLoadMW: entry.avg_load_mw,
-        plfDaily: (entry.plf_daily || 0) * 100,
-        generationMTD: entry.generation_mtd,
-        generationYTD: entry.generation_ytd,
-        plfMTD: entry.plf_mtd ? entry.plf_mtd * 100 : null,
-        plfYTD: entry.plf_ytd ? entry.plf_ytd * 100 : null,
-      })
+      if (entry.generation_mu != null) {
+        setSavedComputed({
+          generationMU: entry.generation_mu,
+          exportMU: entry.export_mu,
+          importMU: entry.import_mu,
+          apcMU: entry.apc_mu,
+          apcPct: (entry.apc_pct || 0) * 100,
+          avgLoadMW: entry.avg_load_mw,
+          plfDaily: (entry.plf_daily || 0) * 100,
+          generationMTD: entry.generation_mtd,
+          generationYTD: entry.generation_ytd,
+          plfMTD: entry.plf_mtd ? entry.plf_mtd * 100 : null,
+          plfYTD: entry.plf_ytd ? entry.plf_ytd * 100 : null,
+        })
+      } else {
+        setSavedComputed(null)
+      }
     } else {
       setReadings({})
       setSavedComputed(null)
@@ -153,7 +151,7 @@ export default function PowerEntry() {
         rsdCount: 0, outageRemarks: '', partialLoadingPct: '',
       })
     }
-  }, [existingData, date, plantId])
+  }, [existingData, isFetching, date, plantId])
 
   const liveComputed = useMemo(() => {
     if (!meters.length) return null

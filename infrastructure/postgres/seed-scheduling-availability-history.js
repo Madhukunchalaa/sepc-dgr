@@ -34,7 +34,7 @@ function excelDateToISO(v) {
 }
 
 async function run() {
-  const filePath = path.join(__dirname, '../../DGR FY 2025-20261 - V1 (1).xlsx');
+  const filePath = path.join(__dirname, '../../_dev_scripts/excel_docs/DGR FY 2025-20261 - V1 (1).xlsx');
   console.log(`Reading ${filePath}...`);
 
   const wb = XLSX.readFile(filePath);

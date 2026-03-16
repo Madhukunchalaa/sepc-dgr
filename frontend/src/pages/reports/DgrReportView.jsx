@@ -43,7 +43,7 @@ function TableBox({ title, rows }) {
                                                     if (val == null || val === '') return '-';
                                                     if (typeof val === 'number') return val.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
                                                     if (typeof val === 'string') {
-                                                        const num = parseFloat(val);
+                                                        const num = Number(val);
                                                         if (!isNaN(num) && val.trim() !== '') {
                                                             return num.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
                                                         }

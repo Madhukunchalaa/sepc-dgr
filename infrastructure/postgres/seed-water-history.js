@@ -31,7 +31,7 @@ async function run() {
         console.log(`Using Plant ID: ${plantId}`);
 
         console.log('Loading Excel workbook (this may take a moment)...');
-        const wb = XLSX.readFile('C:\\Users\\IE-Admin\\Desktop\\dgr\\dgr-platform\\DGR FY 2025-20261 - V1 (1).xlsx');
+        const wb = XLSX.readFile('C:\\Users\\IE-Admin\\Desktop\\dgr\\dgr-platform\\_dev_scripts\\excel_docs\\DGR FY 2025-20261 - V1 (1).xlsx');
         const wsWater = wb.Sheets['Water'];
         const dataWater = XLSX.utils.sheet_to_json(wsWater, { header: 1, defval: null });
 

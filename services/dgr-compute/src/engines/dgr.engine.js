@@ -25,18 +25,39 @@ async function assembleDGR(plantId, targetDate) {
     // GHR = ((GCV_AF * Coal Cons) + ((LDO Cons + HFO Cons) * 10700)) / (Generation MU * 1000)
     const ghrDirect = genMu > 0 ? (((gcvAf * coalMt) + ((ldoKl + hfoKl) * 10700)) / (genMu * 1000)) : null;
 
+    // T-2 lookback for GHR and GCV (matches Excel DGR formula: VLOOKUP($D$4-2, Perf!...))
+    const t2Date = (() => {
+        const d = new Date(targetDate); d.setDate(d.getDate() - 2);
+        return d.toISOString().split('T')[0];
+    })();
+    const [perfT2, powerT2] = await Promise.all([getPerfData(plantId, t2Date), getPowerData(plantId, t2Date)]);
+    const gcvT2 = Number(perfT2?.gcv_af || perfT2?.gcv_ar || 0) || null;
+    const ghrT2 = perfT2?.ghr_direct ? Number(perfT2.ghr_direct) : 0;
+    const avgMwT2 = powerT2?.avg_load_mw != null ? Number(powerT2.avg_load_mw)
+                  : (powerT2?.generation_mu ? Number(powerT2.generation_mu) * 1000 / 24 : null);
+    const ghrRemarksT2 = perfT2?.ghr_remarks || null;
+    const t2Label = new Date(t2Date).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).replace(/ /g,'-');
+
+    // Computed daily fallbacks (when DB columns are null)
+    const exportMu = Number(power?.export_mu || 0);
+    const importMu = Number(power?.import_mu || 0);
+    const netExportDaily = exportMu - importMu;
+    const apcDaily = power?.apc_mu != null ? Number(power.apc_mu) : (genMu > 0 ? genMu - netExportDaily : null);
+    const avgLoadMw = power?.avg_load_mw != null ? Number(power.avg_load_mw) : (genMu > 0 ? genMu * 1000 / 24 : null);
+    const socDaily = fuel?.soc_ml_kwh != null ? Number(fuel.soc_ml_kwh) : (genMu > 0 ? ((ldoKl + hfoKl) * 1000) / (genMu * 1000) : null);
+    const sccDaily = fuel?.scc_kg_kwh != null ? Number(fuel.scc_kg_kwh) : (genMu > 0 ? coalMt / (genMu * 1000) : null);
+    const apcPctDaily = genMu > 0 && apcDaily != null ? (apcDaily / genMu) * 100 : null;
+
     const apcMtd = await getMTDSum(plantId, targetDate, 'apc_mu');
     const apcYtd = await getYTDSum(plantId, targetDate, 'apc_mu');
-    const genMtd = Number(power?.generation_mtd || (await getMTDSum(plantId, targetDate, 'generation_mu')));
-    const genYtd = Number(power?.generation_ytd || (await getYTDSum(plantId, targetDate, 'generation_mu')));
+    const genMtd = await getMTDSum(plantId, targetDate, 'generation_mu');
+    const genYtd = await getYTDSum(plantId, targetDate, 'generation_mu');
 
     const formatHours = (hrs) => {
         if (hrs == null) return null;
-        const mm = Math.round((hrs % 1) * 60);
         const h = Math.floor(hrs);
-        const d = Math.floor(h / 24);
-        const rem_h = h % 24;
-        return d > 0 ? (d + 'D ' + rem_h + ':' + String(mm).padStart(2, '0')) : (rem_h + ':' + String(mm).padStart(2, '0'));
+        const mm = Math.round((hrs % 1) * 60);
+        return h + ':' + String(mm).padStart(2, '0');
     };
 
     const getDcLossRemarks = () => {
@@ -76,32 +97,32 @@ async function assembleDGR(plantId, targetDate) {
             {
                 title: "1️⃣ POWER",
                 rows: [
-                    { sn: "1.1", particulars: "Power Generation", uom: "MU", daily: power?.generation_mu, mtd: power?.generation_mtd || await getMTDSum(plantId, targetDate, 'generation_mu'), ytd: power?.generation_ytd || await getYTDSum(plantId, targetDate, 'generation_mu') },
-                    { sn: "1.2", particulars: "Average Power Generation", uom: "MW", daily: power?.avg_load_mw, mtd: await getMTDAvg(plantId, targetDate, 'avg_load_mw'), ytd: await getYTDAvg(plantId, targetDate, 'avg_load_mw') },
+                    { sn: "1.1", particulars: "Power Generation", uom: "MU", daily: power?.generation_mu, mtd: await getMTDSum(plantId, targetDate, 'generation_mu'), ytd: await getYTDSum(plantId, targetDate, 'generation_mu') },
+                    { sn: "1.2", particulars: "Average Power Generation", uom: "MW", daily: avgLoadMw, mtd: await getMTDAvg(plantId, targetDate, 'avg_load_mw'), ytd: await getYTDAvg(plantId, targetDate, 'avg_load_mw') },
                     { sn: "1.3", particulars: "Total Export (GT)", uom: "MU", daily: power?.export_mu, mtd: await getMTDSum(plantId, targetDate, 'export_mu'), ytd: await getYTDSum(plantId, targetDate, 'export_mu') },
                     { sn: "1.4", particulars: "Total Import (GT)", uom: "MU", daily: power?.import_mu, mtd: await getMTDSum(plantId, targetDate, 'import_mu'), ytd: await getYTDSum(plantId, targetDate, 'import_mu') },
-                    { sn: "1.5", particulars: "Net Export (GT Export − GT Import)", uom: "MU", daily: (power?.export_mu != null && power?.import_mu != null) ? (power.export_mu - power.import_mu) : null, mtd: (await getMTDSum(plantId, targetDate, 'export_mu')) - (await getMTDSum(plantId, targetDate, 'import_mu')), ytd: (await getYTDSum(plantId, targetDate, 'export_mu')) - (await getYTDSum(plantId, targetDate, 'import_mu')) },
-                    { sn: "1.6", particulars: "Auxiliary Power Consumption (APC incl Import)", uom: "MU", daily: power?.apc_mu, mtd: apcMtd, ytd: apcYtd },
-                    { sn: "1.7", particulars: "APC %", uom: "%", daily: power?.apc_pct != null ? Number(power.apc_pct) * 100 : null, mtd: genMtd > 0 ? (apcMtd / genMtd) * 100 : 0, ytd: genYtd > 0 ? (apcYtd / genYtd) * 100 : 0 },
-                    { sn: "1.8", particulars: "Hours on Grid", uom: "D(s) HH:MM", daily: formatHours(power?.hours_on_grid), mtd: null, ytd: null },
+                    { sn: "1.5", particulars: "Net Export (GT Export − GT Import)", uom: "MU", daily: power?.export_mu != null ? netExportDaily : null, mtd: (await getMTDSum(plantId, targetDate, 'export_mu')) - (await getMTDSum(plantId, targetDate, 'import_mu')), ytd: (await getYTDSum(plantId, targetDate, 'export_mu')) - (await getYTDSum(plantId, targetDate, 'import_mu')) },
+                    { sn: "1.6", particulars: "Auxiliary Power Consumption (APC incl Import)", uom: "MU", daily: apcDaily, mtd: apcMtd, ytd: apcYtd },
+                    { sn: "1.7", particulars: "APC %", uom: "%", daily: apcPctDaily, mtd: genMtd > 0 ? (apcMtd / genMtd) * 100 : 0, ytd: genYtd > 0 ? (apcYtd / genYtd) * 100 : 0 },
+                    { sn: "1.8", particulars: "Hours on Grid", uom: "D(s) HH:MM", daily: formatHours(power?.hours_on_grid != null ? Number(power.hours_on_grid) * 24 : null), mtd: null, ytd: null },
                     { sn: "1.9", particulars: "Grid Frequency", uom: "Hz", daily: (power?.freq_min || power?.freq_max || power?.freq_avg) ? `Min - ${power.freq_min || 0} Hz / Max - ${power.freq_max || 0} Hz / Avg - ${power.freq_avg || 0} Hz` : null, mtd: null, ytd: null }
                 ]
             },
             {
                 title: "2️⃣ PERFORMANCE",
                 rows: [
-                    { sn: "2.1", particulars: "Plant Load Factor", uom: "%", daily: power?.plf_daily != null ? Number(power.plf_daily) * 100 : null, mtd: power?.plf_mtd != null ? Number(power.plf_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'plf_daily')) * 100, ytd: power?.plf_ytd != null ? Number(power.plf_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'plf_daily')) * 100 },
-                    { sn: "2.2", particulars: "Partial Loading", uom: "%", daily: power?.plf_daily != null && Number(power.plf_daily) > 0 ? Math.max(0, 1 - Number(power.plf_daily)) * 100 : null, mtd: (power?.plf_mtd != null || await getMTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_mtd != null ? Number(power.plf_mtd) : await getMTDAvg(plantId, targetDate, 'plf_daily'))) * 100 : null, ytd: (power?.plf_ytd != null || await getYTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (power?.plf_ytd != null ? Number(power.plf_ytd) : await getYTDAvg(plantId, targetDate, 'plf_daily'))) * 100 : null },
-                    { sn: "2.3", particulars: "Plant Availability Factor (SEPC)", uom: "%", daily: availability?.paf_pct != null ? Number(availability.paf_pct) * 100 : null, mtd: availability?.paf_mtd != null ? Number(availability.paf_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100, ytd: availability?.paf_ytd != null ? Number(availability.paf_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100 },
-                    { sn: "2.4", particulars: "Plant Availability Factor (TNPDCL)", uom: "%", daily: availability?.paf_tnpdcl != null ? Number(availability.paf_tnpdcl) * 100 : null, mtd: availability?.paf_tnpdcl_mtd != null ? Number(availability.paf_tnpdcl_mtd) * 100 : (await getMTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100, ytd: availability?.paf_tnpdcl_ytd != null ? Number(availability.paf_tnpdcl_ytd) * 100 : (await getYTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100 },
+                    { sn: "2.1", particulars: "Plant Load Factor", uom: "%", daily: power?.plf_daily != null ? Number(power.plf_daily) * 100 : null, mtd: (await getMTDAvg(plantId, targetDate, 'plf_daily')) * 100, ytd: (await getYTDAvg(plantId, targetDate, 'plf_daily')) * 100 },
+                    { sn: "2.2", particulars: "Partial Loading", uom: "%", daily: power?.plf_daily != null && Number(power.plf_daily) > 0 ? Math.max(0, 1 - Number(power.plf_daily)) * 100 : null, mtd: (await getMTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (await getMTDAvg(plantId, targetDate, 'plf_daily'))) * 100 : null, ytd: (await getYTDAvg(plantId, targetDate, 'plf_daily') > 0) ? Math.max(0, 1 - (await getYTDAvg(plantId, targetDate, 'plf_daily'))) * 100 : null },
+                    { sn: "2.3", particulars: "Plant Availability Factor (SEPC)", uom: "%", daily: availability?.paf_pct != null ? Number(availability.paf_pct) * 100 : null, mtd: (await getMTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100, ytd: (await getYTDAvg(plantId, targetDate, 'paf_pct', 'daily_availability')) * 100 },
+                    { sn: "2.4", particulars: "Plant Availability Factor (TNPDCL)", uom: "%", daily: availability?.paf_tnpdcl != null ? Number(availability.paf_tnpdcl) * 100 : null, mtd: (await getMTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100, ytd: (await getYTDAvg(plantId, targetDate, 'paf_tnpdcl', 'daily_availability')) * 100 },
                     { sn: "2.5", particulars: "Plant Outage – Forced", uom: "Count", daily: power?.forced_outages, mtd: await getMTDSum(plantId, targetDate, 'forced_outages'), ytd: await getYTDSum(plantId, targetDate, 'forced_outages') },
                     { sn: "2.6", particulars: "Plant Outage – Planned", uom: "Count", daily: power?.planned_outages, mtd: await getMTDSum(plantId, targetDate, 'planned_outages'), ytd: await getYTDSum(plantId, targetDate, 'planned_outages') },
                     { sn: "2.7", particulars: "Plant Outage – RSD", uom: "Count", daily: power?.rsd_count, mtd: await getMTDSum(plantId, targetDate, 'rsd_count'), ytd: await getYTDSum(plantId, targetDate, 'rsd_count') },
-                    { sn: "2.8", particulars: "Specific Oil Consumption", uom: "ml/kWh", daily: fuel?.soc_ml_kwh, mtd: socMtd, ytd: socYtd },
-                    { sn: "2.9", particulars: "Specific Coal Consumption", uom: "kg/kWh", daily: fuel?.scc_kg_kwh, mtd: sccMtd, ytd: sccYtd },
-                    { sn: "2.10", particulars: "GHR (As Fired)", uom: "kCal/kWh", daily: ghrDirect !== null ? Number(ghrDirect.toFixed(4)) : null, mtd: perf?.ghr_mtd, ytd: perf?.ghr_ytd },
-                    { sn: "2.11", particulars: "GHR Remarks", uom: "Text", daily: perf?.ghr_remarks, mtd: null, ytd: null },
-                    { sn: "2.12", particulars: "GCV (As Fired)", uom: "kCal/kg", daily: gcvAf, mtd: await getMTDAvg(plantId, targetDate, 'coal_gcv_af', 'daily_fuel'), ytd: await getYTDAvg(plantId, targetDate, 'coal_gcv_af', 'daily_fuel') },
+                    { sn: "2.8", particulars: "Specific Oil Consumption", uom: "ml/kWh", daily: socDaily, mtd: socMtd, ytd: socYtd },
+                    { sn: "2.9", particulars: "Specific Coal Consumption", uom: "kg/kWh", daily: sccDaily, mtd: sccMtd, ytd: sccYtd },
+                    { sn: "2.10", particulars: `GHR (As Fired) as on ${t2Label}`, uom: "kCal/kWh", daily: avgMwT2 != null ? `${ghrT2.toFixed(2)} / ${avgMwT2.toFixed(2)} MW` : null, mtd: null, ytd: null },
+                    { sn: "2.11", particulars: "GHR Remarks", uom: "Text", daily: ghrRemarksT2, mtd: null, ytd: null },
+                    { sn: "2.12", particulars: `GCV (As Fired) as on ${t2Label}`, uom: "kCal/kg", daily: gcvT2, mtd: null, ytd: null },
                 ]
             },
             {
@@ -163,7 +184,7 @@ async function assembleDGR(plantId, targetDate) {
                     { sn: "6.1", particulars: "IDCT Make Up (Sea Water)", uom: "m³", daily: water?.idct_makeup_m3, mtd: await getMTDSum(plantId, targetDate, 'idct_makeup_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'idct_makeup_m3', 'daily_water') },
                     { sn: "6.2", particulars: "SWI Flow", uom: "m³", daily: water?.swi_flow_m3, mtd: await getMTDSum(plantId, targetDate, 'swi_flow_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'swi_flow_m3', 'daily_water') },
                     { sn: "6.3", particulars: "Outfall (CT Blowdown & WTP Reject)", uom: "m³", daily: water?.outfall_m3, mtd: await getMTDSum(plantId, targetDate, 'outfall_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'outfall_m3', 'daily_water') },
-                    { sn: "6.4", particulars: "Specific Water Consumption", uom: "m³/MW", daily: genMu > 0 ? ((water?.dm_total_cons_m3 || 0) + (water?.service_water_m3 || 0) + (water?.potable_water_m3 || 0)) / genMu : null, mtd: null, ytd: null },
+                    { sn: "6.4", particulars: "Specific Water Consumption", uom: "m³/MW", daily: genMu > 0 ? ((Number(water?.swi_flow_m3 || 0) - Number(water?.outfall_m3 || 0)) / genMu / 1000) : null, mtd: genMu > 0 ? ((Number(await getMTDSum(plantId, targetDate, 'swi_flow_m3', 'daily_water')) - Number(await getMTDSum(plantId, targetDate, 'outfall_m3', 'daily_water'))) / Number(await getMTDSum(plantId, targetDate, 'generation_mu')) / 1000) : null, ytd: null },
                     { sn: "6.5", particulars: "DM Water Generation", uom: "m³", daily: water?.dm_generation_m3, mtd: await getMTDSum(plantId, targetDate, 'dm_generation_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'dm_generation_m3', 'daily_water') },
                     { sn: "6.6", particulars: "Filtered / Service Water Generation", uom: "m³", daily: water?.filtered_water_gen_m3, mtd: await getMTDSum(plantId, targetDate, 'filtered_water_gen_m3', 'daily_water'), ytd: await getYTDSum(plantId, targetDate, 'filtered_water_gen_m3', 'daily_water') },
                     { sn: "6.7", particulars: "DM Water Total / Usable Stock", uom: "m³", daily: water?.dm_stock_m3, mtd: null, ytd: null },

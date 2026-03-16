@@ -12,7 +12,7 @@ const pool = new Pool({
 });
 
 async function run() {
-    const filePath = 'TAQA MEIL Neyveli Daily Generation Report Master file 2025-26 R5.xlsx';
+    const filePath = 'C:\\Users\\IE-Admin\\Desktop\\dgr\\dgr-platform\\TAQA MEIL Neyveli Daily Generation Report Master file 2025-26 R5.xlsx';
     const wb = XLSX.readFile(filePath);
     const sheet = wb.Sheets['24 cal'];
     const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });

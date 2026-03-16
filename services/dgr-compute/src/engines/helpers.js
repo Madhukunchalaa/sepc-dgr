@@ -125,7 +125,7 @@ async function getMTDSum(plantId, date, col, table = 'daily_power') {
     const { rows } = await query(
         `SELECT SUM(${col}) AS val FROM ${table}
      WHERE plant_id=$1 AND DATE_TRUNC('month',entry_date)=DATE_TRUNC('month',$2::date)
-       AND entry_date<=$2::date AND status IN ('submitted','approved','locked')`,
+       AND entry_date<=$2::date AND status IN ('draft','submitted','approved','locked')`,
         [plantId, date]
     );
     return rows[0]?.val || 0;
@@ -136,7 +136,7 @@ async function getYTDSum(plantId, date, col, table = 'daily_power') {
     const { rows } = await query(
         `SELECT SUM(${col}) AS val FROM ${table}
      WHERE plant_id=$1 AND entry_date>=$2::date AND entry_date<=$3::date
-       AND status IN ('submitted','approved','locked')`,
+       AND status IN ('draft','submitted','approved','locked')`,
         [plantId, fyStart, date]
     );
     return rows[0]?.val || 0;
@@ -146,7 +146,7 @@ async function getMTDAvg(plantId, date, col, table = 'daily_power') {
     const { rows } = await query(
         `SELECT AVG(${col}) AS val FROM ${table}
      WHERE plant_id=$1 AND DATE_TRUNC('month',entry_date)=DATE_TRUNC('month',$2::date)
-       AND entry_date<=$2::date AND status IN ('submitted','approved','locked')`,
+       AND entry_date<=$2::date AND status IN ('draft','submitted','approved','locked')`,
         [plantId, date]
     );
     return rows[0]?.val || 0;
@@ -157,7 +157,7 @@ async function getYTDAvg(plantId, date, col, table = 'daily_power') {
     const { rows } = await query(
         `SELECT AVG(${col}) AS val FROM ${table}
      WHERE plant_id=$1 AND entry_date>=$2::date AND entry_date<=$3::date
-       AND status IN ('submitted','approved','locked')`,
+       AND status IN ('draft','submitted','approved','locked')`,
         [plantId, fyStart, date]
     );
     return rows[0]?.val || 0;

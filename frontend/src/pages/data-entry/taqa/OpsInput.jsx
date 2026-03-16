@@ -103,7 +103,7 @@ export default function OpsInput() {
             const d = new Date(v);
             if (isNaN(d)) return String(v).slice(0, 10);
             // Use local date methods so midnight IST stays as the correct day
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         };
         const rowDate = toLocalDate(row?.entry_date);
         const rowPlant = row?.plant_id != null ? String(row.plant_id) : null
@@ -122,6 +122,17 @@ export default function OpsInput() {
             }
         }
     }, [currentRes, isFetchingCurrent, isTaqa, date, plantId])
+
+    // Populate prevForm from previous day's data
+    useEffect(() => {
+        if (!isTaqa || isFetchingPrev) return
+        const row = prevRes?.data?.data ?? {}
+        if (row && Object.keys(row).length > 0) {
+            setPrevForm(cleanRowToForm(row))
+        } else {
+            setPrevForm({})
+        }
+    }, [prevRes, isFetchingPrev, isTaqa, prevDate])
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 

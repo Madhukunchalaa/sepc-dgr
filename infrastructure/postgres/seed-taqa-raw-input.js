@@ -11,7 +11,7 @@ const pool = new Pool({
 });
 
 async function run() {
-    const filePath = 'TAQA MEIL Neyveli Daily Generation Report Master file 2025-26 R5.xlsx';
+    const filePath = 'C:\\Users\\IE-Admin\\Desktop\\dgr\\dgr-platform\\TAQA MEIL Neyveli Daily Generation Report Master file 2025-26 R5.xlsx';
     const wb = XLSX.readFile(filePath);
 
     // Read Ops Input sheet
@@ -49,180 +49,180 @@ async function run() {
     // Based on the migration_taqa_input_table.sql comments
     const OPS_ROW_MAP = {
         // HFO Tanks (rows in Ops Input sheet, 0-indexed from data array)
-        2: 'hfo_t10_lvl_calc',      // SN1
-        3: 'hfo_t10_lvl_panel',     // SN2
-        4: 'hfo_t10_lvl_radar',     // SN3
-        5: 'hfo_t10_temp',          // SN4
-        6: 'hfo_t20_lvl_calc',      // SN5
-        7: 'hfo_t20_lvl_panel',     // SN6
-        8: 'hfo_t20_lvl_radar',     // SN7
-        9: 'hfo_t20_temp',          // SN8
-        10: 'hfo_receipt_mt',       // SN9
-        11: 'hfo_supply_int_rdg',   // SN10
-        12: 'hfo_return_int_rdg',   // SN11
+        1: 'hfo_t10_lvl_calc',      // SN1
+        2: 'hfo_t10_lvl_panel',     // SN2
+        3: 'hfo_t10_lvl_radar',     // SN3
+        4: 'hfo_t10_temp',          // SN4
+        5: 'hfo_t20_lvl_calc',      // SN5
+        6: 'hfo_t20_lvl_panel',     // SN6
+        7: 'hfo_t20_lvl_radar',     // SN7
+        8: 'hfo_t20_temp',          // SN8
+        9: 'hfo_receipt_mt',       // SN9
+        10: 'hfo_supply_int_rdg',   // SN10
+        11: 'hfo_return_int_rdg',   // SN11
         // HSD Tanks
-        13: 'hsd_t30_lvl',          // SN12
-        14: 'hsd_t30_receipt_kl',   // SN13
-        15: 'hsd_t40_lvl',          // SN14
-        16: 'hsd_t40_receipt_kl',   // SN15
+        12: 'hsd_t30_lvl',          // SN12
+        13: 'hsd_t30_receipt_kl',   // SN13
+        14: 'hsd_t40_lvl',          // SN14
+        15: 'hsd_t40_receipt_kl',   // SN15
         // Lignite
-        17: 'lignite_bc1_int_rdg',  // SN16
-        18: 'lignite_receipt_taqa_wb', // SN17
-        19: 'lignite_lifted_nlcil_wb', // SN18
-        20: 'lignite_vadallur_silo',   // SN19
-        21: 'lignite_conv_1a_int_rdg', // SN20
-        22: 'lignite_conv_1b_int_rdg', // SN21
-        23: 'lignite_direct_feed',     // SN22
-        24: 'lignite_bunker_lvl',      // SN23
-        25: 'fuel_master_250mw',       // SN24
-        26: 'fuel_master_170mw',       // SN25
+        16: 'lignite_bc1_int_rdg',  // SN16
+        17: 'lignite_receipt_taqa_wb', // SN17
+        18: 'lignite_lifted_nlcil_wb', // SN18
+        19: 'lignite_vadallur_silo',   // SN19
+        20: 'lignite_conv_1a_int_rdg', // SN20
+        21: 'lignite_conv_1b_int_rdg', // SN21
+        22: 'lignite_direct_feed',     // SN22
+        23: 'lignite_bunker_lvl',      // SN23
+        24: 'fuel_master_250mw',       // SN24
+        25: 'fuel_master_170mw',       // SN25
         // Meter Readings
-        27: 'peram_imp_main',       // SN26
-        28: 'peram_exp_main',       // SN27
-        29: 'peram_imp_check',      // SN28
-        30: 'peram_exp_check',      // SN29
-        31: 'deviak_imp_main',      // SN30
-        32: 'deviak_exp_main',      // SN31
-        33: 'deviak_imp_check',     // SN32
-        34: 'deviak_exp_check',     // SN33
-        35: 'cuddal_imp_main',     // SN34
-        36: 'cuddal_exp_main',     // SN35
-        37: 'cuddal_imp_check',    // SN36
-        38: 'cuddal_exp_check',    // SN37
-        39: 'nlc2_imp_main',       // SN38
-        40: 'nlc2_exp_main',       // SN39
-        41: 'nlc2_imp_check',      // SN40
-        42: 'nlc2_exp_check',      // SN41
-        43: 'net_import_sy',       // SN42
-        44: 'import_uat',          // SN43
-        45: 'net_export',          // SN44
-        46: 'schedule_gen_mldc',   // SN45
-        47: 'gen_main_meter',      // SN46
-        48: 'gen_check_meter',     // SN47
-        49: 'uat1_main_rdg',       // SN48
-        50: 'uat1_check_rdg',      // SN49
-        51: 'uat2_main_rdg',       // SN50
-        52: 'uat2_check_rdg',      // SN51
-        53: 'gt_bay_imp_rdg',      // SN52
-        54: 'gt_bay_exp_rdg',      // SN53
+        26: 'peram_imp_main',       // SN26
+        27: 'peram_exp_main',       // SN27
+        28: 'peram_imp_check',      // SN28
+        29: 'peram_exp_check',      // SN29
+        30: 'deviak_imp_main',      // SN30
+        31: 'deviak_exp_main',      // SN31
+        32: 'deviak_imp_check',     // SN32
+        33: 'deviak_exp_check',     // SN33
+        34: 'cuddal_imp_main',     // SN34
+        35: 'cuddal_exp_main',     // SN35
+        36: 'cuddal_imp_check',    // SN36
+        37: 'cuddal_exp_check',    // SN37
+        38: 'nlc2_imp_main',       // SN38
+        39: 'nlc2_exp_main',       // SN39
+        40: 'nlc2_imp_check',      // SN40
+        41: 'nlc2_exp_check',      // SN41
+        42: 'net_import_sy',       // SN42
+        43: 'import_uat',          // SN43
+        44: 'net_export',          // SN44
+        45: 'schedule_gen_mldc',   // SN45
+        46: 'gen_main_meter',      // SN46
+        47: 'gen_check_meter',     // SN47
+        48: 'uat1_main_rdg',       // SN48
+        49: 'uat1_check_rdg',      // SN49
+        50: 'uat2_main_rdg',       // SN50
+        51: 'uat2_check_rdg',      // SN51
+        52: 'gt_bay_exp_rdg',      // SN52 (Corrected label: index 52 is Export SN 52)
+        53: 'gt_bay_imp_rdg',      // SN53 (Corrected label: index 53 is Import SN 53)
         // Generation / Scheduling
-        55: 'declared_capacity_mwhr', // SN54
-        56: 'deemed_gen_mwhr',       // SN55
-        57: 'dispatch_demand_mwhr',  // SN56
+        54: 'declared_capacity_mwhr', // SN54
+        55: 'deemed_gen_mwhr',       // SN55
+        56: 'dispatch_demand_mwhr',  // SN56
         // Outages / Hours
-        58: 'no_unit_trips',         // SN57
-        59: 'no_unit_shutdown',      // SN58
-        60: 'dispatch_duration',     // SN59
-        61: 'load_backdown_duration', // SN60
-        62: 'unit_standby_hrs',      // SN61
-        63: 'scheduled_outage_hrs',  // SN62
-        64: 'forced_outage_hrs',     // SN63
-        65: 'derated_outage_hrs',    // SN64
-        66: 'total_hours',           // SN65
-        67: 'no_load_pickup_inst',   // SN66
-        68: 'no_load_backdown_inst', // SN67
+        57: 'no_unit_trips',         // SN57
+        58: 'no_unit_shutdown',      // SN58
+        59: 'dispatch_duration',     // SN59
+        60: 'load_backdown_duration', // SN60
+        61: 'unit_standby_hrs',      // SN61
+        62: 'scheduled_outage_hrs',  // SN62
+        63: 'forced_outage_hrs',     // SN63
+        64: 'derated_outage_hrs',    // SN64
+        65: 'total_hours',           // SN65
+        66: 'no_load_pickup_inst',   // SN66
+        67: 'no_load_backdown_inst', // SN67
         // DSM
-        69: 'dsm_charges',          // SN68
-        70: 'net_gain_loss',        // SN69
-        71: 'fuel_saved_loss',      // SN70
+        68: 'dsm_charges',          // SN68
+        69: 'net_gain_loss',        // SN69
+        70: 'fuel_saved_loss',      // SN70
         // Water Tank Levels - may start later
-        73: 'reservoir1_lvl',       // SN72
-        74: 'reservoir2_lvl',       // SN73
-        75: 'dm_storage_tank_lvl',  // SN74
-        76: 'potable_tank_lvl',     // SN75
-        77: 'reserve_condensate_lvl', // SN76
-        78: 'boiler_condensate_lvl',  // SN77
-        79: 'condensate_drain_lvl',   // SN78
+       72: 'reservoir1_lvl',       // SN72
+        73: 'reservoir2_lvl',       // SN73
+        74: 'dm_storage_tank_lvl',  // SN74
+        75: 'potable_tank_lvl',     // SN75
+        76: 'reserve_condensate_lvl', // SN76
+        77: 'boiler_condensate_lvl',  // SN77
+        78: 'condensate_drain_lvl',   // SN78
         // Water Integrators
-        80: 'dm_water_prod_m3',     // SN79
-        81: 'borewell_to_reservoir', // SN80
-        82: 'borewell_to_cw_forebay', // SN81
-        83: 'reservoir_to_cw_forebay', // SN82
-        84: 'cmb_to_cw_forebay',    // SN83
-        85: 'cw_blowdown',          // SN84
-        86: 'cw_blowdown_to_ahp',   // SN85
-        87: 'cw_blowdown_to_village', // SN86
-        88: 'service_water_flow',    // SN87
-        89: 'seal_water_supply',     // SN88
-        90: 'seal_water_return',     // SN89
-        91: 'raw_water_to_dm',       // SN90
-        92: 'potable_tank_makeup',   // SN91
-        93: 'dm_to_condenser',       // SN92
-        94: 'cst_to_main_unit',      // SN93
-        95: 'stp_inlet_flow',        // SN94
-        96: 'stp_treated_flow',      // SN95
-        97: 'firefighting_flow',     // SN96
-        98: 'village_water1',        // SN97
-        99: 'village_water2',        // SN98
-        100: 'ash_pond_overflow',    // SN99
+        79: 'dm_water_prod_m3',     // SN79
+        80: 'borewell_to_reservoir', // SN81 (Wait, SN80 is borewell_to_reservoir?)
+        81: 'borewell_to_cw_forebay', // SN81
+        82: 'reservoir_to_cw_forebay', // SN82
+        83: 'cmb_to_cw_forebay',    // SN83
+        84: 'cw_blowdown',          // SN84
+        85: 'cw_blowdown_to_ahp',   // SN85
+        86: 'cw_blowdown_to_village', // SN86
+        87: 'service_water_flow',    // SN87
+        88: 'seal_water_supply',     // SN88
+        89: 'seal_water_return',     // SN89
+        90: 'raw_water_to_dm',       // SN90
+        91: 'potable_tank_makeup',   // SN91
+        92: 'dm_to_condenser',       // SN92
+        93: 'cst_to_main_unit',      // SN93
+        94: 'stp_inlet_flow',        // SN94
+        95: 'stp_treated_flow',      // SN95
+        96: 'firefighting_flow',     // SN96
+        97: 'village_water1',        // SN97
+        98: 'village_water2',        // SN98
+        99: 'ash_pond_overflow',    // SN99
         // LHP / Mill Hours
-        101: 'lhp_conv_1a_hrs',      // SN100
-        102: 'lhp_conv_1b_hrs',      // SN101
-        103: 'lhp_autosampler_hrs',  // SN102
-        104: 'lhp_dss_pump1_hrs',    // SN103
-        105: 'lhp_dss_pump2_hrs',    // SN104
-        106: 'ff_hydrant_201_hrs',   // SN105
-        107: 'ff_spray_301_hrs',     // SN106
-        108: 'mill10_hrs',           // SN107
-        109: 'mill20_hrs',           // SN108
-        110: 'mill30_hrs',           // SN109
-        111: 'mill40_hrs',           // SN110
-        112: 'mill50_hrs',           // SN111
-        113: 'mill60_hrs',           // SN112
+        100: 'lhp_conv_1a_hrs',      // SN100
+        101: 'lhp_conv_1b_hrs',      // SN101
+        102: 'lhp_autosampler_hrs',  // SN102
+        103: 'lhp_dss_pump1_hrs',    // SN103
+        104: 'lhp_dss_pump2_hrs',    // SN104
+        105: 'ff_hydrant_201_hrs',   // SN105
+        106: 'ff_spray_301_hrs',     // SN106
+        107: 'mill10_hrs',           // SN107
+        108: 'mill20_hrs',           // SN108
+        109: 'mill30_hrs',           // SN109
+        110: 'mill40_hrs',           // SN110
+        111: 'mill50_hrs',           // SN111
+        112: 'mill60_hrs',           // SN112
         // Equipment kWh
-        114: 'bfp1_kwh',            // SN113
-        115: 'bfp2_kwh',            // SN114
-        116: 'bfp3_kwh',            // SN115
-        117: 'mcwp1_kwh',           // SN116
-        118: 'mcwp2_kwh',           // SN117
-        119: 'mcwp3_kwh',           // SN118
-        120: 'cep1_kwh',            // SN119
-        121: 'cep2_kwh',            // SN120
-        122: 'fdf1_kwh',            // SN121
-        123: 'fdf2_kwh',            // SN122
-        124: 'iac1_kwh',            // SN123
-        125: 'iac2_kwh',            // SN124
-        126: 'iac3_kwh',            // SN125
-        127: 'cac1_kwh',            // SN126
-        128: 'cac2_kwh',            // SN127
-        129: 'cac3_kwh',            // SN128
-        130: 'lhp_inc1_kwh',        // SN129
-        131: 'lhp_inc2_kwh',        // SN130
-        132: 'ff_spray_201_kwh',    // SN131
-        133: 'ff_hydrant_301_kwh',  // SN132
-        134: 'stp_kwh',             // SN133
+        113: 'bfp1_kwh',            // SN113
+        114: 'bfp2_kwh',            // SN114
+        115: 'bfp3_kwh',            // SN115
+        116: 'mcwp1_kwh',           // SN116
+        117: 'mcwp2_kwh',           // SN117
+        118: 'mcwp3_kwh',           // SN118
+        119: 'cep1_kwh',            // SN119
+        120: 'cep2_kwh',            // SN120
+        121: 'fdf1_kwh',            // SN121
+        122: 'fdf2_kwh',            // SN122
+        123: 'iac1_kwh',            // SN123
+        124: 'iac2_kwh',            // SN124
+        125: 'iac3_kwh',            // SN125
+        126: 'cac1_kwh',            // SN126
+        127: 'cac2_kwh',            // SN127
+        128: 'cac3_kwh',            // SN128
+        129: 'lhp_inc1_kwh',        // SN129
+        130: 'lhp_inc2_kwh',        // SN130
+        131: 'ff_spray_201_kwh',    // SN131
+        132: 'ff_hydrant_301_kwh',  // SN132
+        133: 'stp_kwh',             // SN133
         // Ash
-        135: 'ba_trucks_internal',  // SN134
-        136: 'ba_trucks_external',  // SN135
-        137: 'fa_silo_lvl_pct',     // SN136
-        138: 'fa_trucks',           // SN137
-        139: 'fa_to_ash_pond_mt',   // SN138
-        140: 'ahp_rot_feed1_hrs',   // SN139
-        141: 'ahp_rot_feed2_hrs',   // SN140
-        142: 'ash_tx_outage_hrs',   // SN141
+        134: 'ba_trucks_internal',  // SN134
+        135: 'ba_trucks_external',  // SN135
+        136: 'fa_silo_lvl_pct',     // SN136
+        137: 'fa_trucks',           // SN137
+        138: 'fa_to_ash_pond_mt',   // SN138
+        139: 'ahp_rot_feed1_hrs',   // SN139
+        140: 'ahp_rot_feed2_hrs',   // SN140
+        141: 'ash_tx_outage_hrs',   // SN141
         // Misc
-        143: 'h2_cylinders',        // SN142
-        144: 'o2_cylinders',        // SN143
-        145: 'ctcs_balls_collected', // SN144
-        146: 'ctcs_balls_added',    // SN145
-        147: 'small_iac_hrs',       // SN146
-        // 148 = day_highlights (text)
-        149: 'grid_freq_max',       // SN148
-        150: 'grid_freq_min',       // SN149
-        151: 'ambient_temp_max',    // SN150
-        152: 'ambient_temp_min',    // SN151
-        153: 'humidity_max',        // SN152
-        154: 'humidity_min',        // SN153
-        // 155 = grid_disturbance (text)
+        142: 'h2_cylinders',        // SN142
+        143: 'o2_cylinders',        // SN143
+        144: 'ctcs_balls_collected', // SN144
+        145: 'ctcs_balls_added',    // SN145
+        146: 'small_iac_hrs',       // SN146
+        // 147 = day_highlights (text)
+        148: 'grid_freq_max',       // SN148
+        149: 'grid_freq_min',       // SN149
+        150: 'ambient_temp_max',    // SN150
+        151: 'ambient_temp_min',    // SN151
+        152: 'humidity_max',        // SN152
+        153: 'humidity_min',        // SN153
+        // 154 = grid_disturbance (text)
     };
 
     // Chem Input rows
     const CHEM_ROW_MAP = {
-        2: 'chem_ash_sales_mt',    // CH1
-        3: 'chem_ash_pct',         // CH2
-        4: 'chem_gcv_nlcil',       // CH3
-        5: 'chem_ubc_bottom_ash',  // CH4
-        6: 'chem_ubc_fly_ash',     // CH5
+        1: 'chem_ash_sales_mt',    // CH1
+        2: 'chem_ash_pct',         // CH2
+        3: 'chem_gcv_nlcil',       // CH3
+        4: 'chem_ubc_bottom_ash',  // CH4
+        5: 'chem_ubc_fly_ash',     // CH5
     };
 
     // Find date row (first row typically has dates starting from column 3)
@@ -302,13 +302,13 @@ async function run() {
         }
 
         // Text fields
-        const dayHighlightsRow = opsData[148];
+        const dayHighlightsRow = opsData[147];
         if (dayHighlightsRow && dayHighlightsRow[c]) {
             fieldNames.push('day_highlights');
             values.push(String(dayHighlightsRow[c]));
         }
 
-        const gridDisturbRow = opsData[155];
+        const gridDisturbRow = opsData[154];
         if (gridDisturbRow && gridDisturbRow[c]) {
             fieldNames.push('grid_disturbance');
             values.push(String(gridDisturbRow[c]));

@@ -36,6 +36,13 @@ export default function SchedulingEntry() {
         retry: false,
     })
 
+    // Clear forms immediately when date or plant changes
+    useEffect(() => {
+        setSchedForm({})
+        setAvailForm({})
+        setMsg(null)
+    }, [date, plantId])
+
     // Sync state
     useEffect(() => {
         const s = schedData?.data?.data

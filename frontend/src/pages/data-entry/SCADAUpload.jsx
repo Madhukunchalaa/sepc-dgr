@@ -9,12 +9,12 @@ const today = new Date().toISOString().split('T')[0]
 export default function SCADAUpload() {
   const { selectedPlant } = usePlant()
   const plantId = selectedPlant?.id
-  const [date, setDate]       = useState(today)
-  const [file, setFile]       = useState(null)
+  const [date, setDate] = useState(today)
+  const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [dragover, setDragover] = useState(false)
-  const [msg, setMsg]         = useState(null)
-  const fileRef               = useRef()
+  const [msg, setMsg] = useState(null)
+  const fileRef = useRef()
 
   const uploadMutation = useMutation({
     mutationFn: (formData) => dataEntry.uploadSCADA(plantId, formData),
