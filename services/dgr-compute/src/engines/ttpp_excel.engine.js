@@ -5,8 +5,7 @@ const ExcelJS = require('exceljs');
 const { query } = require('../shared/db');
 
 const EXCEL_PATH = path.join(
-    __dirname, '../../../..',
-    '_dev_scripts', 'excel_docs',
+    __dirname, '../../data',
     'DGR FY 2025-20261 - V1 (1).xlsx'
 );
 

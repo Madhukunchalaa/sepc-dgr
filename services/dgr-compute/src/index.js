@@ -10,7 +10,7 @@ const { error, success } = require('./shared/response');
 const { query } = require('./shared/db');
 const { assembleDGR, assembleFleetSummary } = require('./engines/dgr.engine');
 const { assembleTaqaDGR } = require('./engines/taqa.engine');
-const { assembleTtppDGR } = require('./engines/ttpp.engine');
+const { assembleTtppExcelDGR } = require('./engines/ttpp_excel.engine');
 const { authenticate, requirePlantAccess } = require('./middleware/auth.middleware');
 
 // Temporary auto-migrate missing tables
@@ -145,7 +145,7 @@ app.get('/api/dgr/:plantId/:date', authenticate, requirePlantAccess, async (req,
     if (plant.short_name?.startsWith('TAQA')) {
       dgr = await assembleTaqaDGR(plant, date);
     } else if (plant.short_name === 'TTPP') {
-      dgr = await assembleTtppDGR(plant, date);
+      dgr = await assembleTtppExcelDGR(plant, date);
     } else {
       dgr = await assembleDGR(plantId, date);
     }
