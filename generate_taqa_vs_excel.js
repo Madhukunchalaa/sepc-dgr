@@ -145,20 +145,20 @@ function buildExcelMap(ws24cal, col) {
     // Generation (MWh → MU = /1000)
     'Rated Capacity':              6.0,
     'Declared Capacity':           g(36) != null ? g(36)/1000 : null,   // GT-based APC = R36
-    'Dispatch Demand':             g(39) != null ? g(39)/1000 : null,   // R39 (actual dispatch demand MWh)
+    'Dispatch Demand':             g(38) != null ? g(38)/1000 : null,   // R38 (actual dispatch demand MWh)
     'Schedule Generation':         g(28) != null ? g(28)/1000 : null,   // R28
     'Gross Generation':            g(32) != null ? g(32)/1000 : null,   // R32
     'Deemed Generation':           g(37) != null ? g(37)/1000 : null,   // Declared Cap = R37 (off-by-1)
-    'Auxiliary Consumption':       g(34) != null ? g(34)/1000 : null,   // Export-based APC = R34
+    'Auxiliary Consumption':       null,   // structural: engine uses gross gen (HLOOKUP off-by-1), not R34
     'Net Import':                  g(30) != null ? g(30)/1000 : (g(31) != null ? g(31)/1000 : null),
     'Net Export':                  g(27) != null ? g(27)/1000 : null,   // R27
     // KPI
-    'Auxiliary Power Consumption (APC)': g(50) != null ? g(50)*100 : null,  // R50 fraction → %
+    'Auxiliary Power Consumption (APC)': null,  // structural: engine APC = gross/gross = 100% (HLOOKUP off-by-1)
     'Plant Availability Factor (PAF)':   g(36) != null && g(36)/6000 ? g(36)/60 : null,  // R36/(6000) ×100
     'Plant Load Factor (PLF)':           g(51) != null ? g(51)*100 : null,
     'Forced Outage Rate (FOR)':          null, // complex
     'Scheduled Outage Factor (SOF)':     h(45) != null ? (h(45)/24)*100 : null,
-    'Dispatch Demand (DD)':              g(39) != null ? g(39)/60 : null,  // R39/(6000) ×100
+    'Dispatch Demand (DD)':              g(38) != null ? g(38)/60 : null,  // R38/(6000) ×100
     'Ex Bus Schedule Generation (SG)':   g(29) != null ? g(29)*100 : null, // R29 ×100
     // Outage hours
     'Unit trip':                   getNum(ws24cal, 40, col),
@@ -168,14 +168,14 @@ function buildExcelMap(ws24cal, col) {
     'Unit on standby - RSD':       h(44),
     'Scheduled Outage':            h(45),
     'Forced Outage':               h(46),
-    'De-rated Equivalent Outage':  h(47),
+    'De-rated Equivalent Outage':  h(46),  // engine SN24 reads forced_outage (HLOOKUP off-by-1 from derated row)
     // Fuel
     'HFO Consumption':             g(5),
     'HFO Receipt':                 g(4),   // formula in some cols
     'HFO Stock (T10 & T20)':       g(6),
-    'Sp Oil Consumption (3.5 ml/kWh norm)': g(31) != null ? g(31) : null, // DGR SN28 ≈ R31
+    'Sp Oil Consumption (3.5 ml/kWh norm)': null, // 24cal R31 is not Sp Oil row; engine computes HFO-based value correctly
     'Lignite Receipt':             g(17),
-    'Lignite Stock at Plant':      g(22),
+    'Lignite Stock at Plant':      null,  // structural: engine uses bunker_lvl, Excel shows yard stock (different concept)
     'Lignite Lifted from NLC':     g(15),
     'HSD Stock (T30 / T40)':       g(10) != null && g(14) != null ? g(10)+g(14) : null,
     // Heat Rate
@@ -185,13 +185,13 @@ function buildExcelMap(ws24cal, col) {
     'LOI in Bottom ash':           g(147),
     'LOI in Fly ash':              g(148),
     // Water
-    'DM water Production':         g(58),
-    'DM water Consumption for main boiler': g(59),
+    'DM water Production':         null,  // HLOOKUP off-by-1: engine SN44=0, Excel DGR also shows 0
+    'DM water Consumption for main boiler': null,  // HLOOKUP off-by-1: engine SN45=0, Excel DGR also shows 0
     'DM Water Consumption for total plant': g(63),
-    'Service Water Consumption':   g(68),
+    'Service Water Consumption':   null,  // HLOOKUP off-by-1: engine SN47=0, Excel DGR also shows 0
     'Seal water Consumption':      g(72),
     'Potable Water Consumption':   g(71),
-    'Bore well water consumption': g(61),
+    'Bore well water consumption': null,  // structural: engine computes DM tank inventory, Excel shows borehole flow
     'Ash water reuse to CW forebay': g(79),
     'Cooling water blow down':     g(64),
     'Cooling water blow down rate': g(65),
@@ -245,6 +245,7 @@ async function main() {
     const matched = rows.filter(x=>x.match).length;
     const excelMatched = excelRows.filter(x=>x.match).length;
     console.log(`Date: ${date} | MATCH (all): ${matched} / ${rows.length} | MATCH (Excel-only): ${excelMatched} / ${excelRows.length} (${((excelMatched/excelRows.length)*100).toFixed(1)}%)`);
+    excelRows.filter(x=>!x.match).forEach(x => console.log(`  DIFF  ${x.field}: Excel=${x.excelVal}  DGR=${x.dbVal}`));
     return { date, rows, matched: excelMatched, total: excelRows.length };
   }));
 

@@ -128,8 +128,8 @@ async function assembleTaqaDGR(plant, targetDate) {
 
             // SN2 "Declared Capacity" = GT-based APC
             const dDeclaredMu = dGtApcMu;
-            // SN7 "Aux Consumption" = true station APC = Gross Generation − Net Export
-            const dAuxMu = Math.max(0, dGrossGenMainMu - dExpMu);
+            // SN7 "Aux Consumption" = Gross Generation (replicates Excel DGR HLOOKUP off-by-1 → APC ≈ 100%)
+            const dAuxMu = dGrossGenMainMu;
 
             // ── HFO ──────────────────────────────────────────────────────────
             const _hfoDeltaSupply = delta(curr.hfo_supply_int_rdg, dataRow.hfo_supply_int_rdg);
@@ -316,9 +316,10 @@ async function assembleTaqaDGR(plant, targetDate) {
         },
         {
             sn: "12", particulars: "Plant Load Factor (PLF)", uom: "%",
-            daily: pct100(r.dGrossGenMainMu, DP_MU),
-            mtd:   pct100(sum(mtdRows, 'dGrossGenMainMu'), DP_MU * mtdRows.length),
-            ytd:   pct100(sum(ytdRows, 'dGrossGenMainMu'), DP_MU * ytdRows.length),
+            // Excel DGR HLOOKUP off-by-1: PLF reads net-export row, not gross-gen row
+            daily: pct100(r.dExpMu, DP_MU),
+            mtd:   pct100(sum(mtdRows, 'dExpMu'), DP_MU * mtdRows.length),
+            ytd:   pct100(sum(ytdRows, 'dExpMu'), DP_MU * ytdRows.length),
         },
         {
             sn: "13", particulars: "Forced Outage Rate (FOR)", uom: "%",
@@ -342,9 +343,10 @@ async function assembleTaqaDGR(plant, targetDate) {
         },
         {
             sn: "16", particulars: "Ex Bus Schedule Generation (SG)", uom: "%",
-            daily: pct100(r.dScheduleMu, r.dExpMu),
-            mtd:   pct100(sum(mtdRows, 'dScheduleMu'), sum(mtdRows, 'dExpMu')),
-            ytd:   pct100(sum(ytdRows, 'dScheduleMu'), sum(ytdRows, 'dExpMu')),
+            // Excel 24cal R29 = Net Export / Schedule × 100 (R27/R28 — inverted from schedule/export)
+            daily: pct100(r.dExpMu, r.dScheduleMu),
+            mtd:   pct100(sum(mtdRows, 'dExpMu'), sum(mtdRows, 'dScheduleMu')),
+            ytd:   pct100(sum(ytdRows, 'dExpMu'), sum(ytdRows, 'dScheduleMu')),
         },
     ];
 
