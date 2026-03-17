@@ -624,8 +624,7 @@ async function assembleTaqaDGR(plant, targetDate) {
         { sn: "76", particulars: "Grid Frequency (Max / Min)", uom: "Hz",
           daily: `${N(r.grid_freq_max)} / ${N(r.grid_freq_min)}`, mtd: null, ytd: null },
         { sn: "77", particulars: "Ambient Temperature (Max / Min)", uom: "°C",
-          // HLOOKUP off-by-1: Excel SN77 reads grid_freq_min row for Max value
-          daily: `${N(r.grid_freq_min)} / ${N(r.ambient_temp_min)}`, mtd: null, ytd: null },
+          daily: `${N(r.ambient_temp_max)} / ${N(r.ambient_temp_min)}`, mtd: null, ytd: null },
         { sn: "78", particulars: "Relative Humidity (Max / Min)", uom: "%",
           daily: `${N(r.humidity_max)} / ${N(r.humidity_min)}`, mtd: null, ytd: null },
         { sn: "79", particulars: "Day Highlights", uom: "text",

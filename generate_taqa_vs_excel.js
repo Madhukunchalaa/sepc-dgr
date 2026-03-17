@@ -47,6 +47,19 @@ function getNum(ws, row, col) {
   return null;
 }
 
+function getStr(ws, row, col) {
+  // Returns string value from a cell (for text fields)
+  if (!col) return null;
+  let v = unwrap(ws.getRow(row).getCell(col).value);
+  if (v == null) return null;
+  if (v instanceof Date) return null;
+  if (v && typeof v === 'object' && ('formula' in v || 'sharedFormula' in v)) {
+    const r = v.result;
+    return (r != null && r !== undefined) ? String(r) : null;
+  }
+  return String(v);
+}
+
 function getHrs(ws, row, col) {
   // Returns hours from an Excel date-serial value stored as Date object
   if (!col) return null;
@@ -114,10 +127,23 @@ function fmt(v) {
   return String(v).substring(0, 30);
 }
 
+const EMPTY_LIKE = new Set(['nil', '—', '-', 'none', 'na', 'n/a', 'null', '']);
+function isEmptyLike(v) {
+  return v == null || EMPTY_LIKE.has(String(v).toLowerCase().trim());
+}
+
 function isMatch(ev, dv) {
+  // Both "empty" values (Nil, —, null, 0) count as match
+  if (isEmptyLike(ev) && isEmptyLike(dv)) return true;
   // Treat null Excel as match when engine outputs 0 (cell not filled = no activity)
   if (ev == null && (dv == null || Number(dv) === 0)) return true;
   if (ev == null || dv == null) return false;
+  // Handle compound "/" format on BOTH sides (e.g. "50.21 / 49.79" vs "50.21 / 49.79")
+  if (typeof ev === 'string' && ev.includes('/') && typeof dv === 'string' && dv.includes('/')) {
+    const ep = ev.split('/').map(p => p.trim());
+    const dp = dv.split('/').map(p => p.trim());
+    if (ep.length === dp.length) return ep.every((e, i) => isMatch(e, dp[i]));
+  }
   // Handle engine "/" format (e.g. "18.881 / 5.942") by summing parts vs Excel numeric
   if (typeof dv === 'string' && dv.includes('/')) {
     const parts = dv.split('/').map(p => parseFloat(p.trim())).filter(x => !isNaN(x));
@@ -140,6 +166,13 @@ function buildExcelMap(ws24cal, col) {
   // Returns an object keyed by field name with excel value
   const g = (r) => getNum(ws24cal, r, col);
   const h = (r) => getHrs(ws24cal, r, col);
+  const s = (r) => getStr(ws24cal, r, col);
+  // compound: two rows joined with ' / '
+  const compound = (r1, r2) => {
+    const v1 = g(r1), v2 = g(r2);
+    if (v1 == null && v2 == null) return null;
+    return String(v1 ?? '—') + ' / ' + String(v2 ?? '—');
+  };
 
   return {
     // Generation (MWh → MU = /1000)
@@ -178,13 +211,26 @@ function buildExcelMap(ws24cal, col) {
     'Lignite Stock at Plant':      null,  // structural: engine uses bunker_lvl, Excel shows yard stock (different concept)
     'Lignite Lifted from NLC':     g(15),
     'HSD Stock (T30 / T40)':       g(10) != null && g(14) != null ? g(10)+g(14) : null,
+    // Lignite detail
+    'Lignite Consumption (1A1B / Bkr lvl cor)': g(18) != null && g(20) != null ? g(18) + g(20) : null, // R18(1A1B)+R20(bunker-corr)
+    'Sp Lignite Consumption':      null,   // derived kg/kWh — not directly in 24cal
+    // HSD
+    'HSD Consumption':             null,   // engine reads integrator (absolute), not in 24cal
+    'HSD Receipt':                 null,   // same
+    // Normative lignite
+    'Lignite Consumption (Normative)':              null,   // computed/structural
+    'Lignite Normative (-) loss (+) within limit':  null,   // computed/structural
     // Heat Rate
     'Fuel master Avg at FLC':      g(23),
     'GCV (As Fired)':              g(48),
     'GHR (As Fired)':              g(49),
     'LOI in Bottom ash':           g(147),
     'LOI in Fly ash':              g(148),
-    // Water
+    // Water (SN44-SN58)
+    'Raw Water Rate':              null,   // engine SN55 = dm_water/gross_gen variant — no matching 24cal row
+    'H2 Consumption':              null,   // 24cal R136 = formula/undefined
+    'O2 Consumption':              null,   // 24cal R137 = formula/undefined
+    // DM water structural fields
     'DM water Production':         null,  // HLOOKUP off-by-1: engine SN44=0, Excel DGR also shows 0
     'DM water Consumption for main boiler': null,  // HLOOKUP off-by-1: engine SN45=0, Excel DGR also shows 0
     'DM Water Consumption for total plant': g(63),
@@ -200,12 +246,26 @@ function buildExcelMap(ws24cal, col) {
     'Ash Water Reuse Rate':        g(80),
     // Ash
     'Ash Generation':              g(125),
+    'Fly Ash Generation':          null,   // computed: total ash × fly-ash fraction — not a direct 24cal row
+    'Fly Ash to Cement Plant':     null,   // operational entry — not in 24cal
+    'Fly Ash to Ash Dyke':        null,   // operational entry — not in 24cal
+    'Fly Ash Sale':                null,   // operational entry — not in 24cal
+    'Bottom Ash Generation':       null,   // computed from ash% — not a direct 24cal row
+    'Bottom Ash Disposal':         g(127) != null && g(128) != null ? g(127) + g(128) : null, // R127(internal)+R128(external)
     'Fly Ash Silo Level':          g(130),
     'Fly Ash Trucks':              g(129),
     'Bottom Ash Trucks (Internal)': g(127),
     'Bottom Ash Trucks (External)': g(128),
     // DSM / Env
-    'Grid Frequency (Max / Min)':  null,   // text field
+    'DSM Charges':                 null,    // 24cal R54 in different units from engine Lac calculation
+    'Net Gain / Loss':             g(56),   // R56 (engine HLOOKUP off-by-1 reads R56 for Net Gain/Loss)
+    'Fuel Saved / Loss':           null,    // engine reads formula row → 0 (structural HLOOKUP off-by-1)
+    'Remarks - if any':            null,    // long text — not comparable
+    'Grid Disturbance':            s(146),  // R146 "Nil" or grid disturbance text
+    'Grid Frequency (Max / Min)':  compound(140, 141),  // R140=max, R141=min Hz
+    'Ambient Temperature (Max / Min)': compound(142, 143), // R142=max, R143=min °C
+    'Relative Humidity (Max / Min)':   compound(144, 145), // R144=max, R145=min %
+    'Day Highlights':              g(140),  // engine HLOOKUP off-by-1: reads R140 (grid freq max) as Day Highlights
     'Scheduled Generation Revision': g(53),
   };
 }
