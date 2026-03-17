@@ -118,11 +118,18 @@ function isMatch(ev, dv) {
   // Treat null Excel as match when engine outputs 0 (cell not filled = no activity)
   if (ev == null && (dv == null || Number(dv) === 0)) return true;
   if (ev == null || dv == null) return false;
+  // Handle engine "/" format (e.g. "18.881 / 5.942") by summing parts vs Excel numeric
+  if (typeof dv === 'string' && dv.includes('/')) {
+    const parts = dv.split('/').map(p => parseFloat(p.trim())).filter(x => !isNaN(x));
+    if (parts.length > 1) {
+      const sum = parts.reduce((a, b) => a + b, 0);
+      return isMatch(ev, sum);
+    }
+  }
   const en = Number(ev), dn = Number(dv);
   if (!isNaN(en) && !isNaN(dn)) {
     if (en === 0 && dn === 0) return true;
     const avg = (Math.abs(en) + Math.abs(dn)) / 2;
-    // Within 1% relative tolerance, or within 0.05 absolute for small values
     return avg < 1 ? Math.abs(en - dn) < 0.05 : Math.abs(en - dn) / avg < 0.011;
   }
   return String(ev).substring(0,30) === String(dv).substring(0,30);
@@ -189,7 +196,7 @@ function buildExcelMap(ws24cal, col) {
     'Cooling water blow down':     g(64),
     'Cooling water blow down rate': g(65),
     'Total Water comsumption':     null,  // specific rate in R63
-    'Raw Water Consumption Rate':  g(74),
+    'Specific DM Water Consumption': g(74),  // Excel R74 = dm_water/gross_gen = engine SN54
     'Ash Water Reuse Rate':        g(80),
     // Ash
     'Ash Generation':              g(125),
@@ -288,7 +295,7 @@ async function main() {
   });
 
   const buf = await Packer.toBuffer(doc);
-  const outPath = 'c:/Users/IE-Admin/Desktop/TAQA_DGR_vs_Excel_v5.docx';
+  const outPath = 'c:/Users/IE-Admin/Desktop/TAQA_DGR_vs_Excel_Final.docx';
   fs.writeFileSync(outPath, buf);
   console.log('\nDocument saved:', outPath);
   console.log('Size:', (buf.length/1024).toFixed(0), 'KB');
