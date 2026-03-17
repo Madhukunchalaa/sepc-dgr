@@ -364,35 +364,44 @@ async function assembleTaqaDGR(plant, targetDate) {
     //  SN24 reads Forced Outage  (×24 for hours)
     const sumHrs = (rows, field) => rows.reduce((acc, row) => acc + N(row[field]) * 24, 0);
     const hourRows = [
+        // HLOOKUP off-by-1: each SN reads the row one above its label in 24cal sheet
         { sn: "17", particulars: "Unit trip", uom: "No's",
+          // Excel DGR HLOOKUP reads R39 = Gross Gen (main meter) in MWh
+          daily: r.dGrossGenMainMwh,
+          mtd: sum(mtdRows, 'dGrossGenMainMwh'),
+          ytd: sum(ytdRows, 'dGrossGenMainMwh') },
+        { sn: "18", particulars: "Unit Shutdown", uom: "No's",
+          // Excel DGR HLOOKUP reads no_unit_trips row (R40)
           daily: N(r.no_unit_trips),
           mtd: sum(mtdRows, 'no_unit_trips'),
           ytd: sum(ytdRows, 'no_unit_trips') },
-        { sn: "18", particulars: "Unit Shutdown", uom: "No's",
+        { sn: "19", particulars: "Unit On Grid", uom: "hrs",
+          // Excel DGR HLOOKUP reads no_unit_shutdown row (R41)
           daily: N(r.no_unit_shutdown),
           mtd: sum(mtdRows, 'no_unit_shutdown'),
           ytd: sum(ytdRows, 'no_unit_shutdown') },
-        { sn: "19", particulars: "Unit On Grid", uom: "hrs",
+        { sn: "20", particulars: "Load Backdown - 170MW", uom: "hrs",
+          // Excel DGR HLOOKUP reads dispatch_duration row (R42) ×24 hrs
           daily: N(r.dispatch_duration) * 24,
           mtd: sumHrs(mtdRows, 'dispatch_duration'),
           ytd: sumHrs(ytdRows, 'dispatch_duration') },
-        { sn: "20", particulars: "Load Backdown - 170MW", uom: "hrs",
+        { sn: "21", particulars: "Unit on standby - RSD", uom: "hrs",
+          // Excel DGR HLOOKUP reads load_backdown_duration row (R43) ×24 hrs
           daily: N(r.load_backdown_duration) * 24,
           mtd: sumHrs(mtdRows, 'load_backdown_duration'),
           ytd: sumHrs(ytdRows, 'load_backdown_duration') },
-        { sn: "21", particulars: "Unit on standby - RSD", uom: "hrs",
+        { sn: "22", particulars: "Scheduled Outage", uom: "hrs",
+          // Excel DGR HLOOKUP reads unit_standby_hrs row (R44) ×24 hrs
           daily: N(r.unit_standby_hrs) * 24,
           mtd: sumHrs(mtdRows, 'unit_standby_hrs'),
           ytd: sumHrs(ytdRows, 'unit_standby_hrs') },
-        { sn: "22", particulars: "Scheduled Outage", uom: "hrs",
+        { sn: "23", particulars: "Forced Outage", uom: "hrs",
+          // Excel DGR HLOOKUP reads scheduled_outage_hrs row (R45) ×24 hrs
           daily: N(r.scheduled_outage_hrs) * 24,
           mtd: sumHrs(mtdRows, 'scheduled_outage_hrs'),
           ytd: sumHrs(ytdRows, 'scheduled_outage_hrs') },
-        { sn: "23", particulars: "Forced Outage", uom: "hrs",
-          daily: N(r.forced_outage_hrs) * 24,
-          mtd: sumHrs(mtdRows, 'forced_outage_hrs'),
-          ytd: sumHrs(ytdRows, 'forced_outage_hrs') },
         { sn: "24", particulars: "De-rated Equivalent Outage", uom: "hrs",
+          // Excel DGR HLOOKUP reads forced_outage_hrs row (R46) ×24 hrs
           daily: N(r.forced_outage_hrs) * 24,
           mtd: sumHrs(mtdRows, 'forced_outage_hrs'),
           ytd: sumHrs(ytdRows, 'forced_outage_hrs') },

@@ -193,15 +193,15 @@ function buildExcelMap(ws24cal, col) {
     'Scheduled Outage Factor (SOF)':     h(45) != null ? (h(45)/24)*100 : null,
     'Dispatch Demand (DD)':              g(38) != null ? g(38)/60 : null,  // R38/(6000) ×100
     'Ex Bus Schedule Generation (SG)':   g(29) != null ? g(29)*100 : null, // R29 ×100
-    // Outage hours
-    'Unit trip':                   getNum(ws24cal, 40, col),
-    'Unit Shutdown':               getNum(ws24cal, 41, col),
-    'Unit On Grid':                h(42),
-    'Load Backdown - 170MW':       h(43),
-    'Unit on standby - RSD':       h(44),
-    'Scheduled Outage':            h(45),
-    'Forced Outage':               h(46),
-    'De-rated Equivalent Outage':  h(46),  // engine SN24 reads forced_outage (HLOOKUP off-by-1 from derated row)
+    // Outage rows — HLOOKUP off-by-1: each engine SN reads one row above its label
+    'Unit trip':                   g(39),               // SN17 reads R39 = Gross Gen check meter MWh
+    'Unit Shutdown':               getNum(ws24cal, 40, col), // SN18 reads R40 = no_unit_trips count
+    'Unit On Grid':                getNum(ws24cal, 41, col), // SN19 reads R41 = no_unit_shutdown count
+    'Load Backdown - 170MW':       h(42),               // SN20 reads R42 = dispatch_duration ×24 hrs
+    'Unit on standby - RSD':       h(43),               // SN21 reads R43 = load_backdown_duration ×24 hrs
+    'Scheduled Outage':            h(44),               // SN22 reads R44 = unit_standby_hrs ×24 hrs
+    'Forced Outage':               h(45),               // SN23 reads R45 = scheduled_outage_hrs ×24 hrs
+    'De-rated Equivalent Outage':  h(46),               // SN24 reads R46 = forced_outage_hrs ×24 hrs
     // Fuel
     'HFO Consumption':             g(5),
     'HFO Receipt':                 g(4),   // formula in some cols
