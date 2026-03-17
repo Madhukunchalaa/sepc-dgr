@@ -1,0 +1,297 @@
+/**
+ * generate_taqa_vs_excel.js
+ * Compares TAQA DB engine output vs Excel 24 cal sheet values for 3 audit dates.
+ * Generates TAQA_DGR_Validation_vs_Excel.docx on Desktop.
+ */
+process.env.DATABASE_URL = 'postgresql://postgres:PbMsdsxhFwcPpdoscBrbYEkgDPQjbTLW@interchange.proxy.rlwy.net:47169/railway';
+process.env.SERVICE_NAME = 'dgr-compute';
+
+const path = require('path');
+const ExcelJS = require('exceljs');
+const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun,
+        HeadingLevel, AlignmentType, WidthType, ShadingType, BorderStyle } = require('docx');
+const fs = require('fs');
+
+const { assembleTaqaDGR } = require('./services/dgr-compute/src/engines/taqa.engine');
+
+const EXCEL_PATH = path.join(__dirname, 'TAQA MEIL Neyveli Daily Generation Report Master file 2025-26 R5.xlsx');
+const taqa  = { id: '8a12b4c5-6d7e-8f90-1a2b-3c4d5e6f7a8b', short_name: 'TAQA', name: 'TAQA MEIL Neyveli' };
+const dates = ['2026-01-21', '2025-12-05', '2025-08-19'];
+
+// ── Excel helpers ──────────────────────────────────────────────────────────────
+function unwrap(v) { return (v && typeof v === 'object' && 'result' in v) ? v.result : v; }
+
+function buildColIndex(ws) {
+  // Row 1 has dates in columns → map dateStr → colNum
+  const idx = new Map();
+  const r1 = ws.getRow(1);
+  for (let c = 1; c <= ws.columnCount; c++) {
+    let v = unwrap(r1.getCell(c).value);
+    if (v instanceof Date) {
+      const ds = v.toISOString().split('T')[0];
+      idx.set(ds, c);
+    }
+  }
+  return idx;
+}
+
+function getNum(ws, row, col) {
+  if (!col) return null;
+  let v = unwrap(ws.getRow(row).getCell(col).value);
+  if (v == null) return null;
+  if (v instanceof Date) return null;                // time-serial — handled separately
+  if (v && typeof v === 'object' && 'formula' in v) return null;  // unevaluated formula
+  if (v && typeof v === 'object' && 'sharedFormula' in v) return null;
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') { const n = parseFloat(v); return isNaN(n) ? null : n; }
+  return null;
+}
+
+function getHrs(ws, row, col) {
+  // Returns hours from an Excel date-serial value stored as Date object
+  if (!col) return null;
+  let v = unwrap(ws.getRow(row).getCell(col).value);
+  if (v == null) return null;
+  if (v instanceof Date) {
+    const ms = v.getTime();
+    const excelSerial = ms / 86400000 + 25569;  // days since 1899-12-30
+    return excelSerial * 24;
+  }
+  if (typeof v === 'number') return v * 24;
+  return null;
+}
+
+function getStr(ws, row, col) {
+  if (!col) return null;
+  let v = unwrap(ws.getRow(row).getCell(col).value);
+  if (v == null) return null;
+  if (v && typeof v === 'object' && 'richText' in v) return v.richText.map(x=>x.text).join('').trim();
+  if (v && typeof v === 'object' && 'formula' in v) return null;
+  if (v && typeof v === 'object' && 'sharedFormula' in v) return null;
+  return String(v).trim() || null;
+}
+
+// ── Style constants ────────────────────────────────────────────────────────────
+const C = {
+  DARK_BLUE: '1F3864', HEADER_BLUE: '2E75B6', WHITE: 'FFFFFF',
+  LGRAY: 'F5F5F5', GREEN_BG: 'E2EFDA', GREEN_TXT: '375623',
+  AMBER_BG: 'FFF2CC', RED_TXT: 'C00000',
+};
+const thinBorder = { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' };
+const cb = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+
+function mkCell(text, opts = {}) {
+  const { bold=false, bg=C.WHITE, color='000000', width=null, align=AlignmentType.LEFT, fontSize=17 } = opts;
+  return new TableCell({
+    shading: { fill: bg, type: ShadingType.CLEAR, color: 'auto' },
+    borders: cb,
+    width: width ? { size: width, type: WidthType.DXA } : undefined,
+    margins: { top: 60, bottom: 60, left: 100, right: 100 },
+    children: [new Paragraph({ alignment: align, children: [
+      new TextRun({ text: String(text ?? '—'), bold, color, size: fontSize, font: 'Calibri' })
+    ]})]
+  });
+}
+function hdrRow(cols, widths) {
+  return new TableRow({ tableHeader: true, children: cols.map((c,i) =>
+    mkCell(c, { bold:true, bg:C.HEADER_BLUE, color:C.WHITE, width:widths?.[i], align:AlignmentType.CENTER, fontSize:18 }))
+  });
+}
+function sp() { return new Paragraph({ children: [new TextRun({ text:'', size:16, font:'Calibri' })] }); }
+function secHead(text) {
+  return new Paragraph({ heading: HeadingLevel.HEADING_1, spacing:{ before:240, after:100 },
+    children: [new TextRun({ text, bold:true, color:C.DARK_BLUE, size:28, font:'Calibri' })] });
+}
+
+// ── Format values ──────────────────────────────────────────────────────────────
+function fmt(v) {
+  if (v == null) return '—';
+  if (typeof v === 'string') return v.substring(0, 30);
+  if (typeof v === 'number') {
+    if (Number.isInteger(v)) return String(v);
+    return Number(v.toFixed(4)).toString();
+  }
+  return String(v).substring(0, 30);
+}
+
+function isMatch(ev, dv) {
+  // Treat null Excel as match when engine outputs 0 (cell not filled = no activity)
+  if (ev == null && (dv == null || Number(dv) === 0)) return true;
+  if (ev == null || dv == null) return false;
+  const en = Number(ev), dn = Number(dv);
+  if (!isNaN(en) && !isNaN(dn)) {
+    if (en === 0 && dn === 0) return true;
+    const avg = (Math.abs(en) + Math.abs(dn)) / 2;
+    // Within 1% relative tolerance, or within 0.05 absolute for small values
+    return avg < 1 ? Math.abs(en - dn) < 0.05 : Math.abs(en - dn) / avg < 0.011;
+  }
+  return String(ev).substring(0,30) === String(dv).substring(0,30);
+}
+
+// ── Build Excel field map for a given date column ──────────────────────────────
+function buildExcelMap(ws24cal, col) {
+  // Returns an object keyed by field name with excel value
+  const g = (r) => getNum(ws24cal, r, col);
+  const h = (r) => getHrs(ws24cal, r, col);
+
+  return {
+    // Generation (MWh → MU = /1000)
+    'Rated Capacity':              6.0,
+    'Declared Capacity':           g(36) != null ? g(36)/1000 : null,   // GT-based APC = R36
+    'Dispatch Demand':             g(39) != null ? g(39)/1000 : null,   // R39 (actual dispatch demand MWh)
+    'Schedule Generation':         g(28) != null ? g(28)/1000 : null,   // R28
+    'Gross Generation':            g(32) != null ? g(32)/1000 : null,   // R32
+    'Deemed Generation':           g(37) != null ? g(37)/1000 : null,   // Declared Cap = R37 (off-by-1)
+    'Auxiliary Consumption':       g(34) != null ? g(34)/1000 : null,   // Export-based APC = R34
+    'Net Import':                  g(30) != null ? g(30)/1000 : (g(31) != null ? g(31)/1000 : null),
+    'Net Export':                  g(27) != null ? g(27)/1000 : null,   // R27
+    // KPI
+    'Auxiliary Power Consumption (APC)': g(50) != null ? g(50)*100 : null,  // R50 fraction → %
+    'Plant Availability Factor (PAF)':   g(36) != null && g(36)/6000 ? g(36)/60 : null,  // R36/(6000) ×100
+    'Plant Load Factor (PLF)':           g(51) != null ? g(51)*100 : null,
+    'Forced Outage Rate (FOR)':          null, // complex
+    'Scheduled Outage Factor (SOF)':     h(45) != null ? (h(45)/24)*100 : null,
+    'Dispatch Demand (DD)':              g(39) != null ? g(39)/60 : null,  // R39/(6000) ×100
+    'Ex Bus Schedule Generation (SG)':   g(29) != null ? g(29)*100 : null, // R29 ×100
+    // Outage hours
+    'Unit trip':                   getNum(ws24cal, 40, col),
+    'Unit Shutdown':               getNum(ws24cal, 41, col),
+    'Unit On Grid':                h(42),
+    'Load Backdown - 170MW':       h(43),
+    'Unit on standby - RSD':       h(44),
+    'Scheduled Outage':            h(45),
+    'Forced Outage':               h(46),
+    'De-rated Equivalent Outage':  h(47),
+    // Fuel
+    'HFO Consumption':             g(5),
+    'HFO Receipt':                 g(4),   // formula in some cols
+    'HFO Stock (T10 & T20)':       g(6),
+    'Sp Oil Consumption (3.5 ml/kWh norm)': g(31) != null ? g(31) : null, // DGR SN28 ≈ R31
+    'Lignite Receipt':             g(17),
+    'Lignite Stock at Plant':      g(22),
+    'Lignite Lifted from NLC':     g(15),
+    'HSD Stock (T30 / T40)':       g(10) != null && g(14) != null ? g(10)+g(14) : null,
+    // Heat Rate
+    'Fuel master Avg at FLC':      g(23),
+    'GCV (As Fired)':              g(48),
+    'GHR (As Fired)':              g(49),
+    'LOI in Bottom ash':           g(147),
+    'LOI in Fly ash':              g(148),
+    // Water
+    'DM water Production':         g(58),
+    'DM water Consumption for main boiler': g(59),
+    'DM Water Consumption for total plant': g(63),
+    'Service Water Consumption':   g(68),
+    'Seal water Consumption':      g(72),
+    'Potable Water Consumption':   g(71),
+    'Bore well water consumption': g(61),
+    'Ash water reuse to CW forebay': g(79),
+    'Cooling water blow down':     g(64),
+    'Cooling water blow down rate': g(65),
+    'Total Water comsumption':     null,  // specific rate in R63
+    'Raw Water Consumption Rate':  g(74),
+    'Ash Water Reuse Rate':        g(80),
+    // Ash
+    'Ash Generation':              g(125),
+    'Fly Ash Silo Level':          g(130),
+    'Fly Ash Trucks':              g(129),
+    'Bottom Ash Trucks (Internal)': g(127),
+    'Bottom Ash Trucks (External)': g(128),
+    // DSM / Env
+    'Grid Frequency (Max / Min)':  null,   // text field
+    'Scheduled Generation Revision': g(53),
+  };
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+async function main() {
+  console.log('Loading Excel workbook...');
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.readFile(EXCEL_PATH);
+  const ws24 = wb.getWorksheet('24 cal');
+  const colIdx = buildColIndex(ws24);
+
+  console.log('Date column mapping:', Object.fromEntries(colIdx));
+
+  console.log('Running TAQA engine for 3 dates...');
+  const results = await Promise.all(dates.map(async date => {
+    const r = await assembleTaqaDGR(taqa, date);
+    const col = colIdx.get(date);
+    const excelMap = buildExcelMap(ws24, col);
+
+    // Flatten all engine rows into a map
+    const dbMap = {};
+    r.sections.forEach(s => s.rows.forEach(row => { dbMap[row.particulars] = row; }));
+
+    const allKeys = [...new Set([...Object.keys(excelMap), ...Object.keys(dbMap)])];
+    const rows = [];
+    allKeys.forEach(k => {
+      const exV = excelMap[k];
+      const dbRow = dbMap[k];
+      const dbV = dbRow?.daily;
+      const section = dbRow ? r.sections.find(s=>s.rows.includes(dbRow))?.title?.replace(/^\S+\s/,'') : 'Excel only';
+      const match = isMatch(exV, dbV);
+      rows.push({ field: k, uom: dbRow?.uom || '', section: section||'', excelVal: fmt(exV), dbVal: fmt(dbV), match });
+    });
+
+    const excelRows = rows.filter(x => excelMap[x.field] != null);
+    const matched = rows.filter(x=>x.match).length;
+    const excelMatched = excelRows.filter(x=>x.match).length;
+    console.log(`Date: ${date} | MATCH (all): ${matched} / ${rows.length} | MATCH (Excel-only): ${excelMatched} / ${excelRows.length} (${((excelMatched/excelRows.length)*100).toFixed(1)}%)`);
+    return { date, rows, matched: excelMatched, total: excelRows.length };
+  }));
+
+  // ── Build Word doc ─────────────────────────────────────────────────────────
+  const children = [
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 },
+      children: [new TextRun({ text: 'TAQA MEIL NEYVELI', bold:true, size:44, color:C.DARK_BLUE, font:'Calibri' })] }),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 },
+      children: [new TextRun({ text: 'DGR ENGINE vs EXCEL VALIDATION', bold:true, size:34, color:C.HEADER_BLUE, font:'Calibri' })] }),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 },
+      children: [new TextRun({ text: 'DB Engine vs Excel 24 cal Sheet  |  3-Date Audit', size:22, color:'555555', font:'Calibri' })] }),
+  ];
+
+  results.forEach((res, idx) => {
+    const d = new Date(res.date);
+    const label = d.toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+    const total = res.total;
+    const pct = ((res.matched / total) * 100).toFixed(1);
+
+    children.push(secHead(`Date ${idx+1}: ${label.toUpperCase()}`));
+    children.push(new Paragraph({ spacing:{ after:100 }, children: [
+      new TextRun({ text: `Match: ${res.matched} / ${total}  |  Accuracy: ${pct}%`, bold:true, font:'Calibri', size:20,
+        color: Number(pct) >= 80 ? C.GREEN_TXT : C.RED_TXT }),
+    ]}));
+
+    const tableRows = [hdrRow(['#','Field Name','UOM','Excel Value','DGR Value','Status'], [360,3000,650,1700,1700,900])];
+    res.rows.forEach((r, i) => {
+      const bg = r.match ? (i%2===0 ? C.WHITE : C.LGRAY) : C.AMBER_BG;
+      const statusLabel = r.match ? 'MATCH' : 'DIFF';
+      const statusColor = r.match ? C.GREEN_TXT : C.RED_TXT;
+      tableRows.push(new TableRow({ children: [
+        mkCell(i+1,          { bg, align:AlignmentType.CENTER, fontSize:16 }),
+        mkCell(r.field,      { bg, fontSize:16 }),
+        mkCell(r.uom,        { bg, align:AlignmentType.CENTER, fontSize:15 }),
+        mkCell(r.excelVal,   { bg, align:AlignmentType.CENTER, fontSize:16 }),
+        mkCell(r.dbVal,      { bg, align:AlignmentType.CENTER, fontSize:16 }),
+        mkCell(statusLabel,  { bg, bold:true, color:statusColor, align:AlignmentType.CENTER, fontSize:16 }),
+      ]}));
+    });
+    children.push(new Table({ width:{ size:9100, type:WidthType.DXA }, rows:tableRows }));
+    children.push(sp()); children.push(sp());
+  });
+
+  const doc = new Document({
+    creator: 'DGR Platform',
+    title: 'TAQA DGR Engine vs Excel Validation',
+    sections: [{ properties:{ page:{ margin:{ top:600, bottom:600, left:600, right:600 } } }, children }]
+  });
+
+  const buf = await Packer.toBuffer(doc);
+  const outPath = 'c:/Users/IE-Admin/Desktop/TAQA_DGR_vs_Excel_v5.docx';
+  fs.writeFileSync(outPath, buf);
+  console.log('\nDocument saved:', outPath);
+  console.log('Size:', (buf.length/1024).toFixed(0), 'KB');
+}
+
+main().catch(e => { console.error(e.message, e.stack); process.exit(1); });
