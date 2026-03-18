@@ -316,10 +316,10 @@ async function assembleTaqaDGR(plant, targetDate) {
         },
         {
             sn: "12", particulars: "Plant Load Factor (PLF)", uom: "%",
-            // Excel DGR HLOOKUP off-by-1: PLF reads net-export row, not gross-gen row
-            daily: pct100(r.dExpMu, DP_MU),
-            mtd:   pct100(sum(mtdRows, 'dExpMu'), DP_MU * mtdRows.length),
-            ytd:   pct100(sum(ytdRows, 'dExpMu'), DP_MU * ytdRows.length),
+            // PLF = Gross Generation / Rated Capacity (matches Excel DGR)
+            daily: pct100(r.dGrossGenMainMu, DP_MU),
+            mtd:   pct100(sum(mtdRows, 'dGrossGenMainMu'), DP_MU * mtdRows.length),
+            ytd:   pct100(sum(ytdRows, 'dGrossGenMainMu'), DP_MU * ytdRows.length),
         },
         {
             sn: "13", particulars: "Forced Outage Rate (FOR)", uom: "%",
