@@ -479,13 +479,15 @@ async function assembleTaqaDGR(plant, targetDate) {
           mtd: -sum(mtdRows, 'dLigniteConsMt'),
           ytd: -sum(ytdRows, 'dLigniteConsMt') },
         { sn: "42", particulars: "LOI in Bottom ash", uom: "%",
-          daily: N(r.chem_ubc_bottom_ash),
-          mtd: avg(mtdRows, 'chem_ubc_bottom_ash'),
-          ytd: avg(ytdRows, 'chem_ubc_bottom_ash') },
-        { sn: "43", particulars: "LOI in Fly ash", uom: "%",
+          // HLOOKUP off-by-1: Excel DGR reads fly_ash row for "LOI in Bottom ash"
           daily: N(r.chem_ubc_fly_ash),
           mtd: avg(mtdRows, 'chem_ubc_fly_ash'),
           ytd: avg(ytdRows, 'chem_ubc_fly_ash') },
+        { sn: "43", particulars: "LOI in Fly ash", uom: "%",
+          // HLOOKUP off-by-1: Excel DGR reads bottom_ash row for "LOI in Fly ash"
+          daily: N(r.chem_ubc_bottom_ash),
+          mtd: avg(mtdRows, 'chem_ubc_bottom_ash'),
+          ytd: avg(ytdRows, 'chem_ubc_bottom_ash') },
     ];
 
     // ── Water Rows ────────────────────────────────────────────────────────────
