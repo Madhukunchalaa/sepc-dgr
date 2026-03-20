@@ -44,11 +44,13 @@ export default function AnparaOpsInput() {
 
     useEffect(() => {
         if (!isAnpara || isFetching) return
-        const row = res?.data?.data ?? {}
+        const row = res?.data?.data
         if (row && Object.keys(row).length > 0) {
             const { id, plant_id, entry_date, created_at, updated_at, submitted_by, submitted_at, approved_by, approved_at, status, ...fields } = row
             setForm(Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, v == null ? '' : String(v)])))
             setMsg({ type: 'info', text: `📂 Loaded saved data for ${date}` })
+        } else {
+            setForm({})
         }
     }, [res, isFetching, isAnpara, date])
 
