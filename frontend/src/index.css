@@ -31,6 +31,67 @@
   --sb-active-bg:rgba(59,130,246,0.15);
 }
 
+/* ── Plant Themes ──────────────────────────────────────────────────────────
+   Applied via data-plant attribute on <body> by PlantContext
+   TAQA    → deep navy/gold   (Neyveli, Tamil Nadu)
+   TTPP    → forest green     (SEPC Power, Uthangal)
+   ANPARA  → warm maroon/rust (Anpara, Uttar Pradesh)
+──────────────────────────────────────────────────────────────────────────── */
+
+/* TAQA — Deep Navy & Gold */
+body[data-plant="TAQA"] {
+  --primary:      #1e40af;
+  --sidebar:      #0c1a3a;
+  --sidebar2:     #132050;
+  --sb-active:    #f59e0b;
+  --sb-active-bg: rgba(245,158,11,0.15);
+  --sb-text:      #93afd4;
+  --blue:         #1e40af;
+  --blue-dk:      #1e3a8a;
+  --blue-lt:      #dbeafe;
+  --bg:           #eef2fb;
+  --topbar-bg:    #0c1a3a;
+  --topbar-text:  #f1f5f9;
+  --accent:       #f59e0b;
+  --accent-lt:    #fef3c7;
+}
+
+/* TTPP — Forest Green */
+body[data-plant="TTPP"] {
+  --primary:      #166534;
+  --sidebar:      #0a2318;
+  --sidebar2:     #0f2e20;
+  --sb-active:    #4ade80;
+  --sb-active-bg: rgba(74,222,128,0.15);
+  --sb-text:      #86b89a;
+  --blue:         #16a34a;
+  --blue-dk:      #15803d;
+  --blue-lt:      #dcfce7;
+  --bg:           #f0faf3;
+  --topbar-bg:    #0a2318;
+  --topbar-text:  #f0faf3;
+  --accent:       #4ade80;
+  --accent-lt:    #dcfce7;
+}
+
+/* ANPARA — Warm Maroon & Rust */
+body[data-plant="ANPARA"] {
+  --primary:      #9f1239;
+  --sidebar:      #2d0a14;
+  --sidebar2:     #3d1020;
+  --sb-active:    #fb923c;
+  --sb-active-bg: rgba(251,146,60,0.15);
+  --sb-text:      #c49aaa;
+  --blue:         #be185d;
+  --blue-dk:      #9d174d;
+  --blue-lt:      #fce7f3;
+  --bg:           #fdf4f6;
+  --topbar-bg:    #2d0a14;
+  --topbar-text:  #fdf4f6;
+  --accent:       #fb923c;
+  --accent-lt:    #fed7aa;
+}
+
 html, body, #root { height: 100%; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
 
 /* ── Loading screen ── */

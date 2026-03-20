@@ -23,6 +23,7 @@ import HQFleet from './pages/dashboard/HQFleet'
 import TaqaOpsInput from './pages/data-entry/taqa/OpsInput'
 import TaqaChemInput from './pages/data-entry/taqa/ChemInput'
 import TaqaCalView from './pages/data-entry/taqa/CalView'
+import AnparaOpsInput from './pages/data-entry/anpara/OpsInput'
 
 const qc = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } }
@@ -53,6 +54,7 @@ function AppRoutes() {
         <Route path="data-entry/taqa/ops" element={<TaqaOpsInput />} />
         <Route path="data-entry/taqa/chem" element={<TaqaChemInput />} />
         <Route path="data-entry/taqa/cal" element={<TaqaCalView />} />
+        <Route path="data-entry/anpara/ops" element={<AnparaOpsInput />} />
         <Route path="approvals" element={<ApprovalsPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="reports/view" element={<DgrReportView />} />

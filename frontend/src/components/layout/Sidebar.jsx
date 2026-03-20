@@ -24,9 +24,15 @@ const TAQA_DATA_ENTRY = [
   { to: '/data-entry/taqa/cal', icon: '🧮', label: '24 Cal' },
 ]
 
+const ANPARA_DATA_ENTRY = [
+  { section: 'Anpara Data Entry' },
+  { to: '/data-entry/anpara/ops', icon: '📋', label: 'Daily Ops Input' },
+]
+
 function getNav(selectedPlant) {
-  const isTaqa = selectedPlant?.short_name?.startsWith('TAQA')
-  const dataEntryItems = isTaqa ? TAQA_DATA_ENTRY : SEPC_DATA_ENTRY
+  const isTaqa   = selectedPlant?.short_name?.startsWith('TAQA')
+  const isAnpara = selectedPlant?.short_name === 'ANPARA'
+  const dataEntryItems = isTaqa ? TAQA_DATA_ENTRY : isAnpara ? ANPARA_DATA_ENTRY : SEPC_DATA_ENTRY
   return [
     { section: 'Main' },
     { to: '/dashboard', icon: '📊', label: 'Dashboard' },
@@ -63,7 +69,11 @@ export default function Sidebar({ collapsed, onToggle }) {
         <div className="sb-logo">⚡</div>
         <div className="sb-brand-text">
           <div className="sb-brand-name">DGR Portal</div>
-          <div className="sb-brand-sub">{selectedPlant?.short_name?.startsWith('TAQA') ? 'TAQA MEIL Neyveli' : 'SEPC Power Pvt Ltd'}</div>
+          <div className="sb-brand-sub">
+            {selectedPlant?.short_name?.startsWith('TAQA') ? 'TAQA MEIL Neyveli'
+              : selectedPlant?.short_name === 'ANPARA' ? 'MEIL Anpara Energy Ltd'
+              : 'SEPC Power Pvt Ltd'}
+          </div>
         </div>
       </div>
 

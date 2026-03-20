@@ -149,7 +149,9 @@ async function submitEntry(req, res) {
 
         // HSD / Lignite (Using deltas where available)
         const hsdConsKl = N0(r.hsd_t30_receipt_kl) + N0(r.hsd_t40_receipt_kl);
-        const ligniteMt = delta(r.lignite_bc1_int_rdg, p.lignite_bc1_int_rdg) || N0(r.lignite_receipt_taqa_wb);
+        const dBeltA = delta(r.lignite_conv_1a_int_rdg, p.lignite_conv_1a_int_rdg);
+        const dBeltB = delta(r.lignite_conv_1b_int_rdg, p.lignite_conv_1b_int_rdg);
+        const ligniteMt = (dBeltA + dBeltB) > 0 ? (dBeltA + dBeltB) : N0(r.lignite_receipt_taqa_wb);
 
         // GCV / Ash / Water
         const gcvAf = N0(r.chem_gcv_nlcil);

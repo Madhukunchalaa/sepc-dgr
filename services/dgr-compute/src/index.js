@@ -11,6 +11,7 @@ const { query } = require('./shared/db');
 const { assembleDGR, assembleFleetSummary } = require('./engines/dgr.engine');
 const { assembleTaqaDGR } = require('./engines/taqa.engine');
 const { assembleTtppDGR } = require('./engines/ttpp.engine');
+const { assembleAnparaDGR } = require('./engines/anpara.engine');
 const { authenticate, requirePlantAccess } = require('./middleware/auth.middleware');
 
 // Temporary auto-migrate missing tables
@@ -146,6 +147,8 @@ app.get('/api/dgr/:plantId/:date', authenticate, requirePlantAccess, async (req,
       dgr = await assembleTaqaDGR(plant, date);
     } else if (plant.short_name === 'TTPP') {
       dgr = await assembleTtppDGR(plant, date);
+    } else if (plant.short_name === 'ANPARA') {
+      dgr = await assembleAnparaDGR(plant, date);
     } else {
       dgr = await assembleDGR(plantId, date);
     }

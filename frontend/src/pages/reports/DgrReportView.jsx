@@ -6,15 +6,26 @@ import { dgr } from '../../api'
 
 const today = new Date().toISOString().split('T')[0]
 
-// Utility to render nicely aligned tables just like Excel
-function TableBox({ title, rows }) {
-    if (!rows || rows.length === 0) return null;
+const fmt = (val) => {
+    if (val == null || val === '') return '-';
+    if (typeof val === 'number') return val.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+    if (typeof val === 'string') {
+        const num = Number(val);
+        if (!isNaN(num) && val.trim() !== '') return num.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+    }
+    return String(val);
+}
+
+const thStyle = { padding: '8px 10px', textAlign: 'right', fontWeight: 600, color: 'var(--muted)', width: 90, fontSize: 12 }
+const tdStyle = { padding: '7px 10px', textAlign: 'right', fontFamily: 'monospace', fontSize: 12 }
+
+// Standard table (TAQA / TTPP): daily | mtd | ytd
+function StandardTable({ title, rows }) {
+    if (!rows?.length) return null;
     return (
         <div className="card" style={{ marginBottom: 20 }}>
             <div className="card-hdr" style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: '#f8fafc' }}>
-                <div className="card-title" style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: '#334155' }}>
-                    {title}
-                </div>
+                <div className="card-title" style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: '#334155' }}>{title}</div>
             </div>
             <div className="card-body" style={{ padding: 0 }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -23,9 +34,9 @@ function TableBox({ title, rows }) {
                             <th style={{ padding: '8px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--muted)', width: 60 }}>SN</th>
                             <th style={{ padding: '8px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--muted)' }}>Particulars</th>
                             <th style={{ padding: '8px 16px', textAlign: 'left', fontWeight: 600, color: 'var(--muted)' }}>UoM</th>
-                            <th style={{ padding: '8px 16px', textAlign: 'right', fontWeight: 600, color: 'var(--muted)', width: 100 }}>DAILY</th>
-                            <th style={{ padding: '8px 16px', textAlign: 'right', fontWeight: 600, color: 'var(--muted)', width: 100 }}>MTD</th>
-                            <th style={{ padding: '8px 16px', textAlign: 'right', fontWeight: 600, color: 'var(--muted)', width: 100 }}>YTD</th>
+                            <th style={thStyle}>DAILY</th>
+                            <th style={thStyle}>MTD</th>
+                            <th style={thStyle}>YTD</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,26 +45,9 @@ function TableBox({ title, rows }) {
                                 <td style={{ padding: '8px 16px', fontWeight: 500, color: 'var(--muted)' }}>{row.sn}</td>
                                 <td style={{ padding: '8px 16px', fontWeight: 500 }}>{row.particulars}</td>
                                 <td style={{ padding: '8px 16px', color: 'var(--muted)', fontSize: 12 }}>{row.uom}</td>
-                                {['daily', 'mtd', 'ytd'].map(c => {
-                                    const val = row[c];
-                                    return (
-                                        <td key={c} style={{ padding: '8px 16px', textAlign: 'right', fontFamily: 'monospace', fontWeight: val != null && val !== '' ? 600 : 400 }}>
-                                            {
-                                                (() => {
-                                                    if (val == null || val === '') return '-';
-                                                    if (typeof val === 'number') return val.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
-                                                    if (typeof val === 'string') {
-                                                        const num = Number(val);
-                                                        if (!isNaN(num) && val.trim() !== '') {
-                                                            return num.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
-                                                        }
-                                                    }
-                                                    return String(val);
-                                                })()
-                                            }
-                                        </td>
-                                    )
-                                })}
+                                <td style={tdStyle}>{fmt(row.daily)}</td>
+                                <td style={tdStyle}>{fmt(row.mtd)}</td>
+                                <td style={tdStyle}>{fmt(row.ytd)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -61,6 +55,60 @@ function TableBox({ title, rows }) {
             </div>
         </div>
     )
+}
+
+// Multi-unit table (Anpara): Unit#1 | Unit#2 | Station × Daily/MTD/YTD
+function MultiUnitTable({ title, rows }) {
+    if (!rows?.length) return null;
+    const grp = { background: '#e8f0fe', fontWeight: 700, fontSize: 11, color: '#1e40af', textAlign: 'center', padding: '4px 0' }
+    return (
+        <div className="card" style={{ marginBottom: 20 }}>
+            <div className="card-hdr" style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', background: '#f8fafc' }}>
+                <div className="card-title" style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5, color: '#334155' }}>{title}</div>
+            </div>
+            <div className="card-body" style={{ padding: 0, overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                    <thead>
+                        <tr style={{ background: '#e8f0fe' }}>
+                            <th rowSpan={2} style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: 'var(--muted)', minWidth: 160 }}>Particulars</th>
+                            <th rowSpan={2} style={{ padding: '8px 8px', textAlign: 'left', fontWeight: 600, color: 'var(--muted)', width: 60 }}>UoM</th>
+                            <th colSpan={3} style={grp}>DAILY</th>
+                            <th colSpan={3} style={grp}>MTD</th>
+                            <th colSpan={3} style={grp}>YTD</th>
+                        </tr>
+                        <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
+                            {['Unit#1','Unit#2','Station','Unit#1','Unit#2','Station','Unit#1','Unit#2','Station'].map((h, i) => (
+                                <th key={i} style={{ ...thStyle, fontSize: 11 }}>{h}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((row, i) => (
+                            <tr key={i} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? '#fff' : '#fafafa' }}>
+                                <td style={{ padding: '7px 12px', fontWeight: 500 }}>{row.particulars}</td>
+                                <td style={{ padding: '7px 8px', color: 'var(--muted)', fontSize: 11 }}>{row.uom}</td>
+                                <td style={tdStyle}>{fmt(row.daily_u1)}</td>
+                                <td style={tdStyle}>{fmt(row.daily_u2)}</td>
+                                <td style={{ ...tdStyle, borderRight: '2px solid #e2e8f0', fontWeight: 700 }}>{fmt(row.daily_st)}</td>
+                                <td style={tdStyle}>{fmt(row.mtd_u1)}</td>
+                                <td style={tdStyle}>{fmt(row.mtd_u2)}</td>
+                                <td style={{ ...tdStyle, borderRight: '2px solid #e2e8f0', fontWeight: 700 }}>{fmt(row.mtd_st)}</td>
+                                <td style={tdStyle}>{fmt(row.ytd_u1)}</td>
+                                <td style={tdStyle}>{fmt(row.ytd_u2)}</td>
+                                <td style={{ ...tdStyle, fontWeight: 700 }}>{fmt(row.ytd_st)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+function TableBox({ title, rows, isMultiUnit }) {
+    return isMultiUnit
+        ? <MultiUnitTable title={title} rows={rows} />
+        : <StandardTable title={title} rows={rows} />
 }
 
 export default function DgrReportView() {
@@ -113,9 +161,12 @@ export default function DgrReportView() {
                     </div>
 
                     {/* Dynamic Sections mapped exactly from the backend Engine Output */}
-                    {d.sections?.map((section, idx) => (
-                        <TableBox key={idx} title={section.title} rows={section.rows} />
-                    ))}
+                    {(() => {
+                        const isMultiUnit = Array.isArray(d.header?.units) && d.header.units.length > 1
+                        return d.sections?.map((section, idx) => (
+                            <TableBox key={idx} title={section.title} rows={section.rows} isMultiUnit={isMultiUnit} />
+                        ))
+                    })()}
 
                     <div style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 11, marginTop: 24 }}>
                         Generated natively by DGR Compute Engine at {new Date(d.meta.generatedAt).toLocaleString()}

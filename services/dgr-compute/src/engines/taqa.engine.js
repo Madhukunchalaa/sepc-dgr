@@ -211,6 +211,7 @@ async function assembleTaqaDGR(plant, targetDate) {
     }
 
     const r = calculatedDays[calculatedDays.length - 1]; // Target day
+    const t2Day = calculatedDays.length >= 3 ? calculatedDays[calculatedDays.length - 3] : null; // T-2 day for GCV/GHR
     console.log(`[taqa.engine] DEBUG: targetDate=${targetDate}, dGtApcMu=${r.dGtApcMu?.toFixed(4)}, dGrossGenMainMu=${r.dGrossGenMainMu?.toFixed(4)}`);
 
     const mtdRows = calculatedDays.filter(d => safeDate(d.entry_date).slice(0, 7) === targetDate.slice(0, 7));
@@ -323,10 +324,10 @@ async function assembleTaqaDGR(plant, targetDate) {
         },
         {
             sn: "13", particulars: "Forced Outage Rate (FOR)", uom: "%",
-            // DB stores hours as day-fractions; multiply by 24 to get actual hours
-            daily: pct100(N(r.forced_outage_hrs) * 24, 24 - N(r.scheduled_outage_hrs) * 24),
-            mtd:   pct100(sum(mtdRows, 'forced_outage_hrs') * 24, mtdRows.length * 24 - sum(mtdRows, 'scheduled_outage_hrs') * 24),
-            ytd:   pct100(sum(ytdRows, 'forced_outage_hrs') * 24, ytdRows.length * 24 - sum(ytdRows, 'scheduled_outage_hrs') * 24),
+            // Excel FOR% = (forced_outage_hrs + derated_outage_hrs) / 24 — denominator always 24, not net of scheduled
+            daily: pct100((N(r.forced_outage_hrs) + N(r.derated_outage_hrs)) * 24, 24),
+            mtd:   pct100((sum(mtdRows, 'forced_outage_hrs') + sum(mtdRows, 'derated_outage_hrs')) * 24, mtdRows.length * 24),
+            ytd:   pct100((sum(ytdRows, 'forced_outage_hrs') + sum(ytdRows, 'derated_outage_hrs')) * 24, ytdRows.length * 24),
         },
         {
             sn: "14", particulars: "Scheduled Outage Factor (SOF)", uom: "%",
@@ -462,15 +463,15 @@ async function assembleTaqaDGR(plant, targetDate) {
           mtd: avg(mtdRows, 'fuel_master_250mw'),
           ytd: avg(ytdRows, 'fuel_master_250mw') },
         { sn: "38", particulars: "GCV (As Fired)", uom: "kcal/kg",
-          // Corrected: shows actual GCV from chemistry input for the report date
-          daily: r.dGcvE3m2,
+          // Excel DGR row 47: HLOOKUP(E3-2, ...) — shows GCV from T-2 day (lab analysis lag)
+          daily: t2Day?.dGcvE3m2 ?? r.dGcvE3m2,
           mtd: avg(mtdRows, 'dGcvE3m2'),
           ytd: avg(ytdRows, 'dGcvE3m2') },
         { sn: "39", particulars: "GHR (As Fired)", uom: "kcal/kWh",
-          // Corrected: 24cal R49 formula = (GCV × BunkerCorrLignite_MT + HFO_MT × 10350) / GrossGenMWh
-          daily: r.dGhrTrue,
-          mtd: r.dGrossGenMainMwh > 0 ? (sum(mtdRows, 'dGcvE3m2') * sum(mtdRows, 'dBunkerCorrLignite') + sum(mtdRows, 'dHfoConsMt') * 10350) / sum(mtdRows, 'dGrossGenMainMwh') : 0,
-          ytd: r.dGrossGenMainMwh > 0 ? (sum(ytdRows, 'dGcvE3m2') * sum(ytdRows, 'dBunkerCorrLignite') + sum(ytdRows, 'dHfoConsMt') * 10350) / sum(ytdRows, 'dGrossGenMainMwh') : 0 },
+          // Excel DGR row 48: GHR computed using T-2 day values (GCV, BunkerCorr, HFO, GrossGen all from T-2)
+          daily: t2Day?.dGhrTrue ?? r.dGhrTrue,
+          mtd: sum(mtdRows, 'dGrossGenMainMwh') > 0 ? (sum(mtdRows, 'dGcvE3m2') * sum(mtdRows, 'dBunkerCorrLignite') + sum(mtdRows, 'dHfoConsMt') * 10350) / sum(mtdRows, 'dGrossGenMainMwh') : 0,
+          ytd: sum(ytdRows, 'dGrossGenMainMwh') > 0 ? (sum(ytdRows, 'dGcvE3m2') * sum(ytdRows, 'dBunkerCorrLignite') + sum(ytdRows, 'dHfoConsMt') * 10350) / sum(ytdRows, 'dGrossGenMainMwh') : 0 },
         { sn: "40", particulars: "Lignite Consumption (Normative)", uom: "MT",
           daily: 0, mtd: 0, ytd: 0 },
         { sn: "41", particulars: "Lignite Normative (-) loss (+) within limit", uom: "MT",

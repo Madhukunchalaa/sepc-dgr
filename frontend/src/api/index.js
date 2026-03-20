@@ -79,6 +79,12 @@ export const dataEntry = {
   submitTaqaEntry: (plantId, date) => dataEntryClient.post(`/data-entry/taqa/${plantId}/${date}/submit`),
   approveTaqaEntry: (plantId, date) => dataEntryClient.post(`/data-entry/taqa/${plantId}/${date}/approve`),
 
+  // Anpara Specific
+  getAnparaEntry: (plantId, date) => dataEntryClient.get(`/data-entry/anpara/${plantId}/${date}`),
+  saveAnparaEntry: (plantId, date, data) => dataEntryClient.post(`/data-entry/anpara/${plantId}/${date}`, data),
+  submitAnparaEntry: (plantId, date) => dataEntryClient.post(`/data-entry/anpara/${plantId}/${date}/submit`),
+  approveAnparaEntry: (plantId, date) => dataEntryClient.post(`/data-entry/anpara/${plantId}/${date}/approve`),
+
   // SCADA
   getMappings: (plantId) => dataEntryClient.get(`/data-entry/scada/mappings/${plantId}`),
   saveMappings: (plantId, data) => dataEntryClient.post(`/data-entry/scada/mappings/${plantId}`, data),

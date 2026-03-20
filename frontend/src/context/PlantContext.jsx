@@ -27,6 +27,15 @@ export function PlantProvider({ children }) {
       .finally(() => setLoading(false))
   }, [user])
 
+  // Apply plant colour theme to <body>
+  useEffect(() => {
+    const theme = selectedPlant?.short_name?.startsWith('TAQA') ? 'TAQA'
+                : selectedPlant?.short_name === 'TTPP'          ? 'TTPP'
+                : selectedPlant?.short_name === 'ANPARA'        ? 'ANPARA'
+                : ''
+    document.body.setAttribute('data-plant', theme)
+  }, [selectedPlant])
+
   const switchPlant = (plant) => {
     setSelectedPlant(plant)
     localStorage.setItem('selectedPlantId', plant.id)
