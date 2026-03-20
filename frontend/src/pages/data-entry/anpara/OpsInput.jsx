@@ -45,6 +45,19 @@ export default function AnparaOpsInput() {
     useEffect(() => {
         if (!isAnpara || isFetching) return
         const row = res?.data?.data
+
+        // Guard against stale cache: only populate if the returned row matches the selected date
+        const toLocalDate = (v) => {
+            if (!v) return null
+            const d = new Date(v)
+            if (isNaN(d)) return String(v).slice(0, 10)
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        }
+        const rowDate = toLocalDate(row?.entry_date)
+        const rowPlant = row?.plant_id != null ? String(row.plant_id) : null
+        if (row && rowDate && rowDate !== date) return  // stale response, wait for correct one
+        if (row && rowPlant && rowPlant !== String(plantId)) return
+
         if (row && Object.keys(row).length > 0) {
             const { id, plant_id, entry_date, created_at, updated_at, submitted_by, submitted_at, approved_by, approved_at, status, ...fields } = row
             setForm(Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, v == null ? '' : String(v)])))
@@ -52,7 +65,7 @@ export default function AnparaOpsInput() {
         } else {
             setForm({})
         }
-    }, [res, isFetching, isAnpara, date])
+    }, [res, isFetching, isAnpara, date, plantId])
 
     const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
 
