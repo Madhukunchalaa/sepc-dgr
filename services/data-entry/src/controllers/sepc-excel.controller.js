@@ -455,11 +455,18 @@ exports.uploadAndSave = (req, res) => {
 
                 // 5. daily_availability
                 await client.query(`
-                    INSERT INTO daily_availability (plant_id, entry_date, paf_pct, paf_tnpdcl, status)
-                    VALUES ($1,$2,$3,$4,'submitted')
+                    INSERT INTO daily_availability
+                      (plant_id, entry_date, paf_pct, paf_tnpdcl,
+                       on_bar_hours, rsd_hours, forced_outage_hrs, planned_outage_hrs, status)
+                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'submitted')
                     ON CONFLICT (plant_id, entry_date) DO UPDATE SET
-                      paf_pct=$3, paf_tnpdcl=$4, status='submitted', updated_at=NOW()`,
-                    [plantId, entryDate, availData.paf_pct, availData.paf_tnpdcl]
+                      paf_pct=$3, paf_tnpdcl=$4,
+                      on_bar_hours=$5, rsd_hours=$6, forced_outage_hrs=$7, planned_outage_hrs=$8,
+                      status='submitted', updated_at=NOW()`,
+                    [plantId, entryDate,
+                     availData.paf_pct, availData.paf_tnpdcl,
+                     availData.hours_on_grid, availData.rsd_hrs,
+                     availData.forced_outage_hrs, availData.planned_outage_hrs]
                 );
 
                 // 6. daily_ash
