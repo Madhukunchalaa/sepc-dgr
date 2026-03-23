@@ -498,16 +498,16 @@ exports.uploadAndSave = (req, res) => {
                      schedulingData.sg_ppa_mu,  schedulingData.sg_rtm_mu, schedulingData.sg_dam_mu]
                 );
 
-                // 8. ops_log (activities)
+                // 8. operations_log (activities)
                 if (activData.activities) {
                     await client.query(`
-                        INSERT INTO ops_log (plant_id, entry_date, boiler_activities, bop_activities, remarks, status)
-                        VALUES ($1,$2,$3,$4,$5,'submitted')
+                        INSERT INTO operations_log (plant_id, entry_date, boiler_activities, bop_activities, status)
+                        VALUES ($1,$2,$3,$4,'submitted')
                         ON CONFLICT (plant_id, entry_date) DO UPDATE SET
-                          boiler_activities=$3, bop_activities=$4, remarks=$5,
+                          boiler_activities=$3, bop_activities=$4,
                           status='submitted', updated_at=NOW()`,
                         [plantId, entryDate,
-                         activData.activities, activData.running_equipment, activData.outage_remarks]
+                         activData.activities, activData.running_equipment]
                     );
                 }
 
