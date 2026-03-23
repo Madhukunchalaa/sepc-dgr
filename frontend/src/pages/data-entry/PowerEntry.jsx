@@ -3,6 +3,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
 import { dataEntry, plants as plantsApi } from '../../api'
+import ExcelUploadBtn from '../../components/ExcelUploadBtn'
+import { POWER_EXTRA_FIELDS } from '../../utils/moduleExcel'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -228,8 +230,34 @@ export default function PowerEntry() {
 
   return (
     <div>
-      <div className="page-title">⚡ Power Generation Entry</div>
-      <div className="page-sub">Enter cumulative meter readings — all KPIs auto-computed</div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+        <div>
+          <div className="page-title">⚡ Power Generation Entry</div>
+          <div className="page-sub">Enter cumulative meter readings — all KPIs auto-computed</div>
+        </div>
+        <ExcelUploadBtn
+          fields={[
+            ...meters.map(m => ({ key: `__meter__${m.meter_code}`, label: m.meter_name, unit: `MF×${m.multiplier}` })),
+            ...POWER_EXTRA_FIELDS,
+          ]}
+          currentData={{
+            ...Object.fromEntries(meters.map(m => [`__meter__${m.meter_code}`, readings[m.meter_code] ?? ''])),
+            ...extras,
+          }}
+          entryDate={date}
+          filename={`power_${date}.xlsx`}
+          onImport={(data) => {
+            const newReadings = {}
+            const newExtras = {}
+            for (const [k, v] of Object.entries(data)) {
+              if (k.startsWith('__meter__')) newReadings[k.replace('__meter__', '')] = v
+              else newExtras[k] = v
+            }
+            if (Object.keys(newReadings).length) setReadings(r => ({ ...r, ...newReadings }))
+            if (Object.keys(newExtras).length) setExtras(x => ({ ...x, ...newExtras }))
+          }}
+        />
+      </div>
 
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
 

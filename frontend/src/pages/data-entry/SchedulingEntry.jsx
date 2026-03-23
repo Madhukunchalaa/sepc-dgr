@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
 import { dataEntry } from '../../api'
+import ExcelUploadBtn from '../../components/ExcelUploadBtn'
+import { SCHEDULING_FIELDS, AVAILABILITY_FIELDS } from '../../utils/moduleExcel'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -127,8 +129,34 @@ export default function SchedulingEntry() {
 
     return (
         <div>
-            <div className="page-title">⏱ Scheduling & Availability Entry</div>
-            <div className="page-sub">Daily DC, SG, URS, and availability/outage tracking</div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+                <div>
+                    <div className="page-title">⏱ Scheduling & Availability Entry</div>
+                    <div className="page-sub">Daily DC, SG, URS, and availability/outage tracking</div>
+                </div>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <div>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Scheduling</div>
+                        <ExcelUploadBtn
+                            fields={SCHEDULING_FIELDS}
+                            currentData={schedForm}
+                            entryDate={date}
+                            filename={`scheduling_${date}.xlsx`}
+                            onImport={(data) => setSchedForm(f => ({ ...f, ...data }))}
+                        />
+                    </div>
+                    <div>
+                        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Availability</div>
+                        <ExcelUploadBtn
+                            fields={AVAILABILITY_FIELDS}
+                            currentData={availForm}
+                            entryDate={date}
+                            filename={`availability_${date}.xlsx`}
+                            onImport={(data) => setAvailForm(f => ({ ...f, ...data }))}
+                        />
+                    </div>
+                </div>
+            </div>
 
             {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
 

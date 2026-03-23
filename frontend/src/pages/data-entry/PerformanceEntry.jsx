@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
 import { dataEntry } from '../../api'
+import ExcelUploadBtn from '../../components/ExcelUploadBtn'
+import { PERFORMANCE_FIELDS } from '../../utils/moduleExcel'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -116,8 +118,19 @@ export default function PerformanceEntry() {
 
   return (
     <div>
-      <div className="page-title">🎯 Performance Entry</div>
-      <div className="page-sub">Daily performance lab parameters feeding the DGR Performance sheet</div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+        <div>
+          <div className="page-title">🎯 Performance Entry</div>
+          <div className="page-sub">Daily performance lab parameters feeding the DGR Performance sheet</div>
+        </div>
+        <ExcelUploadBtn
+          fields={PERFORMANCE_FIELDS}
+          currentData={form}
+          entryDate={date}
+          filename={`performance_${date}.xlsx`}
+          onImport={(data) => setForm(f => ({ ...f, ...data }))}
+        />
+      </div>
 
       {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
 

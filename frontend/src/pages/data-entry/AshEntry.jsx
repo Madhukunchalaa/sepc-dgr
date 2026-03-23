@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
 import { dataEntry } from '../../api'
+import ExcelUploadBtn from '../../components/ExcelUploadBtn'
+import { ASH_FIELDS } from '../../utils/moduleExcel'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -81,8 +83,19 @@ export default function AshEntry() {
 
     return (
         <div>
-            <div className="page-title">💨 Ash Data Entry</div>
-            <div className="page-sub">Daily generation and disposal of ash</div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+                <div>
+                    <div className="page-title">💨 Ash Data Entry</div>
+                    <div className="page-sub">Daily generation and disposal of ash</div>
+                </div>
+                <ExcelUploadBtn
+                    fields={ASH_FIELDS}
+                    currentData={form}
+                    entryDate={date}
+                    filename={`ash_${date}.xlsx`}
+                    onImport={(data) => setForm(f => ({ ...f, ...data }))}
+                />
+            </div>
 
             {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
 
