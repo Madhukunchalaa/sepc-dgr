@@ -15,6 +15,7 @@ const SEPC_DATA_ENTRY = [
   { to: '/data-entry/ash', icon: '💨', label: 'Ash Production' },
   { to: '/data-entry/dsm', icon: '💰', label: 'DSM Accounting' },
   { to: '/data-entry/scada', icon: '📤', label: 'SCADA Upload' },
+  { to: '/data-entry/sepc-excel', icon: '📥', label: 'Excel Import' },
 ]
 
 const TAQA_DATA_ENTRY = [

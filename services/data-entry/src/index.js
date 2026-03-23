@@ -22,6 +22,7 @@ const opsRoutes = require('./routes/operations.routes');
 const submissionRoutes = require('./routes/submission.routes');
 const taqaRoutes = require('./routes/taqa.routes');
 const anparaRoutes = require('./routes/anpara.routes');
+const sepcExcelRoutes = require('./routes/sepc-excel.routes');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -52,6 +53,7 @@ app.use('/api/data-entry/operations', opsRoutes);
 app.use('/api/data-entry/submission', submissionRoutes);
 app.use('/api/data-entry/taqa', taqaRoutes);
 app.use('/api/data-entry/anpara', anparaRoutes);
+app.use('/api/data-entry/sepc-excel', sepcExcelRoutes);
 
 app.use((err, req, res, next) => {
   logger.error('Unhandled error', { message: err.message });

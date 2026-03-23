@@ -93,6 +93,12 @@ export const dataEntry = {
   }),
   confirmSCADA: (plantId, data) => dataEntryClient.post(`/data-entry/scada/confirm/${plantId}`, data),
 
+  // SEPC Excel bulk import
+  uploadSEPCExcel: (plantId, formData) => dataEntryClient.post(`/data-entry/sepc-excel/upload/${plantId}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000,
+  }),
+
   // Submission status
   submissionStatus: (plantId, date) => dataEntryClient.get(`/data-entry/submission/${plantId}?date=${date}`),
   pendingApprovals: () => dataEntryClient.get('/data-entry/submission/pending/approvals'),
