@@ -149,22 +149,56 @@ export default function AnparaOpsInput() {
 
             {/* ── DC LOSS UNIT 1 ────────────────────────────────────────────── */}
             <Section title="📉 DC Loss — Unit #1 (MU)">
-                <F label="BTL Loss"              name="u1_btl_loss_mu"        unit="MU" {...p} />
-                <F label="Equipment Problem"     name="u1_equip_loss_mu"      unit="MU" {...p} />
-                <F label="Planned Outage"        name="u1_planned_loss_mu"    unit="MU" {...p} />
-                <F label="Unit Trip"             name="u1_trip_loss_mu"       unit="MU" {...p} />
-                <F label="Coal Constraint"       name="u1_coal_constraint_mu" unit="MU" {...p} />
-                <F label="Grid Backing Down"     name="u1_grid_backing_mu"    unit="MU" {...p} />
+                <F label="Total DC Loss"      name="u1_total_dc_loss_mu"   unit="MU"  {...p} />
+                <F label="BTL Loss"           name="u1_btl_loss_mu"        unit="MU"  {...p} />
+                <F label="Equipment Problem"  name="u1_equip_loss_mu"      unit="MU"  {...p} />
+                <F label="Planned Outage"     name="u1_planned_loss_mu"    unit="MU"  {...p} />
+                <F label="Total Outage Loss"  name="u1_total_outage_mu"    unit="MU"  {...p} />
+                <F label="Unit Trip"          name="u1_trip_loss_mu"       unit="MU"  {...p} />
+                <F label="Coal Constraint"    name="u1_coal_constraint_mu" unit="MU"  {...p} />
+                <F label="No. of Trips"       name="u1_no_trips"           unit="Nos" {...p} />
+            </Section>
+
+            {/* ── PARTIAL LOADING UNIT 1 ──────────────────────────────────────── */}
+            <Section title="📊 Partial Loading — Unit #1 (MU)">
+                <F label="Grid Backing Down"  name="u1_grid_backing_mu"  unit="MU" {...p} />
+                <F label="High Frequency"     name="u1_high_freq_mu"     unit="MU" {...p} />
+                <F label="Ramp Down"          name="u1_ramp_down_mu"     unit="MU" {...p} />
+                <F label="Ramp Up"            name="u1_ramp_up_mu"       unit="MU" {...p} />
+                <F label="Ash Handling"       name="u1_ash_handling_mu"  unit="MU" {...p} />
+                <F label="Equipment Partial"  name="u1_equip_partial_mu" unit="MU" {...p} />
+                <F label="High Coal Cons."    name="u1_high_coal_mu"     unit="MU" {...p} />
+                <F label="Unit Stabilisation" name="u1_unit_stab_mu"     unit="MU" {...p} />
+                <F label="RGMO"               name="u1_rgmo_mu"          unit="MU" {...p} />
+                <F label="IEX"                name="u1_iex_mu"           unit="MU" {...p} />
+                <F label="APC Margin"         name="u1_apc_margin_mu"    unit="MU" {...p} />
             </Section>
 
             {/* ── DC LOSS UNIT 2 ────────────────────────────────────────────── */}
             <Section title="📉 DC Loss — Unit #2 (MU)">
-                <F label="BTL Loss"              name="u2_btl_loss_mu"        unit="MU" {...p} />
-                <F label="Equipment Problem"     name="u2_equip_loss_mu"      unit="MU" {...p} />
-                <F label="Planned Outage"        name="u2_planned_loss_mu"    unit="MU" {...p} />
-                <F label="Unit Trip"             name="u2_trip_loss_mu"       unit="MU" {...p} />
-                <F label="Coal Constraint"       name="u2_coal_constraint_mu" unit="MU" {...p} />
-                <F label="Grid Backing Down"     name="u2_grid_backing_mu"    unit="MU" {...p} />
+                <F label="Total DC Loss"      name="u2_total_dc_loss_mu"   unit="MU"  {...p} />
+                <F label="BTL Loss"           name="u2_btl_loss_mu"        unit="MU"  {...p} />
+                <F label="Equipment Problem"  name="u2_equip_loss_mu"      unit="MU"  {...p} />
+                <F label="Planned Outage"     name="u2_planned_loss_mu"    unit="MU"  {...p} />
+                <F label="Total Outage Loss"  name="u2_total_outage_mu"    unit="MU"  {...p} />
+                <F label="Unit Trip"          name="u2_trip_loss_mu"       unit="MU"  {...p} />
+                <F label="Coal Constraint"    name="u2_coal_constraint_mu" unit="MU"  {...p} />
+                <F label="No. of Trips"       name="u2_no_trips"           unit="Nos" {...p} />
+            </Section>
+
+            {/* ── PARTIAL LOADING UNIT 2 ──────────────────────────────────────── */}
+            <Section title="📊 Partial Loading — Unit #2 (MU)">
+                <F label="Grid Backing Down"  name="u2_grid_backing_mu"  unit="MU" {...p} />
+                <F label="High Frequency"     name="u2_high_freq_mu"     unit="MU" {...p} />
+                <F label="Ramp Down"          name="u2_ramp_down_mu"     unit="MU" {...p} />
+                <F label="Ramp Up"            name="u2_ramp_up_mu"       unit="MU" {...p} />
+                <F label="Ash Handling"       name="u2_ash_handling_mu"  unit="MU" {...p} />
+                <F label="Equipment Partial"  name="u2_equip_partial_mu" unit="MU" {...p} />
+                <F label="High Coal Cons."    name="u2_high_coal_mu"     unit="MU" {...p} />
+                <F label="Unit Stabilisation" name="u2_unit_stab_mu"     unit="MU" {...p} />
+                <F label="RGMO"               name="u2_rgmo_mu"          unit="MU" {...p} />
+                <F label="IEX"                name="u2_iex_mu"           unit="MU" {...p} />
+                <F label="APC Margin"         name="u2_apc_margin_mu"    unit="MU" {...p} />
             </Section>
 
             {/* ── DSM ───────────────────────────────────────────────────────── */}
