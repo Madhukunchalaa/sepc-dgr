@@ -7,17 +7,6 @@ import { ASH_FIELDS } from '../../utils/moduleExcel'
 
 const today = new Date().toISOString().split('T')[0]
 
-const FIELD = (label, key, unit) => ({ label, key, unit })
-const ASH_FIELDS = [
-    FIELD('Fly Ash to User', 'fa_to_user_mt', 'MT'),
-    FIELD('Fly Ash to Dyke/Internal', 'fa_to_dyke_mt', 'MT'),
-    FIELD('Fly Ash Generated', 'fa_generated_mt', 'MT'),
-    FIELD('Fly Ash Silo', 'fa_silo_mt', 'MT'),
-    FIELD('Bottom Ash to User', 'ba_to_user_mt', 'MT'),
-    FIELD('Bottom Ash to Dyke/Internal', 'ba_to_dyke_mt', 'MT'),
-    FIELD('Bottom Ash Generated', 'ba_generated_mt', 'MT'),
-    FIELD('Bottom Ash Silo', 'ba_silo_mt', 'MT'),
-]
 
 const FieldInput = ({ field, form, isLocked, onChange }) => (
     <div className="form-group">
