@@ -10,5 +10,6 @@ router.get('/:plantId/:date', waterController.getEntry);
 router.post('/', waterController.upsertEntry);
 router.post('/submit', waterController.submitEntry);
 router.post('/approve', authorize('plant_admin', 'it_admin'), waterController.approveEntry);
+router.post('/unlock', authorize('plant_admin', 'it_admin'), waterController.unlockEntry);
 
 module.exports = router;

@@ -27,6 +27,7 @@ export const dataEntry = {
   savePower: (data) => dataEntryClient.post('/data-entry/power', data),
   submitPower: (data) => dataEntryClient.post('/data-entry/power/submit', data),
   approvePower: (data) => dataEntryClient.post('/data-entry/power/approve', data),
+  unlockPower: (data) => dataEntryClient.post('/data-entry/power/unlock', data),
   powerHistory: (plantId, params) => dataEntryClient.get(`/data-entry/power/${plantId}/history`, { params }),
 
   // Fuel
@@ -34,30 +35,35 @@ export const dataEntry = {
   saveFuel: (data) => dataEntryClient.post('/data-entry/fuel', data),
   submitFuel: (data) => dataEntryClient.post('/data-entry/fuel/submit', data),
   approveFuel: (data) => dataEntryClient.post('/data-entry/fuel/approve', data),
+  unlockFuel: (data) => dataEntryClient.post('/data-entry/fuel/unlock', data),
 
   // Water
   getWater: (plantId, date) => dataEntryClient.get(`/data-entry/water/${plantId}/${date}`),
   saveWater: (data) => dataEntryClient.post('/data-entry/water', data),
   submitWater: (data) => dataEntryClient.post('/data-entry/water/submit', data),
   approveWater: (data) => dataEntryClient.post('/data-entry/water/approve', data),
+  unlockWater: (data) => dataEntryClient.post('/data-entry/water/unlock', data),
 
   // Performance
   getPerformance: (plantId, date) => dataEntryClient.get(`/data-entry/performance/${plantId}/${date}`),
   savePerformance: (data) => dataEntryClient.post('/data-entry/performance', data),
   submitPerformance: (data) => dataEntryClient.post('/data-entry/performance/submit', data),
   approvePerformance: (data) => dataEntryClient.post('/data-entry/performance/approve', data),
+  unlockPerformance: (data) => dataEntryClient.post('/data-entry/performance/unlock', data),
 
   // Scheduling
   getScheduling: (plantId, date) => dataEntryClient.get(`/data-entry/scheduling/${plantId}/${date}`),
   saveScheduling: (data) => dataEntryClient.post('/data-entry/scheduling', data),
   submitScheduling: (data) => dataEntryClient.post('/data-entry/scheduling/submit', data),
   approveScheduling: (data) => dataEntryClient.post('/data-entry/scheduling/approve', data),
+  unlockScheduling: (data) => dataEntryClient.post('/data-entry/scheduling/unlock', data),
 
   // Availability
   getAvailability: (plantId, date) => dataEntryClient.get(`/data-entry/availability/${plantId}/${date}`),
   saveAvailability: (data) => dataEntryClient.post('/data-entry/availability', data),
   submitAvailability: (data) => dataEntryClient.post('/data-entry/availability/submit', data),
   approveAvailability: (data) => dataEntryClient.post('/data-entry/availability/approve', data),
+  unlockAvailability: (data) => dataEntryClient.post('/data-entry/availability/unlock', data),
 
   // Ash
   getAsh: (plantId, date) => dataEntryClient.get(`/data-entry/ash/${plantId}/${date}`),
@@ -98,6 +104,20 @@ export const dataEntry = {
     headers: { 'Content-Type': 'multipart/form-data' },
     timeout: 60000,
   }),
+
+  // MIS
+  getMisIncident: (plantId, date) => dataEntryClient.get(`/data-entry/mis/incident/${plantId}/${date}`),
+  saveMisIncident: (data) => dataEntryClient.post(`/data-entry/mis/incident`, data),
+  getMisRca: (plantId, date) => dataEntryClient.get(`/data-entry/mis/rca/${plantId}/${date}`),
+  saveMisRca: (data) => dataEntryClient.post(`/data-entry/mis/rca`, data),
+  getMisTrip: (plantId, date) => dataEntryClient.get(`/data-entry/mis/trip/${plantId}/${date}`),
+  saveMisTrip: (data) => dataEntryClient.post(`/data-entry/mis/trip`, data),
+  getMisBtg: (plantId, date) => dataEntryClient.get(`/data-entry/mis/btg/${plantId}/${date}`),
+  saveMisBtg: (data) => dataEntryClient.post(`/data-entry/mis/btg`, data),
+  getMisLoadRecord: (plantId, date) => dataEntryClient.get(`/data-entry/mis/load-record/${plantId}/${date}`),
+  saveMisLoadRecord: (data) => dataEntryClient.post(`/data-entry/mis/load-record`, data),
+  getMisMoc: (plantId, mocNo) => dataEntryClient.get(`/data-entry/mis/moc/${plantId}/${mocNo}`),
+  saveMisMoc: (data) => dataEntryClient.post(`/data-entry/mis/moc`, data),
 
   // Submission status
   submissionStatus: (plantId, date) => dataEntryClient.get(`/data-entry/submission/${plantId}?date=${date}`),

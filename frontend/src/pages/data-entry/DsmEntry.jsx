@@ -2,16 +2,11 @@ import { useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
 import { dataEntry } from '../../api'
+import ExcelUploadBtn from '../../components/ExcelUploadBtn'
+import { DSM_FIELDS } from '../../utils/moduleExcel'
 
 const today = new Date().toISOString().split('T')[0]
 
-const FIELD = (label, key, unit) => ({ label, key, unit })
-const DSM_FIELDS = [
-    FIELD('DSM Net Profit', 'dsm_net_profit_lacs', '₹ Lacs'),
-    FIELD('DSM Payable', 'dsm_payable_lacs', '₹ Lacs'),
-    FIELD('DSM Receivable', 'dsm_receivable_lacs', '₹ Lacs'),
-    FIELD('DSM Coal Saving', 'dsm_coal_saving_lacs', '₹ Lacs'),
-]
 
 const FieldInput = ({ field, form, isLocked, onChange }) => (
     <div className="form-group">
@@ -73,8 +68,19 @@ export default function DsmEntry() {
 
     return (
         <div>
-            <div className="page-title">💰 DSM Data Entry</div>
-            <div className="page-sub">Deviation Settlement Mechanism accounting</div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+                <div>
+                    <div className="page-title">💰 DSM Data Entry</div>
+                    <div className="page-sub">Deviation Settlement Mechanism accounting</div>
+                </div>
+                <ExcelUploadBtn
+                    fields={DSM_FIELDS}
+                    currentData={form}
+                    entryDate={date}
+                    filename={`dsm_${date}.xlsx`}
+                    onImport={(data) => setForm(f => ({ ...f, ...data }))}
+                />
+            </div>
 
             {msg && <div className={`alert alert-${msg.type}`}>{msg.text}</div>}
 

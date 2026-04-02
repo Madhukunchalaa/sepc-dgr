@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
+import { useAuth } from '../../context/AuthContext'
 import { dataEntry } from '../../api'
 import ExcelUploadBtn from '../../components/ExcelUploadBtn'
 import { FUEL_FIELDS } from '../../utils/moduleExcel'
@@ -59,6 +60,7 @@ const FieldInput = ({ field, form, isLocked, onChange }) => (
 
 export default function FuelEntry() {
   const { selectedPlant } = usePlant()
+  const { isRole } = useAuth()
   const qc = useQueryClient()
   const plantId = selectedPlant?.id
   const [date, setDate] = useState(today)
@@ -163,6 +165,16 @@ export default function FuelEntry() {
       setMsg({ type: 'success', text: '✓ Submitted for approval' })
       qc.invalidateQueries(['submission-status', plantId])
     },
+  })
+
+  const unlockMutation = useMutation({
+    mutationFn: () => dataEntry.unlockFuel({ plantId, entryDate: date }),
+    onSuccess: () => {
+      setMsg({ type: 'success', text: '🔓 Entry unlocked — you can now edit' })
+      qc.invalidateQueries(['fuel-entry', plantId, date])
+      qc.invalidateQueries(['submission-status', plantId])
+    },
+    onError: (err) => setMsg({ type: 'error', text: err.response?.data?.message || 'Unlock failed' }),
   })
 
   const handleSave = () => saveMutation.mutate({ plantId, entryDate: date, ...form })
@@ -285,8 +297,16 @@ export default function FuelEntry() {
 
           {/* Actions */}
           {isLocked ? (
-            <div className="alert alert-info" style={{ marginBottom: 40 }}>
-              🔒 This entry is {status} and cannot be edited.
+            <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>
+              <div className="alert alert-info" style={{ flex: 1, marginBottom: 0 }}>
+                🔒 This entry is {status} and cannot be edited.
+              </div>
+              {isRole('it_admin', 'plant_admin') && (
+                <button className="btn btn-ghost" style={{ whiteSpace: 'nowrap', borderColor: '#f59e0b', color: '#b45309' }}
+                  onClick={() => unlockMutation.mutate()} disabled={unlockMutation.isPending}>
+                  {unlockMutation.isPending ? 'Unlocking...' : '🔓 Unlock to Draft'}
+                </button>
+              )}
             </div>
           ) : (
             <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>

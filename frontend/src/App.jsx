@@ -25,6 +25,12 @@ import TaqaChemInput from './pages/data-entry/taqa/ChemInput'
 import TaqaCalView from './pages/data-entry/taqa/CalView'
 import AnparaOpsInput from './pages/data-entry/anpara/OpsInput'
 import SEPCExcelUpload from './pages/data-entry/SEPCExcelUpload'
+import IncidentReport from './pages/mis/IncidentReport'
+import RcaReport from './pages/mis/RcaReport'
+import UnitTripReport from './pages/mis/UnitTripReport'
+import BtgReport from './pages/mis/BtgReport'
+import LoadRecordStatement from './pages/mis/LoadRecordStatement'
+import MocReport from './pages/mis/MocReport'
 
 const qc = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } }
@@ -57,6 +63,14 @@ function AppRoutes() {
         <Route path="data-entry/taqa/cal" element={<TaqaCalView />} />
         <Route path="data-entry/anpara/ops" element={<AnparaOpsInput />} />
         <Route path="data-entry/sepc-excel" element={<SEPCExcelUpload />} />
+        
+        <Route path="mis/incident" element={<IncidentReport />} />
+        <Route path="mis/rca" element={<RcaReport />} />
+        <Route path="mis/trip" element={<UnitTripReport />} />
+        <Route path="mis/btg" element={<BtgReport />} />
+        <Route path="mis/load-record" element={<LoadRecordStatement />} />
+        <Route path="mis/moc" element={<MocReport />} />
+        
         <Route path="approvals" element={<ApprovalsPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="reports/view" element={<DgrReportView />} />

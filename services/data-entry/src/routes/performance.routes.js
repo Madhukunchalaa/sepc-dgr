@@ -6,6 +6,7 @@ router.get('/:plantId/:date', authenticate, requirePlantAccess, ctrl.getEntry);
 router.post('/', authenticate, requirePlantAccess, ctrl.upsertEntry);
 router.post('/submit', authenticate, requirePlantAccess, ctrl.submitEntry);
 router.post('/approve', authenticate, requirePlantAccess, ctrl.approveEntry);
+router.post('/unlock', authenticate, requirePlantAccess, ctrl.unlockEntry);
 
 module.exports = router;
 

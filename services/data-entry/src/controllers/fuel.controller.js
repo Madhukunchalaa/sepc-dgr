@@ -146,7 +146,7 @@ exports.approveEntry = async (req, res) => {
     await transaction(async (client) => {
       await client.query(
         `UPDATE daily_fuel SET status='approved', approved_by=$1, approved_at=NOW()
-         WHERE plant_id=$2 AND entry_date=$3 AND status='submitted'`,
+         WHERE plant_id=$2 AND entry_date=$3 AND status!='approved'`,
         [req.user.sub, plantId, entryDate]
       );
       await client.query(
@@ -157,4 +157,26 @@ exports.approveEntry = async (req, res) => {
     });
     return success(res, {}, 'Fuel entry approved');
   } catch (err) { return error(res, 'Approval failed', 500); }
+};
+
+exports.unlockEntry = async (req, res) => {
+  try {
+    const { plantId, entryDate } = req.body;
+    if (!['it_admin', 'plant_admin'].includes(req.user.role)) {
+      return error(res, 'Only IT Admin or Plant Admin can unlock entries', 403);
+    }
+    await transaction(async (client) => {
+      await client.query(
+        `UPDATE daily_fuel SET status='draft', updated_at=NOW()
+         WHERE plant_id=$1 AND entry_date=$2`,
+        [plantId, entryDate]
+      );
+      await client.query(
+        `UPDATE submission_status SET status='draft', updated_at=NOW()
+         WHERE plant_id=$1 AND entry_date=$2 AND module='fuel'`,
+        [plantId, entryDate]
+      );
+    });
+    return success(res, {}, 'Fuel entry unlocked to draft');
+  } catch (err) { return error(res, 'Unlock failed', 500); }
 };

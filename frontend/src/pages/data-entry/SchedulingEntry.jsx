@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
+import { useAuth } from '../../context/AuthContext'
 import { dataEntry } from '../../api'
 import ExcelUploadBtn from '../../components/ExcelUploadBtn'
 import { SCHEDULING_FIELDS, AVAILABILITY_FIELDS } from '../../utils/moduleExcel'
@@ -10,6 +11,7 @@ const today = new Date().toISOString().split('T')[0]
 
 export default function SchedulingEntry() {
     const { selectedPlant } = usePlant()
+    const { isRole } = useAuth()
     const plantId = selectedPlant?.id
     const [date, setDate] = useState(today)
 
@@ -84,6 +86,21 @@ export default function SchedulingEntry() {
 
     const submitSchedMutation = useMutation({ mutationFn: () => dataEntry.submitScheduling({ plantId, entryDate: date }) })
     const submitAvailMutation = useMutation({ mutationFn: () => dataEntry.submitAvailability({ plantId, entryDate: date }) })
+
+    const handleUnlock = async () => {
+        try {
+            await Promise.all([
+                dataEntry.unlockScheduling({ plantId, entryDate: date }),
+                dataEntry.unlockAvailability({ plantId, entryDate: date }),
+            ])
+            setMsg({ type: 'success', text: '🔓 Entry unlocked — you can now edit' })
+            qc.invalidateQueries(['scheduling-entry', plantId, date])
+            qc.invalidateQueries(['availability-entry', plantId, date])
+            qc.invalidateQueries(['submission-status', plantId])
+        } catch {
+            setMsg({ type: 'error', text: 'Unlock failed' })
+        }
+    }
 
     const handleSubmit = async () => {
         try {
@@ -338,8 +355,16 @@ export default function SchedulingEntry() {
 
                     {/* Actions */}
                     {readOnly ? (
-                        <div className="alert alert-info" style={{ marginBottom: 40 }}>
-                            🔒 This entry is {schedStatus} and cannot be edited.
+                        <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>
+                            <div className="alert alert-info" style={{ flex: 1, marginBottom: 0 }}>
+                                🔒 This entry is {schedStatus} and cannot be edited.
+                            </div>
+                            {isRole('it_admin', 'plant_admin') && (
+                                <button className="btn btn-ghost" style={{ whiteSpace: 'nowrap', borderColor: '#f59e0b', color: '#b45309' }}
+                                    onClick={handleUnlock}>
+                                    🔓 Unlock to Draft
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>

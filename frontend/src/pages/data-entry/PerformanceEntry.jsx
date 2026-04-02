@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
+import { useAuth } from '../../context/AuthContext'
 import { dataEntry } from '../../api'
 import ExcelUploadBtn from '../../components/ExcelUploadBtn'
 import { PERFORMANCE_FIELDS } from '../../utils/moduleExcel'
@@ -14,6 +15,7 @@ function fmt(val, dec = 2) {
 
 export default function PerformanceEntry() {
   const { selectedPlant } = usePlant()
+  const { isRole } = useAuth()
   const plantId = selectedPlant?.id
   const qc = useQueryClient()
 
@@ -81,6 +83,18 @@ export default function PerformanceEntry() {
     },
     onError: (err) => {
       setMsg({ type: 'error', text: err.response?.data?.message || 'Submit failed' })
+    },
+  })
+
+  const unlockMutation = useMutation({
+    mutationFn: () => dataEntry.unlockPerformance({ plantId, entryDate: date }),
+    onSuccess: () => {
+      setMsg({ type: 'success', text: '🔓 Entry unlocked — you can now edit' })
+      qc.invalidateQueries(['performance-entry', plantId, date])
+      qc.invalidateQueries(['submission-status', plantId, date])
+    },
+    onError: (err) => {
+      setMsg({ type: 'error', text: err.response?.data?.message || 'Unlock failed' })
     },
   })
 
@@ -294,8 +308,16 @@ export default function PerformanceEntry() {
           </div>
 
           {readOnly ? (
-            <div className="alert alert-info" style={{ marginBottom: 40 }}>
-              🔒 This entry is {status} and cannot be edited.
+            <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>
+              <div className="alert alert-info" style={{ flex: 1, marginBottom: 0 }}>
+                🔒 This entry is {status} and cannot be edited.
+              </div>
+              {isRole('it_admin', 'plant_admin') && (
+                <button className="btn btn-ghost" style={{ whiteSpace: 'nowrap', borderColor: '#f59e0b', color: '#b45309' }}
+                  onClick={() => unlockMutation.mutate()} disabled={unlockMutation.isPending}>
+                  {unlockMutation.isPending ? 'Unlocking...' : '🔓 Unlock to Draft'}
+                </button>
+              )}
             </div>
           ) : (
             <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>

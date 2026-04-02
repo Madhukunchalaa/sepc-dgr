@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext'
 import { usePlant } from '../../context/PlantContext'
 
 const SEPC_DATA_ENTRY = [
-  { section: 'Data Entry' },
   { to: '/data-entry/power', icon: '⚡', label: 'Power Generation' },
   { to: '/data-entry/fuel', icon: '🔥', label: 'Fuel' },
   { to: '/data-entry/performance', icon: '🎯', label: 'Performance' },
@@ -19,10 +18,18 @@ const SEPC_DATA_ENTRY = [
 ]
 
 const TAQA_DATA_ENTRY = [
-  { section: 'TAQA Data Entry' },
   { to: '/data-entry/taqa/ops', icon: '⚙️', label: 'Ops Input' },
   { to: '/data-entry/taqa/chem', icon: '🧪', label: 'Chem Input' },
   { to: '/data-entry/taqa/cal', icon: '🧮', label: '24 Cal' },
+]
+
+const MIS_REPORTS_ENTRY = [
+  { to: '/mis/incident', icon: '📝', label: 'Incident Report' },
+  { to: '/mis/rca', icon: '🔍', label: 'RCA Report' },
+  { to: '/mis/trip', icon: '⚠️', label: 'Unit Trip Analysis' },
+  { to: '/mis/btg', icon: '🔥', label: 'Performance losses of BTG' },
+  { to: '/mis/load-record', icon: '📊', label: 'Load Record Statement' },
+  { to: '/mis/moc', icon: '🔄', label: 'Management of Change (MoC)' },
 ]
 
 const ANPARA_DATA_ENTRY = [
@@ -38,7 +45,8 @@ function getNav(selectedPlant) {
     { section: 'Main' },
     { to: '/dashboard', icon: '📊', label: 'Dashboard' },
     { to: '/reports/view', icon: '🔍', label: 'DGR Report Viewer' },
-    ...dataEntryItems,
+    { isDropdown: true, label: 'Data Entry', icon: '📝', items: dataEntryItems },
+    { isDropdown: true, label: 'MIS Reports', icon: '📁', items: MIS_REPORTS_ENTRY },
     { section: 'Operations' },
     { to: '/approvals', icon: '✅', label: 'Approvals', badge: 'approvals' },
     { section: 'Management' },
@@ -53,7 +61,12 @@ export default function Sidebar({ collapsed, onToggle }) {
   const { user, logout, isRole } = useAuth()
   const { plantList, selectedPlant, switchPlant } = usePlant()
   const [showPlants, setShowPlants] = useState(false)
+  const [openDropdowns, setOpenDropdowns] = useState({ 'Data Entry': true, 'MIS Reports': false })
   const navigate = useNavigate()
+
+  const toggleDropdown = (label) => {
+    setOpenDropdowns(prev => ({ ...prev, [label]: !prev[label] }))
+  }
 
   const handleLogout = async () => {
     await logout()
@@ -114,6 +127,48 @@ export default function Sidebar({ collapsed, onToggle }) {
             return <div key={i} className="sb-section">{item.section}</div>
           }
           if (item.roles && !isRole(...item.roles)) return null
+          
+          if (item.isDropdown) {
+            const isOpen = openDropdowns[item.label]
+            if (collapsed) {
+              return (
+                <div key={item.label} className="sb-item" title={item.label} onClick={() => toggleDropdown(item.label)}>
+                  <div className="sb-item-icon">{item.icon}</div>
+                </div>
+              )
+            }
+            return (
+              <div key={item.label} className="sb-dropdown">
+                <div 
+                  className={`sb-item sb-dropdown-header ${isOpen ? 'active' : ''}`} 
+                  onClick={() => toggleDropdown(item.label)}
+                  style={{ cursor: 'pointer', justifyContent: 'space-between' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="sb-item-icon">{item.icon}</div>
+                    <div className="sb-item-label">{item.label}</div>
+                  </div>
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{isOpen ? '▼' : '▶'}</div>
+                </div>
+                {isOpen && (
+                  <div className="sb-dropdown-menu" style={{ paddingLeft: '32px', marginBottom: '8px' }}>
+                    {item.items.map(subItem => (
+                      <NavLink
+                        key={subItem.to}
+                        to={subItem.to}
+                        className={({ isActive }) => `sb-item sb-subitem${isActive ? ' active' : ''}`}
+                        style={{ height: '36px', fontSize: '13px' }}
+                      >
+                        <div className="sb-item-icon" style={{ fontSize: '14px' }}>{subItem.icon}</div>
+                        <div className="sb-item-label">{subItem.label}</div>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          }
+
           return (
             <NavLink
               key={item.to}

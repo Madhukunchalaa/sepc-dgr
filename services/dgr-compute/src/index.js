@@ -82,6 +82,124 @@ async function ensureTablesExist() {
 
       ALTER TABLE daily_power ADD COLUMN IF NOT EXISTS partial_loading_pct DECIMAL(6,3);
       ALTER TABLE daily_performance ADD COLUMN IF NOT EXISTS ghr_remarks TEXT;
+
+      CREATE TABLE IF NOT EXISTS mis_incident_reports (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id UUID NOT NULL REFERENCES plants(id),
+        entry_date DATE NOT NULL,
+        incident_time TIME,
+        incident_desc TEXT,
+        action_taken TEXT,
+        shift_charge_engineer VARCHAR(255),
+        submitted_by UUID REFERENCES users(id),
+        status VARCHAR(20) DEFAULT 'draft',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, entry_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS mis_rca_reports (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id UUID NOT NULL REFERENCES plants(id),
+        entry_date DATE NOT NULL,
+        rca_no VARCHAR(100),
+        report_date DATE,
+        system_name VARCHAR(255),
+        equipment_name VARCHAR(255),
+        kks_code VARCHAR(100),
+        breakdown_duration VARCHAR(100),
+        rca_team VARCHAR(255),
+        technical_team VARCHAR(255),
+        fault_defect_event TEXT,
+        hse_impact TEXT,
+        conditions_prior TEXT,
+        sequence_of_events TEXT,
+        observations TEXT,
+        why1 TEXT,
+        why2 TEXT,
+        why3 TEXT,
+        direct_cause TEXT,
+        underlying_cause TEXT,
+        root_cause TEXT,
+        preventive_actions TEXT,
+        corrective_actions TEXT,
+        recommendations TEXT,
+        action_plan_target_date VARCHAR(100),
+        action_owners VARCHAR(255),
+        similar_incidents TEXT,
+        comments_learnings TEXT,
+        reviewer_comment TEXT,
+        prepared_by VARCHAR(255),
+        checked_by VARCHAR(255),
+        reviewed_by VARCHAR(255),
+        approved_by VARCHAR(255),
+        submitted_by UUID REFERENCES users(id),
+        status VARCHAR(20) DEFAULT 'draft',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, entry_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS mis_trip_reports (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id UUID NOT NULL REFERENCES plants(id),
+        entry_date DATE NOT NULL,
+        trip_report_no VARCHAR(100),
+        report_date DATE,
+        trip_time TIME,
+        trip_duration VARCHAR(100),
+        pre_existing_load TEXT,
+        system_abnormal_conditions TEXT,
+        equipment_tripped TEXT,
+        root_cause TEXT,
+        immediate_actions TEXT,
+        consequential_damage TEXT,
+        actions_taken_to_restart TEXT,
+        committee_observation TEXT,
+        recommendation TEXT,
+        submitted_by UUID REFERENCES users(id),
+        status VARCHAR(20) DEFAULT 'draft',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, entry_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS mis_btg_reports (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id UUID NOT NULL REFERENCES plants(id),
+        entry_date DATE NOT NULL,
+        data JSONB DEFAULT '{}'::jsonb,
+        submitted_by UUID REFERENCES users(id),
+        status VARCHAR(20) DEFAULT 'draft',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, entry_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS mis_load_records (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id UUID NOT NULL REFERENCES plants(id),
+        entry_date DATE NOT NULL,
+        data JSONB DEFAULT '{}'::jsonb,
+        submitted_by UUID REFERENCES users(id),
+        status VARCHAR(20) DEFAULT 'draft',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, entry_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS mis_moc_records (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        plant_id UUID NOT NULL REFERENCES plants(id),
+        moc_no VARCHAR(100) NOT NULL,
+        initiation_date DATE,
+        data JSONB DEFAULT '{}'::jsonb,
+        submitted_by UUID REFERENCES users(id),
+        status VARCHAR(20) DEFAULT 'initiated',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(plant_id, moc_no)
+      );
     `);
     logger.info('Auto-migrate: ensure missing tables and columns exist in Railway DB');
     return { success: true, message: 'Migration completed' };

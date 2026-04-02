@@ -10,5 +10,6 @@ router.get('/:plantId/:date', schedController.getEntry);
 router.post('/', schedController.upsertEntry);
 router.post('/submit', schedController.submitEntry);
 router.post('/approve', authorize('plant_admin', 'it_admin'), schedController.approveEntry);
+router.post('/unlock', authorize('plant_admin', 'it_admin'), schedController.unlockEntry);
 
 module.exports = router;

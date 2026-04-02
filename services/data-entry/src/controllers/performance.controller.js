@@ -153,7 +153,7 @@ exports.approveEntry = async (req, res) => {
       await client.query(
         `UPDATE daily_performance
          SET status='approved', approved_by=$1, approved_at=NOW(), updated_at=NOW()
-         WHERE plant_id=$2 AND entry_date=$3 AND status='submitted'`,
+         WHERE plant_id=$2 AND entry_date=$3 AND status!='approved'`,
         [req.user.sub, plantId, entryDate]
       );
 
@@ -169,6 +169,31 @@ exports.approveEntry = async (req, res) => {
   } catch (err) {
     logger.error('Approve performance entry error', { message: err.message });
     return error(res, 'Approval failed', 500);
+  }
+};
+
+exports.unlockEntry = async (req, res) => {
+  try {
+    const { plantId, entryDate } = req.body;
+    if (!['it_admin', 'plant_admin'].includes(req.user.role)) {
+      return error(res, 'Only IT Admin or Plant Admin can unlock entries', 403);
+    }
+    await transaction(async (client) => {
+      await client.query(
+        `UPDATE daily_performance SET status='draft', updated_at=NOW()
+         WHERE plant_id=$1 AND entry_date=$2`,
+        [plantId, entryDate]
+      );
+      await client.query(
+        `UPDATE submission_status SET status='draft', updated_at=NOW()
+         WHERE plant_id=$1 AND entry_date=$2 AND module='performance'`,
+        [plantId, entryDate]
+      );
+    });
+    return success(res, {}, 'Performance entry unlocked to draft');
+  } catch (err) {
+    logger.error('Unlock error', { message: err.message });
+    return error(res, 'Unlock failed', 500);
   }
 };
 

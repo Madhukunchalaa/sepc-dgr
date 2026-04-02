@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { usePlant } from '../../context/PlantContext'
+import { useAuth } from '../../context/AuthContext'
 import { dataEntry, plants as plantsApi } from '../../api'
 import ExcelUploadBtn from '../../components/ExcelUploadBtn'
 import { POWER_EXTRA_FIELDS } from '../../utils/moduleExcel'
@@ -56,6 +57,7 @@ function fmtHours(h) {
 
 export default function PowerEntry() {
   const { selectedPlant } = usePlant()
+  const { isRole } = useAuth()
   const qc = useQueryClient()
   const plantId = selectedPlant?.id
 
@@ -192,6 +194,16 @@ export default function PowerEntry() {
       setSaveErr({ status: s, message: m })
       setMsg({ type: 'error', text: `✗ ${m}` })
     },
+  })
+
+  const unlockMutation = useMutation({
+    mutationFn: () => dataEntry.unlockPower({ plantId, entryDate: date }),
+    onSuccess: () => {
+      setMsg({ type: 'success', text: '🔓 Entry unlocked — you can now edit' })
+      qc.invalidateQueries(['power-entry', plantId, date])
+      qc.invalidateQueries(['submission-status', plantId])
+    },
+    onError: (err) => setMsg({ type: 'error', text: err.response?.data?.message || 'Unlock failed' }),
   })
 
   const submitMutation = useMutation({
@@ -466,8 +478,16 @@ export default function PowerEntry() {
 
           {/* Actions */}
           {isLocked ? (
-            <div className="alert alert-info" style={{ marginBottom: 40 }}>
-              🔒 This entry is {status} and cannot be edited.
+            <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>
+              <div className="alert alert-info" style={{ flex: 1, marginBottom: 0 }}>
+                🔒 This entry is {status} and cannot be edited.
+              </div>
+              {isRole('it_admin', 'plant_admin') && (
+                <button className="btn btn-ghost" style={{ whiteSpace: 'nowrap', borderColor: '#f59e0b', color: '#b45309' }}
+                  onClick={() => unlockMutation.mutate()} disabled={unlockMutation.isPending}>
+                  {unlockMutation.isPending ? 'Unlocking...' : '🔓 Unlock to Draft'}
+                </button>
+              )}
             </div>
           ) : (
             <div style={{ display: 'flex', gap: 12, paddingBottom: 40, alignItems: 'center' }}>

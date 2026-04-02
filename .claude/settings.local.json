@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node extract-excel.js)",
+      "Bash(node -e \":*)",
+      "Bash(node dump-dgr-formulas.js)",
+      "Bash(node dump-24cal-all.js)",
+      "Bash(node dump-24cal-formulas.js)",
+      "Bash(node compare-dgr.js)",
+      "Bash(node compare-full.js)",
+      "Bash(node compare-feb4.js)",
+      "Bash(node compare-feb1.js)",
+      "Bash(node compare-24cal-dates.js)",
+      "Bash(node compare-all.js)",
+      "Bash(node -e \"require\\(''./services/dgr-compute/src/engines/taqa.engine.js''\\); console.log\\(''OK''\\)\")",
+      "Bash(python3 -c \":*)"
+    ]
+  }
+}

@@ -104,3 +104,17 @@ exports.approveEntry = async (req, res) => {
         res.status(500).json({ error: 'Failed to approve' });
     }
 };
+
+exports.unlockEntry = async (req, res) => {
+    try {
+        const { plantId, entryDate } = req.body;
+        if (!['it_admin', 'plant_admin'].includes(req.user?.role)) {
+            return res.status(403).json({ error: 'Only IT Admin or Plant Admin can unlock entries' });
+        }
+        await query(`UPDATE daily_water SET status='draft', updated_at=NOW() WHERE plant_id=$1 AND entry_date=$2`, [plantId, entryDate]);
+        await query(`UPDATE submission_status SET status='draft', updated_at=NOW() WHERE plant_id=$1 AND entry_date=$2 AND module='water'`, [plantId, entryDate]);
+        res.json({ message: 'Water entry unlocked to draft' });
+    } catch (err) {
+        res.status(500).json({ error: 'Unlock failed' });
+    }
+};

@@ -1,0 +1,350 @@
+﻿=== FILE: C:\Users\IE-Admin\Desktop\MIS REPORTS\Incident Report.doc ===
+
+
+ IR 05/2026
+
+ INCIDENT REPORT on: 26.02.2026
+
+
+
+
+Date & Time: 26.02.2026, 11:25 hrs.
+
+
+
+Incident:  
+Ms. N.Selvi, aged 30, working as a YUGAJANA contractor (Pass No. 1627), was bitten by a scorpion on his right middle finger while carrying out housekeeping work near the Village-1 flow meter area.
+
+
+
+Action Taken: 
+The injured worker was immediately taken to the Medical Centre for first aid.
+At 11:33 hrs, she was referred to Sudha Hospital due to high blood pressure. After further treatment in Sudha hospital she returned to plant at 14:30hrs for work.
+
+ 
+
+
+
+ S. Arunkumar
+ Shift Charge Engineer
+
+====================================
+
+=== FILE: C:\Users\IE-Admin\Desktop\MIS REPORTS\MIS_IntraEdge_Requirements_Final.docx ===
+IntraEdge Data Requirements for MIS Reports
+
+As part of the MIS reports implementation, a detailed review has been conducted to identify the required inputs from the client side. The data specified under the IntraEdge column is essential for report configuration, validation, and successful deployment.
+1. Performance Losses of BTG
+Required sample data for key input fields is currently unavailable. Provision of sample data is necessary to proceed.
+/
+2. Management of Change (MoC)
+Requires complete form structure, input fields, workflow (if any), and sample filled data.
+3. Incident Report
+Requires complete form definition, input fields, and sample data for validation.
+4. Load Record Statement
+Requires form structure, required fields, and sample data.
+5. CHP-DPR
+Currently under development. Additional requirements will be shared later.
+/
+6. SEPC 00:00 HRS Reading Sheet – Madurai
+Requires meter readings and supporting operational sample data.
+/
+7. SEPC 24:00 HRS Reading Sheet
+Requires necessary inp/ut data for configuration and validation.
+
+Conclusion
+These inputs are essential for accurate system configuration, testing, and successful deployment. Kindly share the required data at the earliest.
+
+====================================
+
+=== FILE: C:\Users\IE-Admin\Desktop\MIS REPORTS\Root Cause Analysis report.docx ===
+
+TAQA Neyveli Power Company Pvt. Ltd.250 MW Power PlantUthangal, Vridhachalam, Tamilnadu – 607 804
+
+ROOT CAUSE ANALYSIS REPORT – UNIT FORCED OUTAGE DUE TO SLAG CONVEYOR TRIP
+
+Incident Date
+RCA no.
+Report date
+System
+Equipment
+KKS
+
+06-05-2025
+03-05/2025
+20-05-2025
+Bottom ash disposal
+Slag conveyor
+10HDA10AF101
+
+Total duration of breakdown / outage
+20 hours 25 minute
+
+RCA team
+Technical team
+
+Fault /Breakdown / Defect / Event
+On 06-05-2025 at 23:25 hr, Slag conveyor hydraulic drive pressure raised instantly from 38 bar to max 180 bar & got immobilized. At driveshaft, scrapper chain got disengaged from DE sprocket wheel (Mill-30 side) & no movement. DE side chain derailed from guide channel and five scrapper plates got inclined.
+
+Any HSE impact?
+Nil
+
+Conditions prior to failure
+*Unit load was 170 MW, and boiler was in service with four mills. 
+*Slag conveyor hydraulic pressure reached 70 bar around 20:30 hrs due to high bottom ash dislodged during load backdown & got normalized to 35 bar about half-an-hour.
+*During the time of high bottom ash dislodge, slag conveyor drain valves were operated to drain excess ash and flushed. 
+
+Sequence of Events of failure
+
+23:25 hrs on 06-05-2025
+Slag conveyor hydraulic drive pressure instantly spiked to 180 bar with H1 & H2 alarms, and zero speed switch acted. No movement in local & found chain disengaged at drive shaft DE sprocket wheel.
+
+02:15 hrs on 07-05-2025
+Unit load reduction started from 170 MW for Slag conveyor restoration & desynchronized at 02:43 hrs
+
+Observations / Findings
+
+*After boiler shut-down, PTW was taken and Slag conveyor repair works started.
+*Ash accumulation was cleared by opening two man-doors at left and right side, and rear door.
+*After clearing the ash, found three no’s of scrapper chain’s guide channel pieces (3m & 1m length angle bars) entrapped in return side guide wheel at slanting portion near Mill-30.
+*The entrapped angle bars between guide-wheel and chain were removed, scrapper chain was repositioned, and chain tension checked.
+
+why why analysis
+
+Why1
+Why Slag conveyor got immobilized?
+
+
+Due to scrapper chain disengaged from DE sprocket wheel of drive shaft and derailing of scrapper chain from guides.
+
+Why2
+Why did the scrapper chain get disengaged from sprocket?
+
+
+The guide channel got detached, travelled and entrapped between the guide wheel and chain and obstructed the movement of scrapper chain. This caused an imbalance in load and one of the two chains at DE got disengaged from sprocket.
+
+Why3
+Why did the guide channel get detached?
+
+
+The carrying side guide channel possibly worn out and detached due to weldment weakness caused by abrasion, thermal fatigue and prolonged exposure to high temperature.
+
+Direct cause
+Guide channel damage, removal and struck-up in guide-wheel caused the slag conveyor immobilization.
+
+Underlying cause
+Inaccessibility of slag conveyor’s carrying side below the furnace and return side for regular inspection and preventive maintenance, which can be done only after boiler shutdown, cooling and pulling out the slag conveyor.
+
+Root cause
+The guide channel weld joint failure possibly caused by wear and tears, abrasion due to high bottom ash, clinker falling, and thermal fatigue.
+
+Preventive actions taken to avoid fault / breakdown / defect / event
+As the bottom ash generation from the lignite received from Mines-II is comparatively high, to prevent the ash accumulation inside the slag conveyor, carrying side and return side drain valves were frequently operated and flushed whenever the hydraulic drive pressure goes high. 
+
+Corrective actions taken for restoration
+*After removing the angle bars, the scrapper chain was repositioned, and the trial run was normal. 
+*Unit was restarted and synchronized at 23:08 hrs on the same day (07-05-2025)
+
+Recommendations to avoid recurrence
+*Ensure full welding (and no tag welding) of support angle bars for its rigidity and quality of welding by carrying out appropriate NDT checks, so as to withstand during high abrasive bottom ash collection.
+*Inspection of slag conveyor for any signs of worn-out whenever the opportunity arises.
+*Water lancing to dislodge slag and to avoid building up.
+*Ensuring effective fuel additive dosing.
+
+Action plan target date
+Continuous
+Action owners
+O&M
+
+Similar incidents occurred in this calendar year
+On 20-02-2025, one of the carrying side wear plates got detached and struck up at return side. It was removed without requiring boiler shutdown as it is trapped at the exposed portion of slag conveyor.
+
+Comments / Learnings / Feedback if any
+Planning of the maintenance accordingly to mitigate the effects of high bottom ash collection.
+
+Reviewer’s comment
+Reviewed & approved.
+
+Picture / photo of defect
+Nil
+
+Picture / photo after restoration
+Nil
+
+Events/ trends
+At the end of the report
+
+Prepared by
+Checked by
+Reviewed by
+Approved by
+
+
+R Jagadeesan
+
+K Sivaraman
+
+T Mari Ganesh
+
+Balamurugan K
+
+
+Event list & Trends:
+
+/
+
+
+
+
+
+
+
+
+
+/
+
+
+
+
+
+
+
+====================================
+
+=== FILE: C:\Users\IE-Admin\Desktop\MIS REPORTS\Unit trip analysis report.docx ===
+Plant Name
+TAQA Neyveli Power Company Private Limited, Neyveli.
+
+Report Date
+August 18, 2025.
+
+Trip Report #
+TAQA Neyveli – 18.08.2025_ Unit tripped on Excitation failure.
+
+
+Trip Date
+August 18, 2025.
+
+Trip Time
+14:50 hrs.
+
+Trip Duration
+02:54 hrs.
+
+
+Pre-existing Unit Load and Control Mode.
+
+Boiler parameters:
+MS pressure 116.9 bar, Temp 533, Flow 493 t/h
+CRH pressure 23.5 bar, Temp 314.9 0C
+HRH pressure 22.6 bar, Temp 520 0C 
+Boiler master 66.6 %, Lignite firing 66.71 % and Airflow 460364 NM3/hr, ID/FD fan -2 in service.
+Bypass system: HP bypass and LP bypass in auto at 0%.
+Generator load 169 MW, 45.4 MVA, 34.4 MVAr, 18.00 kV, 2904 Ampere, 50.68 Hz
+BFP # 2&3, CEP # 2, Mills # 20,30,50 & 60 in service. Mill # 10 under permit. Mill # 40 standby.
+
+
+System/Equipment Mechanical, Electrical, or Instrument/Control Abnormal/Alarm Conditions/Configuration:
+
+At 14:50:36:525 hrs, 10BAC01EB024_OPEN GEN CB Open got active.
+At 14:50:36:728 hrs, 10CHA02EB034_86B TRP OPR TRIP got active.
+At 14:50:36:835 hrs, 10MKC10EB019_ACTIV EXCITATION TRIP got active. 
+At 14:50:37:971 hrs, 10MAD20CY701_FAILURE POS AXIAL SHAFT FAIL value got active.
+At 14:50:38:033 hrs, 10MAX43AA113A_ACT TRIP TURB PROT CH3 TRIP value trip got active
+At 14:50:38:183 hrs, 10MAY72EZ250_TRIP TURB SAF SYS CH2 value trip got active.
+At 14:50:38:190 hrs, 10MAY71EZ250_TRIP TURB SAF SYS CH1 value trip got active.
+At 14:50:38:862 hrs, 10CHA04EB122_N_TR GENERATOR TRIP got active.
+At 14:50:38:862 hrs, 10CHA04EB121_N_TR GENERATOR TRIP got active.
+At 14:50:41:534 hrs,  HP BYP T CTRL safety active.
+At 14:50:56:529 hrs, 10HHY00EY103_TR BOILER PROTECTION got active.
+
+Equipment Tripped.
+
+At 14:50:38:033 hrs, Turbine tripped.
+At 14:50:38:862 hrs, Generator tripped.
+At 14:50:41:539 hrs, HP Bypass tripped.
+At 14:50:56:529 hrs, Boiler tripped on Boiler protection.
+
+
+Root cause.
+
+The unit was in service with four mills (Mill #20, 30, 50, and 60). The unit tripped on excitation failure due to a 220V DC control supply power card failure.
+
+
+Immediate Actions taken before the trip.
+
+Nil
+
+
+Consequential Damage Resulting from Trip.
+
+Nil. 
+
+
+Actions Taken to Restart the Unit.
+
+At 15:05 hrs., HP Bypass system taken in service.
+At 15:50 hrs., Excitation 220V DC control supply power card replaced.
+At 15:57 hrs., the Auxiliary boiler light up.
+At 16:17 hrs., Main boiler light up.
+At 17:44 hrs., Unit synchronized with the grid.
+
+
+Committee observation.
+Excitation trip due to total control supply failed, Excitation panel DC supply MCB Q15&16 trip condition and the 220V DC power supply board found failure, Faulty power supply board replaced and panel control supply normal, 220V DC two separate supplies connected to one power bower board and inside the board have two separate power modules available, but the failure happened near to the supply input terminal it leads both supply MCB trip.
+Turbine overspeed occurred after unit trip, but turbine tripped on axial shift protection due to the trip of HP bypass system on oil pressure low alarm and both pressure and temperature control valves failed to operate; inspection revealed tripping of both hydraulic pumps. As the HP bypass system tripped and failed to operate, boiler tripped on bypass criteria protection.
+Recommendation.
+Monitor the power supply board frequently and keep a spare power supply board to emergency usage.
+HP bypass system hydraulic pumps loading and unloading happens frequently which implies inadequate pressure holding period in the circuit which may not be sufficient to meet any sudden demand for bypass valve operations; hence the bypass system hydraulic oil circuit shall be checked. The loading and unloading time for bypass systems is as below.
+HP/LP bypass hydraulic pump in service
+Loading /Unloading pressure (bar)
+Loading/Unloading time (sec)
+
+HP bypass pump-1&2 
+190/202
+24/86
+
+LP bypass pump-1&2
+192/204
+23/55
+
+
+
+
+
+Attachments: Included relevant attachments to the Trip Analysis Process 
+DCS Trend and Event.
+
+
+  
+
+
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/
+
+/
+
+/
+
+====================================
+

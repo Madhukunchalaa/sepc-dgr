@@ -105,6 +105,24 @@ export const ASH_FIELDS = [
   { key: 'ba_silo_mt',      label: 'Bottom Ash Silo',             unit: 'MT' },
 ]
 
+export const DSM_FIELDS = [
+  { key: 'dsm_net_profit_lacs',    label: 'DSM Net Profit',   unit: '₹ Lacs' },
+  { key: 'dsm_payable_lacs',       label: 'DSM Payable',      unit: '₹ Lacs' },
+  { key: 'dsm_receivable_lacs',    label: 'DSM Receivable',   unit: '₹ Lacs' },
+  { key: 'dsm_coal_saving_lacs',   label: 'DSM Coal Saving',  unit: '₹ Lacs' },
+]
+
+export const OPERATIONS_FIELDS = [
+  { key: 'boilerActivities',      label: 'Boiler & Auxiliary Activities',     unit: '', type: 'text' },
+  { key: 'turbineActivities',     label: 'Turbine & Auxiliary Activities',    unit: '', type: 'text' },
+  { key: 'electricalActivities',  label: 'Electrical & Instrumentation',     unit: '', type: 'text' },
+  { key: 'bopActivities',         label: 'Balance of Plant (BOP)',            unit: '', type: 'text' },
+  { key: 'runningEquipment',      label: 'Running Equipment Status',          unit: '', type: 'text' },
+  { key: 'outageDetails',         label: 'Outage / Grid Disturbance Details', unit: '', type: 'text' },
+  { key: 'remarks',               label: 'Remarks (DGR Section 10.2)',        unit: '', type: 'text' },
+  { key: 'observations',          label: 'Observations (DGR Section 10.3)',   unit: '', type: 'text' },
+]
+
 // Power fields are built dynamically from meters + extras
 export const POWER_EXTRA_FIELDS = [
   { key: 'freqMin',          label: 'Grid Freq Min',        unit: 'Hz' },

@@ -10,5 +10,6 @@ router.get('/:plantId/:date', availController.getEntry);
 router.post('/', availController.upsertEntry);
 router.post('/submit', availController.submitEntry);
 router.post('/approve', authorize('plant_admin', 'it_admin'), availController.approveEntry);
+router.post('/unlock', authorize('plant_admin', 'it_admin'), availController.unlockEntry);
 
 module.exports = router;

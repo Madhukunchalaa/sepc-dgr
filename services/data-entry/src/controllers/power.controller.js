@@ -323,11 +323,11 @@ exports.approveEntry = async (req, res) => {
         `UPDATE daily_power
          SET status = 'approved', approved_by = $1,
              approved_at = NOW(), updated_at = NOW()
-         WHERE plant_id = $2 AND entry_date = $3 AND status = 'submitted'
+         WHERE plant_id = $2 AND entry_date = $3 AND status != 'approved'
          RETURNING *`,
         [req.user.sub, plantId, entryDate]
       );
-      if (!rows[0]) throw new Error('Entry not found or not in submitted state');
+      if (!rows[0]) throw new Error('Entry not found or already approved');
 
       await client.query(
         `UPDATE submission_status
@@ -343,6 +343,34 @@ exports.approveEntry = async (req, res) => {
   } catch (err) {
     logger.error('Approve error', { message: err.message });
     return error(res, err.message || 'Approval failed', 500);
+  }
+};
+
+// ─────────────────────────────────────────────
+// UNLOCK ENTRY (IT Admin only — resets to draft)
+// ─────────────────────────────────────────────
+exports.unlockEntry = async (req, res) => {
+  try {
+    const { plantId, entryDate } = req.body;
+    if (!['it_admin', 'plant_admin'].includes(req.user.role)) {
+      return error(res, 'Only IT Admin or Plant Admin can unlock entries', 403);
+    }
+    await transaction(async (client) => {
+      await client.query(
+        `UPDATE daily_power SET status='draft', updated_at=NOW()
+         WHERE plant_id=$1 AND entry_date=$2`,
+        [plantId, entryDate]
+      );
+      await client.query(
+        `UPDATE submission_status SET status='draft', updated_at=NOW()
+         WHERE plant_id=$1 AND entry_date=$2 AND module='power'`,
+        [plantId, entryDate]
+      );
+    });
+    return success(res, {}, 'Power entry unlocked to draft');
+  } catch (err) {
+    logger.error('Unlock error', { message: err.message });
+    return error(res, err.message || 'Unlock failed', 500);
   }
 };
 
